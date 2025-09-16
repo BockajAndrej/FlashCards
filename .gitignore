@@ -1,0 +1,12 @@
+/.idea
+
+/FlashCards.Api.App/bin/
+/FlashCards.Api.App/obj
+
+/FlashCards.Api.Bl/bin
+/FlashCards.Api.Bl/obj
+
+/FlashCards.Api.Dal/bin
+/FlashCards.Api.Dal/obj
+
+/FlashCards.Api.App/appsettings.Development.json
