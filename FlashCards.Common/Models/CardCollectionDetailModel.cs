@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using FlashCards.Api.Dal.Entities.InterfacesOrAbstracts;
+using FlashCards.Common.Models.Interfaces;
 
-namespace FlashCards.Api.Dal.Entities;
+namespace FlashCards.Common.Models;
 
-public class CardCollectionEntity : IEntity
+public class CardCollectionDetailModel : IEntity
 {
     public Guid Id { get; set; }
     [Required]
@@ -13,6 +13,5 @@ public class CardCollectionEntity : IEntity
     [Required]
     public DateTime KonecProAkceptovaniOdpovediDateTime { get; set; }
     
-    public ICollection<CardEntity> Cards { get; set; } = new List<CardEntity>();
-    public ICollection<UserEntity> Users { get; set; } = new List<UserEntity>();
+    public ICollection<CardDetailModel> Cards { get; set; } = new List<CardDetailModel>();
 }

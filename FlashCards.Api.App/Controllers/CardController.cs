@@ -15,12 +15,12 @@ namespace FlashCards.Api.App.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CardController(ICardFacade facade) : ControllerBase
+    public class CardController(ICardFacade facade, ICardCollectionFacade collectionFacade) : ControllerBase<CardEntity, CardDetailModel>(facade)
     {
         
         // GET: api/Card
         [HttpGet]
-        public async Task<IQueryable<CardDetailModel>> GetCard(
+        public override async Task<IQueryable<CardDetailModel>> GetCard(
             [FromQuery] string? strFilter,
             [FromQuery] string? strSortBy,
             [FromQuery] bool sortDesc = false,
@@ -50,48 +50,12 @@ namespace FlashCards.Api.App.Controllers
             
             return await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
         }
-
-        // GET: api/Card/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CardDetailModel>> GetCardEntity(Guid id)
+        
+        public override async Task<ActionResult<CardDetailModel>> PostCardEntity(CardDetailModel model)
         {
-            var cardEntity = await facade.GetByIdAsync(id);
-            return Ok(cardEntity);
-        }
-
-        // PUT: api/Card/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCardEntity(Guid id, CardDetailModel model)
-        {
-            if (id != model.Id)
-            {
-                return BadRequest();
-            }
-            
-            await facade.SaveAsync(model);
-            
-            return NoContent();
-        }
-
-        // POST: api/Card
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<CardDetailModel>> PostCardEntity(CardDetailModel cardEntity)
-        {
-            cardEntity.Id = Guid.Empty;
-            var result = await facade.SaveAsync(cardEntity);
+            model.Id = Guid.Empty;
+            var result = await facade.SaveAsync(model);
             return Ok(result);
-        }
-
-        // DELETE: api/Card/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCardEntity(Guid id)
-        {
-            var result = await facade.DeleteAsync(id);
-            if(result)
-                return NoContent();
-            return NotFound();
         }
     }
 }

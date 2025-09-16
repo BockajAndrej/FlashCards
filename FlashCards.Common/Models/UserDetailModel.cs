@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using FlashCards.Api.Dal.Entities.InterfacesOrAbstracts;
 using FlashCards.Common.Enums;
+using FlashCards.Common.Models.Interfaces;
 
-namespace FlashCards.Api.Dal.Entities;
+namespace FlashCards.Common.Models;
 
-public class UserEntity : IEntity
+public class UserDetailModel : IEntity
 {
     public Guid Id { get; set; }
     [Required]
@@ -12,6 +12,4 @@ public class UserEntity : IEntity
     public string? Fotografie { get; set; }
     [Required]
     public EnumUserRole Role { get; set; }
-    
-    public ICollection<CompletedLessonEntity> CompletedLessons { get; set; } = new List<CompletedLessonEntity>();
 }

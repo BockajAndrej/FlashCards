@@ -34,26 +34,24 @@ public abstract class FacadeBase
         // Access to DbSet
         IQueryable<TEntity> query = dbContext.Set<TEntity>();
 
-        // 1. Aplikácia filtra
         if (filter != null)
             query = query.Where(filter);
 
-        // 2. Eager loading súvisiacich entít
         if (!string.IsNullOrWhiteSpace(includeProperties))
         {
             foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 query = query.Include(includeProperty.Trim());
         }
 
-        // 3. Aplikácia zoradenia
         if (orderBy != null)
             query = orderBy(query);
+        else 
+            query = query.OrderBy(l => l.Id);
         
         query = query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize);
         
-        // 4. Projekcia do TModel a vykonanie dotazu
         IQueryable<TModel>? projectedQuery = query.ProjectTo<TModel>(mapper.ConfigurationProvider);
 
         return projectedQuery;
@@ -65,7 +63,6 @@ public abstract class FacadeBase
         if (entity == null)
             return default;
 
-        // Použije sa AutoMapper na mapovanie TEntity na TModel.
         return mapper.Map<TModel>(entity);
     }
 
@@ -76,32 +73,23 @@ public abstract class FacadeBase
     /// <returns></returns>
     public async Task<TModel> SaveAsync(TModel model)
     {
-        // Krok 1: Mapovanie TModel na TEntity
         var entity = mapper.Map<TEntity>(model);
-
-        // Krok 2: Určenie, či ide o novú alebo existujúcu entitu
-        // Predpokladáme, že entita má vlastnosť "Id"
+        
         var idProperty = entity.GetType().GetProperty("Id");
 
-        // Získanie hodnoty ID. Ak je 0 (alebo default), ide o nový záznam.
         var idValue = (Guid)(idProperty?.GetValue(entity) ?? throw new InvalidOperationException());
 
         if (idValue == Guid.Empty)
         {
-            // Novy zaznam, pridáme ho do DbSet-u.
             dbContext.Set<TEntity>().Add(entity);
         }
         else
         {
-            // EF Core ho pripojí k zoznamu sledovaných entít v stave "Modified".
             dbContext.Set<TEntity>().Update(entity);
         }
 
-        // Krok 4: Uloženie zmien do databázy
         await dbContext.SaveChangesAsync();
-
-        // Krok 5: Mapovanie aktualizovanej entity (s vygenerovaným ID) späť na TModel
-        // Toto je kľúčové pre vrátenie TModel s platným ID (ak ide o nový záznam).
+        
         mapper.Map(entity, model);
 
         return model;

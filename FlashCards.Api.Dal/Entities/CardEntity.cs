@@ -17,5 +17,8 @@ public class CardEntity : IEntity
     public string SpravnaOdpoved { get; set; } = null!;
     public string? DoplnujuciPopis { get; set; }
     
-    
+    [Required]
+    public Guid CardCollectionId { get; set; }
+    [Required]
+    public CardCollectionEntity CardCollection { get; set; } = null!;
 }
