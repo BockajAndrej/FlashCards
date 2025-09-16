@@ -1,12 +1,13 @@
 /.idea
 
-/FlashCards.Api.App/bin/
+/FlashCards.Api.App/bin
 /FlashCards.Api.App/obj
+/FlashCards.Api.App/appsettings.Development.json
+/FlashCards.Api.App/appsettings.json
+/FlashCards.Api.App/Properties/launchSettings.json
 
 /FlashCards.Api.Bl/bin
 /FlashCards.Api.Bl/obj
 
 /FlashCards.Api.Dal/bin
 /FlashCards.Api.Dal/obj
-
-/FlashCards.Api.App/appsettings.Development.json
