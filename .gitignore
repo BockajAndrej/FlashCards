@@ -1,4 +1,5 @@
 /.idea
+/FlashCards.sln.DotSettings.user
 
 /FlashCards.Api.App/bin
 /FlashCards.Api.App/obj
@@ -11,3 +12,7 @@
 
 /FlashCards.Api.Dal/bin
 /FlashCards.Api.Dal/obj
+/FlashCards.Api.Dal/Migrations
+
+/FlashCards.Common/bin
+/FlashCards.Common/obj
