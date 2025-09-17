@@ -14,7 +14,7 @@ public static class WebBlInstaller
             var client = CreateApiHttpClient(apiBaseUrl);
             return new CardApiClient(apiBaseUrl, client);
         });
-        
+         
         serviceCollection.Scan(selector =>
             selector.FromAssemblyOf<CardWebFacade>()
                 .AddClasses(classes => classes.AssignableTo(typeof(IWebFacade<,>)))
