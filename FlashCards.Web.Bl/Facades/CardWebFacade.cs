@@ -3,23 +3,21 @@ using FlashCards.Web.Bl.Facades.Interfaces;
 
 namespace FlashCards.Web.Bl.Facades;
 
-public class CardWebFacade(ICardApiClient apiClient) : ICardWebFacade
+public class CardWebFacade(ICardApiClient apiClient) : IWebFacade<CardListModel, CardDetailModel>
 {
     public async Task DeleteAsync(Guid id)
     {
         await apiClient.CardDELETEAsync(id);
     }
 
-    public async Task<List<CardListModel>> GetAllAsync(string? filterAtrib = null, string? filter = null, string? orderBy = null)
+    public async Task<ICollection<CardListModel>> GetAllAsync(string? filterAtrib = null, string? filter = null, string? orderBy = null)
     {
-        var result = await apiClient.CardAllAsync(filterAtrib, filter, orderBy, null, null, null);
-        return result as List<CardListModel> ?? throw new InvalidOperationException();
+        return await apiClient.CardAllAsync(filterAtrib, filter, orderBy, null, null, null);
     }
 
     public async Task<CardDetailModel> GetByIdAsync(Guid id)
     {
-        var result = await apiClient.CardGETAsync(id);
-        return result;
+        return await apiClient.CardGETAsync(id);
     }
 
     public async Task<Guid> SaveToApiAsync(CardDetailModel data)

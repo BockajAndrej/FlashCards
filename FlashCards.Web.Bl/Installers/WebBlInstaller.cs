@@ -9,12 +9,11 @@ public static class WebBlInstaller
 {
     public static void Install(IServiceCollection serviceCollection, string apiBaseUrl)
     {
-        serviceCollection.AddTransient<ICardApiClient, CardApiClient>(provider =>
-        {
-            var client = CreateApiHttpClient(apiBaseUrl);
-            return new CardApiClient(apiBaseUrl, client);
-        });
-         
+        var client = CreateApiHttpClient(apiBaseUrl);
+        
+        serviceCollection.AddTransient<ICardApiClient, CardApiClient>(_ => new CardApiClient(apiBaseUrl, client));
+        serviceCollection.AddTransient<ICardCollectionApiClient, CardCollectionApiClient>(_ => new CardCollectionApiClient(apiBaseUrl, client));
+        
         serviceCollection.Scan(selector =>
             selector.FromAssemblyOf<CardWebFacade>()
                 .AddClasses(classes => classes.AssignableTo(typeof(IWebFacade<,>)))

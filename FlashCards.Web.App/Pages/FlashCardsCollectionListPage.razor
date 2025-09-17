@@ -1,9 +1,10 @@
 ﻿@page "/FlashCards"
+@attribute [StreamRendering]
 
 <h3>FlashCardsCollectionListPage</h3>
 
 
-@if (Collections == null)
+@if (Cards == null)
 {
     <p>
         <em>Loading...</em>
@@ -21,12 +22,43 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var forecast in Collections)
+        @foreach (var forecast in Cards)
         {
             <tr>
                 <td>@forecast.Otazka Date.ToShortDateString()</td>
                 <td>@forecast.SpravnaOdpoved</td>
                 <td>@forecast.DoplnujuciPopis</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+
+@if (CardCollections == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th aria-label="Temperature in Celsius">Temp. (C)</th>
+            <th aria-label="Temperature in Farenheit">Temp. (F)</th>
+            <th>Summary</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var forecast in CardCollections)
+        {
+            <tr>
+                <td>@forecast.Nazev Date.ToShortDateString()</td>
+                <td>@forecast.KonecProAkceptovaniOdpovediDateTime.ToString()</td>
+                <td>@forecast.ZacatekProAkceptovaniOdpovediDateTime.ToString()</td>
             </tr>
         }
         </tbody>
