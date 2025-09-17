@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FlashCards.Common.Enums;
 using FlashCards.Common.Models.Interfaces;
 
-namespace FlashCards.Common.Models;
+namespace FlashCards.Common.Models.Lists;
 
-public class CardCollectionDetailModel : IEntity
+public class CardCollectionListModel : IEntity
 {
     public Guid Id { get; set; }
     [Required]
@@ -12,6 +13,4 @@ public class CardCollectionDetailModel : IEntity
     public DateTime ZacatekProAkceptovaniOdpovediDateTime { get; set; }
     [Required]
     public DateTime KonecProAkceptovaniOdpovediDateTime { get; set; }
-    
-    public ICollection<CardDetailModel> Cards { get; set; } = new List<CardDetailModel>();
 }

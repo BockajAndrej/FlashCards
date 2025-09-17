@@ -2,9 +2,9 @@
 using FlashCards.Common.Enums;
 using FlashCards.Common.Models.Interfaces;
 
-namespace FlashCards.Common.Models;
+namespace FlashCards.Common.Models.Lists;
 
-public class UserDetailModel : IEntity
+public class CardListModel : IEntity
 {
     public Guid Id { get; set; }
     [Required]

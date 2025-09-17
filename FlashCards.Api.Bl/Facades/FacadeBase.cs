@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 namespace FlashCards.Api.Bl.Facades;
 
 public abstract class FacadeBase
-    <TEntity, TModel>
+    <TEntity, TListModel, TDetailModel>
     (FlashCardsDbContext dbContext, IMapper mapper)
-    : IFacade<TEntity, TModel>
+    : IFacade<TEntity, TListModel, TDetailModel>
     where TEntity : class, IEntity
 {
     /// <summary>
@@ -20,28 +20,20 @@ public abstract class FacadeBase
     /// <param name="filter"></param>   p => p.Price > 100
     /// <param name="orderBy"></param>  query => query.OrderBy(p => p.Name)
     /// <param name="pageSize"></param>
-    /// <param name="includeProperties"></param>
     /// <param name="pageNumber"></param>
     /// navigation attributes of required entity
     /// <returns></returns>
-    public async Task<IQueryable<TModel>> GetAsync(
+    public async Task<IQueryable<TListModel>> GetAsync(
         Expression<Func<TEntity, bool>>? filter = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         int pageNumber = 1,
-        int pageSize = 10,
-        string? includeProperties = null)
+        int pageSize = 10)
     {
         // Access to DbSet
         IQueryable<TEntity> query = dbContext.Set<TEntity>();
 
         if (filter != null)
             query = query.Where(filter);
-
-        if (!string.IsNullOrWhiteSpace(includeProperties))
-        {
-            foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                query = query.Include(includeProperty.Trim());
-        }
 
         if (orderBy != null)
             query = orderBy(query);
@@ -52,18 +44,18 @@ public abstract class FacadeBase
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize);
         
-        IQueryable<TModel>? projectedQuery = query.ProjectTo<TModel>(mapper.ConfigurationProvider);
-
-        return projectedQuery;
+        IQueryable<TListModel> queryResult = mapper.ProjectTo<TListModel>(query);
+        
+        return queryResult;
     }
 
-    public async Task<TModel?> GetByIdAsync(Guid id, string? includeProperties = null)
+    public async Task<TDetailModel?> GetByIdAsync(Guid id, string? includeProperties = null)
     {
         var entity = await dbContext.Set<TEntity>().FindAsync(id);
         if (entity == null)
             return default;
 
-        return mapper.Map<TModel>(entity);
+        return mapper.Map<TDetailModel>(entity);
     }
 
     /// <summary>
@@ -71,7 +63,7 @@ public abstract class FacadeBase
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public async Task<TModel> SaveAsync(TModel model)
+    public async Task<TDetailModel> SaveAsync(TDetailModel model)
     {
         var entity = mapper.Map<TEntity>(model);
         
@@ -106,5 +98,13 @@ public abstract class FacadeBase
         else
             return false;
         return true;
+    }
+
+    public async Task<int> GetCountAsync(Expression<Func<TEntity, bool>>? filter = null)
+    {
+        IQueryable<TEntity> query = dbContext.Set<TEntity>();
+        if (filter != null)
+            query = query.Where(filter);
+        return await query.CountAsync();
     }
 }

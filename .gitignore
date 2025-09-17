@@ -16,3 +16,9 @@
 
 /FlashCards.Common/bin
 /FlashCards.Common/obj
+
+/FlashCards.Web.App/bin
+/FlashCards.Web.App/obj
+
+/FlashCards.Web.Bl/bin
+/FlashCards.Web.Bl/obj

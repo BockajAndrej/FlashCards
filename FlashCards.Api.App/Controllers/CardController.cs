@@ -10,19 +10,22 @@ using Microsoft.EntityFrameworkCore;
 using FlashCards.Api.Dal;
 using FlashCards.Api.Dal.Entities;
 using FlashCards.Common.Models;
+using FlashCards.Common.Models.Details;
+using FlashCards.Common.Models.Lists;
 
 namespace FlashCards.Api.App.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CardController(ICardFacade facade, ICardCollectionFacade collectionFacade) : ControllerBase<CardEntity, CardDetailModel>(facade)
+    public class CardController(ICardFacade facade, ICardCollectionFacade collectionFacade) : ControllerBase<CardEntity, CardListModel, CardDetailModel>(facade)
     {
         
         // GET: api/Card
         [HttpGet]
-        public override async Task<IQueryable<CardDetailModel>> GetCard(
+        public override async Task<IQueryable<CardListModel>> GetCard(
             [FromQuery] string? strFilter,
             [FromQuery] string? strSortBy,
+            [FromQuery] string? strIncludeProperties,
             [FromQuery] bool sortDesc = false,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)

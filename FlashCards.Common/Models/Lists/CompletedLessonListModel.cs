@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FlashCards.Common.Enums;
+using FlashCards.Common.Models.Details;
 using FlashCards.Common.Models.Interfaces;
 
-namespace FlashCards.Common.Models;
+namespace FlashCards.Common.Models.Lists;
 
-public class CompletedLessonDetailModel : IEntity
+public class CompletedLessonListModel : IEntity
 {
     public Guid Id { get; set; }
     [Required]
@@ -21,4 +22,5 @@ public class CompletedLessonDetailModel : IEntity
     public Guid UzivatelId { get; set; }
     [Required]
     public UserDetailModel User { get; set; } = null!;
+    
 }
