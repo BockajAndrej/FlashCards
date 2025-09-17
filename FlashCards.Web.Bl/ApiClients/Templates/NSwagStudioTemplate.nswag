@@ -1,4 +1,4 @@
-﻿{
+{
   "runtime": "Net90",
   "defaultVariables": null,
   "documentGenerator": {
@@ -95,7 +95,7 @@
       "generateDtoTypes": true,
       "generateOptionalPropertiesAsNullable": false,
       "generateNullableReferenceTypes": false,
-      "templateDirectory": "../../../../../../../BcThesis/Application/TaskManager/TaskManager.WEB.BL/ApiClients/TemplateNswag",
+      "templateDirectory": " ",
       "serviceHost": null,
       "serviceSchemes": null,
       "output": "../GeneratedApiClient.cs",
