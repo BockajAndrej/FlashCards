@@ -23,28 +23,33 @@ namespace FlashCards.Api.App.Controllers
         // GET: api/Card
         [HttpGet]
         public override async Task<IQueryable<CardListModel>> GetCard(
+            [FromQuery] string? strFilterAtrib,
             [FromQuery] string? strFilter,
             [FromQuery] string? strSortBy,
-            [FromQuery] string? strIncludeProperties,
             [FromQuery] bool sortDesc = false,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
-            Expression<Func<CardEntity, bool>>? filter = null;
-            if (!string.IsNullOrEmpty(strFilter))
-              filter = l => l.Otazka == strFilter;
+            Expression<Func<CardEntity, bool>> filter = l => true;
+            switch (strFilterAtrib)
+            {
+                case nameof(CardEntity.Otazka):
+                    filter = l => l.Otazka == strFilter;
+                    break;
+                case nameof(CardEntity.Popis):
+                    filter = l => l.Popis == strFilter;
+                    break;
+            }
+            
             Func<IQueryable<CardEntity>, IOrderedQueryable<CardEntity>>? orderBy = null;
-            if (!string.IsNullOrEmpty(strSortBy))
-                orderBy = l => l.OrderBy(s => s.Otazka);
-
             switch (strSortBy)
             {
-                case "Otazka":
+                case nameof(CardEntity.Otazka):
                     orderBy = sortDesc 
                         ? l => l.OrderBy(s => s.Otazka) 
                         : l => l.OrderByDescending(s => s.Otazka);
                     break;
-                case "Popis":
+                case nameof(CardEntity.Popis):
                     orderBy = sortDesc 
                         ? l => l.OrderBy(s => s.Popis) 
                         : l => l.OrderByDescending(s => s.Popis);

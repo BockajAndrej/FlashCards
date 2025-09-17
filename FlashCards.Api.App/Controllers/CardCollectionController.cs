@@ -23,9 +23,9 @@ namespace FlashCards.Api.App.Controllers
         // GET: api/Card
         [HttpGet]
         public override async Task<IQueryable<CardCollectionListModel>> GetCard(
+            [FromQuery] string? strFilterAtrib,
             [FromQuery] string? strFilter,
             [FromQuery] string? strSortBy,
-            [FromQuery] string? strIncludeProperties,
             [FromQuery] bool sortDesc = false,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
@@ -33,23 +33,17 @@ namespace FlashCards.Api.App.Controllers
             Expression<Func<CardCollectionEntity, bool>>? filter = null;
             if (!string.IsNullOrEmpty(strFilter))
               filter = l => l.Nazev == strFilter;
+            
+            
             Func<IQueryable<CardCollectionEntity>, IOrderedQueryable<CardCollectionEntity>>? orderBy = null;
-            // if (!string.IsNullOrEmpty(strSortBy))
-            //     orderBy = l => l.OrderBy(s => s.Otazka);
-            //
-            // switch (strSortBy)
-            // {
-            //     case "Otazka":
-            //         orderBy = sortDesc 
-            //             ? l => l.OrderBy(s => s.Otazka) 
-            //             : l => l.OrderByDescending(s => s.Otazka);
-            //         break;
-            //     case "SpravnaOdpoved":
-            //         orderBy = sortDesc 
-            //             ? l => l.OrderBy(s => s.SpravnaOdpoved) 
-            //             : l => l.OrderByDescending(s => s.SpravnaOdpoved);
-            //         break;
-            // }
+            switch (strSortBy)
+            {
+                case "Nazev":
+                    orderBy = sortDesc 
+                        ? l => l.OrderBy(s => s.Nazev) 
+                        : l => l.OrderByDescending(s => s.Nazev);
+                    break;
+            }
             
             return await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
         }

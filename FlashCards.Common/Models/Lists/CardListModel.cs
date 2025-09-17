@@ -8,8 +8,12 @@ public class CardListModel : IEntityModel
 {
     public Guid Id { get; set; }
     [Required]
-    public string Jmeno { get; set; } = null!;
-    public string? Fotografie { get; set; }
+    public EnumCardType TypOtazkyEnum { get; set; }
     [Required]
-    public EnumUserRole Role { get; set; }
+    public EnumCardType TypOdpovediEnum { get; set; }
+    [Required]
+    public string Otazka { get; set; } = null!;
+    [Required]
+    public string SpravnaOdpoved { get; set; } = null!;
+    public string? DoplnujuciPopis { get; set; }
 }

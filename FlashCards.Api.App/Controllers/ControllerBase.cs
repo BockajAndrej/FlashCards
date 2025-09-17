@@ -9,9 +9,9 @@ public abstract class ControllerBase<TEntity, TListModel, TDetailModel>(IFacade<
     // GET: api/Card
     [HttpGet]
     public abstract Task<IQueryable<TListModel>> GetCard(
+        [FromQuery] string? strFilterAtrib,
         [FromQuery] string? strFilter,
         [FromQuery] string? strSortBy,
-        [FromQuery] string? strIncludeProperties,
         [FromQuery] bool sortDesc = false,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10);
