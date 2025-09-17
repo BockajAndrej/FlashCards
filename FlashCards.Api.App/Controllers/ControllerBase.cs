@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FlashCards.Api.App.Controllers;
 
-public abstract class ControllerBase<TEntity, TListModel, TDetailModel>(IFacade<TEntity, TListModel, TDetailModel> facade) : Controller where TDetailModel : IEntity
+public abstract class ControllerBase<TEntity, TListModel, TDetailModel>(IFacade<TEntity, TListModel, TDetailModel> facade) : Controller where TDetailModel : IEntityModel
 {
     // GET: api/Card
     [HttpGet]

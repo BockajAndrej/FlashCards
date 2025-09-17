@@ -15,7 +15,7 @@ public class CardEntity : IEntity
     public string Otazka { get; set; } = null!;
     [Required]
     public string SpravnaOdpoved { get; set; } = null!;
-    public string? DoplnujuciPopis { get; set; }
+    public string? Popis { get; set; }
     
     [Required]
     public Guid CardCollectionId { get; set; }

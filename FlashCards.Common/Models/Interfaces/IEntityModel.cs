@@ -1,6 +1,6 @@
 ﻿namespace FlashCards.Common.Models.Interfaces;
 
-public interface IEntity
+public interface IEntityModel
 {
     public Guid Id { get; set; }
 }

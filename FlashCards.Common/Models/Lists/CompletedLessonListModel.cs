@@ -5,7 +5,7 @@ using FlashCards.Common.Models.Interfaces;
 
 namespace FlashCards.Common.Models.Lists;
 
-public class CompletedLessonListModel : IEntity
+public class CompletedLessonListModel : IEntityModel
 {
     public Guid Id { get; set; }
     [Required]

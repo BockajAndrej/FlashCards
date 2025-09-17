@@ -17,7 +17,7 @@ namespace FlashCards.Api.App.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CardController(ICardFacade facade, ICardCollectionFacade collectionFacade) : ControllerBase<CardEntity, CardListModel, CardDetailModel>(facade)
+    public class CardController(ICardFacade facade) : ControllerBase<CardEntity, CardListModel, CardDetailModel>(facade)
     {
         
         // GET: api/Card
@@ -44,10 +44,10 @@ namespace FlashCards.Api.App.Controllers
                         ? l => l.OrderBy(s => s.Otazka) 
                         : l => l.OrderByDescending(s => s.Otazka);
                     break;
-                case "SpravnaOdpoved":
+                case "Popis":
                     orderBy = sortDesc 
-                        ? l => l.OrderBy(s => s.SpravnaOdpoved) 
-                        : l => l.OrderByDescending(s => s.SpravnaOdpoved);
+                        ? l => l.OrderBy(s => s.Popis) 
+                        : l => l.OrderByDescending(s => s.Popis);
                     break;
             }
             

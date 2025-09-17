@@ -4,15 +4,16 @@ using AutoMapper.QueryableExtensions;
 using FlashCards.Api.Bl.Facades.Interfaces;
 using FlashCards.Api.Dal;
 using FlashCards.Api.Dal.Entities.InterfacesOrAbstracts;
+using FlashCards.Common.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlashCards.Api.Bl.Facades;
 
 public abstract class FacadeBase
-    <TEntity, TListModel, TDetailModel>
-    (FlashCardsDbContext dbContext, IMapper mapper)
+    <TEntity, TListModel, TDetailModel>(FlashCardsDbContext dbContext, IMapper mapper)
     : IFacade<TEntity, TListModel, TDetailModel>
     where TEntity : class, IEntity
+    where TDetailModel : class, IEntityModel
 {
     /// <summary>
     /// Return all filtered and ordered detailModel entities with 
@@ -49,13 +50,11 @@ public abstract class FacadeBase
         return queryResult;
     }
 
-    public async Task<TDetailModel?> GetByIdAsync(Guid id, string? includeProperties = null)
+    public async Task<TDetailModel?> GetByIdAsync(Guid id)
     {
-        var entity = await dbContext.Set<TEntity>().FindAsync(id);
-        if (entity == null)
-            return default;
-
-        return mapper.Map<TDetailModel>(entity);
+        IQueryable<TEntity> query = dbContext.Set<TEntity>();
+        var projectedQuery = mapper.ProjectTo<TDetailModel>(query);
+        return await projectedQuery.FirstOrDefaultAsync(e => e.Id == id);
     }
 
     /// <summary>
