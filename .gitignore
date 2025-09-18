@@ -25,6 +25,7 @@
 
 /FlashCards.Web.App/bin
 /FlashCards.Web.App/obj
+/FlashCards.Web.App/wwwroot/appsettings.json
 
 /FlashCards.Web.Bl/bin
 /FlashCards.Web.Bl/obj

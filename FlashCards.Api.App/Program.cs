@@ -64,6 +64,8 @@ void ConfigureAuthentication(IServiceCollection serviceCollection, IConfiguratio
 
     serviceCollection.AddAuthorization(opt => opt.AddPolicy("AdminRole", policy => policy.RequireRole("admin")));
     serviceCollection.AddAuthorization(opt => opt.AddPolicy("UserRole", policy => policy.RequireRole("user")));
+    
+    serviceCollection.AddHttpContextAccessor();
 }
 
 void UseDevelopmentSettings(WebApplication application)
