@@ -3,6 +3,7 @@ using FlashCards.Api.Bl.Mappers;
 using FlashCards.Api.Dal;
 using FlashCards.Api.Dal.Entities;
 using FlashCards.Api.Dal.Installers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.ModelBuilder;
@@ -19,13 +20,14 @@ builder.Services.AddAutoMapper(
 
 ConfigureCors(builder.Services);
 ConfigureDependencies(builder.Services, builder.Configuration);
+ConfigureAuthentication(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
 UseDevelopmentSettings(app);
+UseSecurityFeatures(app);
+UserAuthorization(app);
 
-app.UseHttpsRedirection();
-app.UseCors();
 app.MapControllers();
 
 app.Run();
@@ -41,6 +43,29 @@ void ConfigureCors(IServiceCollection serviceCollection)
     });
 }
 
+void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration configuration)
+{
+    // SQL SERVER
+    var connectionStringDal = configuration.GetConnectionString("DefaultConnection")
+                              ?? throw new ArgumentException("The connection string for app is missing");
+    ApiDalInstaller.Install(serviceCollection, connectionStringDal);
+    
+    ApiBlInstaller.Install(serviceCollection);
+}
+
+void ConfigureAuthentication(IServiceCollection serviceCollection, IConfiguration configuration)
+{
+    serviceCollection.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(opt =>
+        {
+            opt.Authority = configuration.GetSection("Urls")["IdentityProvider"];
+            opt.TokenValidationParameters.ValidateAudience = false;
+        });
+
+    serviceCollection.AddAuthorization(opt => opt.AddPolicy("AdminRole", policy => policy.RequireRole("admin")));
+    serviceCollection.AddAuthorization(opt => opt.AddPolicy("UserRole", policy => policy.RequireRole("user")));
+}
+
 void UseDevelopmentSettings(WebApplication application)
 {
     if (application.Environment.IsDevelopment())
@@ -54,13 +79,13 @@ void UseDevelopmentSettings(WebApplication application)
         });
     }
 }
-
-void ConfigureDependencies(IServiceCollection serviceCollection, IConfiguration configuration)
+void UseSecurityFeatures(IApplicationBuilder application)
 {
-    // SQL SERVER
-    var connectionStringDal = configuration.GetConnectionString("DefaultConnection")
-                              ?? throw new ArgumentException("The connection string for app is missing");
-    ApiDalInstaller.Install(serviceCollection, connectionStringDal);
-    
-    ApiBlInstaller.Install(serviceCollection);
+    application.UseCors();
+    application.UseHttpsRedirection();
+}
+void UserAuthorization(IApplicationBuilder application)
+{
+    application.UseAuthentication();
+    application.UseAuthorization();
 }
