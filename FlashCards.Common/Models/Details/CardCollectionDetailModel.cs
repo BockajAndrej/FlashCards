@@ -4,5 +4,5 @@ namespace FlashCards.Common.Models.Details;
 
 public class CardCollectionDetailModel : CardCollectionListModel
 {
-    public ICollection<CardDetailModel> Cards { get; set; } = new List<CardDetailModel>();
+    public ICollection<CardListModel> Cards { get; set; } = new List<CardListModel>();
 }

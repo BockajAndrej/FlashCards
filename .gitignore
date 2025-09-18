@@ -17,8 +17,15 @@
 /FlashCards.Common/bin
 /FlashCards.Common/obj
 
+/FlashCards.Identity.App/bin
+/FlashCards.Identity.App/obj
+/FlashCards.Identity.App/appsettings.json
+/FlashCards.Identity.App/Data/Migrations
+/FlashCards.Identity.App/keys
+
 /FlashCards.Web.App/bin
 /FlashCards.Web.App/obj
+/FlashCards.Web.App/wwwroot/appsettings.json
 
 /FlashCards.Web.Bl/bin
 /FlashCards.Web.Bl/obj

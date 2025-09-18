@@ -1,4 +1,4 @@
-﻿using FlashCards.WEB.BL;
+﻿using FlashCards.Web.Bl.ApiClient;
 using FlashCards.Web.Bl.Facades;
 using Microsoft.AspNetCore.Components;
 

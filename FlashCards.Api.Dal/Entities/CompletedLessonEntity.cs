@@ -8,17 +8,15 @@ public class CompletedLessonEntity : IEntity
 {
     public Guid Id { get; set; }
     [Required]
-    public DateTime DatumVytvoreniaDateTime { get; set; }
+    public DateTime CreatedDateTime { get; set; }
     [Required]
     //It is designed to be used with EnumAbsolvovaneLekceTypOdpovedi
-    public ICollection<int> PocetOdpovediDanehoTypu { get; set; } = new List<int>(Enum.GetNames(typeof(EnumCompletedLessonAnswerType)).Length);
+    public ICollection<int> NumberOfCorrectAnswersByTypes { get; set; } = new List<int>(Enum.GetNames(typeof(EnumCompletedLessonAnswerType)).Length);
 
     [Required]
-    public Guid KolekceKaretId { get; set; }
+    public Guid CardsCollectionId { get; set; }
     [Required]
-    public CardCollectionEntity CardCollectionEntity { get; set; } = null!;
+    public CardCollectionEntity CardCollection { get; set; } = null!;
     [Required]
-    public Guid UzivatelId { get; set; }
-    [Required]
-    public UserEntity UserEntity { get; set; } = null!;
+    public string UserId { get; set; } = null!;
 }
