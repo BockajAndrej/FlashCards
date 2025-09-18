@@ -25,9 +25,9 @@ else
         @foreach (var forecast in Cards)
         {
             <tr>
-                <td>@forecast.Otazka Date.ToShortDateString()</td>
-                <td>@forecast.SpravnaOdpoved</td>
-                <td>@forecast.DoplnujuciPopis</td>
+                <td>@forecast.Question Date.ToShortDateString()</td>
+                <td>@forecast.CorrectAnswer</td>
+                <td>@forecast.Description</td>
             </tr>
         }
         </tbody>
@@ -56,9 +56,9 @@ else
         @foreach (var forecast in CardCollections)
         {
             <tr>
-                <td>@forecast.Nazev Date.ToShortDateString()</td>
-                <td>@forecast.KonecProAkceptovaniOdpovediDateTime.ToString()</td>
-                <td>@forecast.ZacatekProAkceptovaniOdpovediDateTime.ToString()</td>
+                <td>@forecast.Title Date.ToShortDateString()</td>
+                <td>@forecast.StartTimeForAcceptedAnswers.ToString()</td>
+                <td>@forecast.EndTimeForAcceptedAnswers.ToString()</td>
             </tr>
         }
         </tbody>

@@ -8,9 +8,11 @@ public class CardCollectionListModel : IEntityModel
 {
     public Guid Id { get; set; }
     [Required]
-    public string Nazev { get; set; } = null!;
+    public string Title { get; set; } = null!;
     [Required]
-    public DateTime ZacatekProAkceptovaniOdpovediDateTime { get; set; }
+    public DateTime StartTimeForAcceptedAnswers { get; set; }
     [Required]
-    public DateTime KonecProAkceptovaniOdpovediDateTime { get; set; }
+    public DateTime EndTimeForAcceptedAnswers { get; set; }
+    [Required]
+    public string UserId { get; set; } = null!;
 }

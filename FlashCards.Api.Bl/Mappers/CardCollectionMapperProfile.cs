@@ -10,10 +10,10 @@ public class CardCollectionMapperProfile : Profile
 {
     public CardCollectionMapperProfile()
     {
-        CreateMap<CardCollectionEntity, CardCollectionDetailModel>();
-        CreateMap<CardCollectionDetailModel, CardCollectionEntity>();
+        CreateMap<CompletedLessonEntity, CompletedLessonDetailModel>();
+        CreateMap<CompletedLessonDetailModel, CompletedLessonEntity>();
         
-        CreateMap<CardCollectionEntity, CardCollectionListModel>();
-        CreateMap<CardCollectionListModel, CardCollectionEntity>();
+        CreateMap<CompletedLessonEntity, CompletedLessonListModel>();
+        CreateMap<CompletedLessonListModel, CompletedLessonEntity>();
     }
 }
