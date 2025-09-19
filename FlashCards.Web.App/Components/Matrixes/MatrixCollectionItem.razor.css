@@ -1,0 +1,52 @@
+/* Add any styles specific to this item template */
+.item-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #f0f4f8;
+    border-radius: 8px;
+    border: 1px solid #c7d1e0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.item-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.item-header-container h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #1f2937;
+}
+
+.item-image {
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.item-times {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-top: auto;
+}
+
+.item-times p {
+    margin: 0;
+}
+
+.card-link {
+    text-decoration: none; /* Odstrani podciarknutie */
+    color: inherit; /* Zabezpeci, ze text vnutri bude mat povodnu farbu */
+    display: block; /* Uisti sa, ze cely blok je klikatelny */
+}
+
+.card-link:hover .item-content-wrapper {
+    background-color: #e0e6ec; /* Zmeni farbu pozadia pri prejdeni mysou */
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}

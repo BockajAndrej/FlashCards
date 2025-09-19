@@ -54,11 +54,9 @@ public partial class FlashCardsCollectionListPage : ComponentBase
 			// Otherwise, load all cards
 			Cards = (List<CardListModel>?)await CardFacade.GetAllAsync(pageNumber: pageNumber, pageSize: 9);
 		}
-
 		StateHasChanged();
 	}
 
-	// 2. This method is called by the SearchComponent whenever the user types.
 	private void PerformSearch(string searchText)
 	{
 		if (string.IsNullOrWhiteSpace(searchText))
@@ -71,19 +69,15 @@ public partial class FlashCardsCollectionListPage : ComponentBase
 				.Where(c => c.Question.Contains(searchText, StringComparison.OrdinalIgnoreCase))
 				.ToList();
 		}
-
-		// StateHasChanged() is called automatically by the framework here
 	}
 	
 	private void OnNewCardClicked()
 	{
-		// Add logic for creating a new collection
 		Console.WriteLine("New Collection button clicked!");
 	}
 
 	private void OnDeleteClicked()
 	{
-		// Add logic for deleting collections
 		Console.WriteLine("Delete button clicked!");
 	}
 

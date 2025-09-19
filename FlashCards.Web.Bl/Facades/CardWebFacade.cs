@@ -13,7 +13,7 @@ public class CardWebFacade(ICardApiClient apiClient) : IWebFacade<CardListModel,
 	public async Task<ICollection<CardListModel>> GetAllAsync(string? filterAtrib = null, string? filter = null, string? orderBy = null, bool? sortDesc = null,
 		int? pageNumber = null, int? pageSize = null)
 	{
-		return await apiClient.CardAllAsync(filterAtrib, filter, orderBy, null, null, null);
+		return await apiClient.CardAllAsync(filterAtrib, filter, orderBy, sortDesc, pageNumber, pageSize);
 	}
 
     public async Task<CardDetailModel> GetByIdAsync(Guid id)

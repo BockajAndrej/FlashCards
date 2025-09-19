@@ -1,0 +1,14 @@
+@if (IsVisible)
+{
+    <div class="modal-backdrop" @onclick="HandleBackdropClick"></div>
+    <div class="modal-dialog">
+        <div class="modal-content-wrapper">
+            <button class="modal-close-button" @onclick="Close">
+                <span class="bi bi-x-lg" aria-hidden="true"></span> @* Using a Bootstrap Icon for the 'X' *@
+            </button>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+        </div>
+    </div>
+}

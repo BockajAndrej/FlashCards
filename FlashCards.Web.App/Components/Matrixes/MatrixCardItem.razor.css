@@ -1,0 +1,57 @@
+    .item-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px;
+        background-color: #f0f4f8;
+        border-radius: 8px;
+        border: 1px solid #c7d1e0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        height: 100%;
+        text-align: center;
+    }
+
+    .card-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%; /* Rozšíri kontajner na celú šírku */
+        margin-bottom: 10px;
+    }
+
+    .card-question {
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .item-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-left: auto; /* Posunie obrázok doprava */
+    }
+
+    .card-description-container {
+        flex-grow: 1; /* Umožní tomuto kontajneru zabrať dostupný priestor */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .card-description {
+        font-style: italic;
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .card-answer {
+        font-size: 1rem;
+        color: #4b5563;
+        margin-top: auto; /* Posunie odpoveď na spodok karty */
+    }

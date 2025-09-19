@@ -1,0 +1,36 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Creates 3 equal columns */
+    gap: 20px; /* Space between the items */
+}
+
+.grid-item {
+    /*
+    border: 1px solid #ccc;
+    padding: 5px;
+    */
+    position: relative; /* Allows for absolute positioning of the image */
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.item-image {
+    width: 50px; /* Adjust size as needed */
+    height: 50px;
+}
+
+.collection-link {
+    text-decoration: none; /* Removes the underline */
+    color: inherit; /* Makes the link inherit the text color from its parent */
+}
+
+.collection-link:hover .item-content-wrapper {
+    /* Optional: Add a hover effect, e.g., a subtle border or shadow */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #cccccc;
+}

@@ -1,0 +1,12 @@
+@typeparam TItem
+<div class="grid-container" style="grid-template-columns: repeat(@Columns, 1fr);">
+    @if (Items != null && ChildContent != null)
+    {
+        @foreach (var item in Items)
+        {
+            <div class="grid-item">
+                @ChildContent(item)
+            </div>
+        }
+    }
+</div>

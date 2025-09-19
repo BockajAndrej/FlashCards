@@ -1,0 +1,39 @@
+@page "/NewCollectionPage"
+@using FlashCards.Web.Bl.ApiClient
+@using FlashCards.Web.App.Components.Buttons
+@using FlashCards.Web.App.Components
+
+<div class="new-collection-page-container">
+    <div class="form-card">
+        @* This is the new "X" close button *@
+        <button class="close-button" @onclick="GoBack">X</button>
+
+        <h3>Add New Collection</h3>
+
+        <EditForm Model="@Collection" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label for="title">Name</label>
+                <InputText id="title" class="form-control" @bind-Value="Collection.Title" />
+                <ValidationMessage For="@(() => Collection.Title)" />
+            </div>
+
+            <div class="form-group">
+                <label for="startDate">Start date for questions</label>
+                <InputDate id="startDate" class="form-control" @bind-Value="Collection.StartTimeForAcceptedAnswers" />
+                <ValidationMessage For="@(() => Collection.StartTimeForAcceptedAnswers)" />
+            </div>
+
+            <div class="form-group">
+                <label for="endDate">End date for questions</label>
+                <InputDate id="endDate" class="form-control" @bind-Value="Collection.EndTimeForAcceptedAnswers" />
+                <ValidationMessage For="@(() => Collection.EndTimeForAcceptedAnswers)" />
+            </div>
+
+            <div class="button-group-form">
+                <CustomButton Text="Submit" BackgroundColor="#212529" TextColor="white" Type="submit" />
+            </div>
+        </EditForm>
+    </div>
+</div>
