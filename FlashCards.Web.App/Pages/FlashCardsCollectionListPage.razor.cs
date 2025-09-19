@@ -1,5 +1,4 @@
-﻿using System;
-using FlashCards.Web.Bl.ApiClient;
+﻿using FlashCards.Web.Bl.ApiClient;
 using FlashCards.Web.Bl.Facades;
 using Microsoft.AspNetCore.Components;
 
@@ -87,4 +86,5 @@ public partial class FlashCardsCollectionListPage : ComponentBase
 		// Add logic for deleting collections
 		Console.WriteLine("Delete button clicked!");
 	}
+
 }

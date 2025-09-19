@@ -1,20 +1,12 @@
 ﻿@page "/FlashCards"
 @page "/FlashCards/{CollectionId:guid}"
-@attribute [StreamRendering]
-@using FlashCards.Web.App.Components.Matrixes
-@using FlashCards.Web.App.Components.Buttons
 @using FlashCards.Web.App.Components
+@using FlashCards.Web.App.Components.Matrixes
 @using FlashCards.Web.Bl.ApiClient
+@attribute [StreamRendering]
 
 <h3>FlashCardsCollectionListPage</h3>
 
-<div class="header-container">
-    <div class="button-group">
-        <CustomButton Text="New Collection" OnClick="OnNewCardClicked" BackgroundColor="#5f238c"/>
-        <CustomButton Text="Delete" OnClick="OnDeleteClicked" BackgroundColor="#dc3545"/>
-    </div>
-    <SearchComponent OnSearchChanged="PerformSearch"/>
-</div>
 
 @if (Cards == null)
 {
@@ -24,7 +16,7 @@
 }
 else
 {
-    <MatrixComponent TItem="CardListModel" Items="@Cards" Columns="3">
+    <MatrixComponent TItem="CardListModel" Items="@FilteredCards" Columns="3"> @*<-- CHANGE HERE *@
         <ChildContent Context="card">
             <MatrixCardItem CardList="@card"/>
         </ChildContent>
