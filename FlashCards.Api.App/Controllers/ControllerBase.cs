@@ -8,7 +8,7 @@ public abstract class ControllerBase<TEntity, TListModel, TDetailModel>(IFacade<
 {
     // GET: api/Card
     [HttpGet]
-    public abstract Task<IQueryable<TListModel>> GetCard(
+    public abstract Task<ActionResult<IEnumerable<TListModel>>> GetCard(
         [FromQuery] string? strFilterAtrib,
         [FromQuery] string? strFilter,
         [FromQuery] string? strSortBy,

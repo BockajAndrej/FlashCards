@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using FlashCards.Api.Bl.Facades.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FlashCards.Api.Dal;
 using FlashCards.Api.Dal.Entities;
-using FlashCards.Common.Models;
 using FlashCards.Common.Models.Details;
 using FlashCards.Common.Models.Lists;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FlashCards.Api.App.Controllers
 {
@@ -22,7 +15,8 @@ namespace FlashCards.Api.App.Controllers
         
         // GET: api/Card
         [HttpGet]
-        public override async Task<IQueryable<CardListModel>> GetCard(
+        [Authorize(Policy = "AdminRole")]
+        public override async Task<ActionResult<IEnumerable<CardListModel>>> GetCard(
             [FromQuery] string? strFilterAtrib,
             [FromQuery] string? strFilter,
             [FromQuery] string? strSortBy,
@@ -31,32 +25,36 @@ namespace FlashCards.Api.App.Controllers
             [FromQuery] int pageSize = 10)
         {
             Expression<Func<CardEntity, bool>> filter = l => true;
-            switch (strFilterAtrib)
+            if (!string.IsNullOrEmpty(strFilter))
             {
-                case nameof(CardEntity.Otazka):
-                    filter = l => l.Otazka == strFilter;
-                    break;
-                case nameof(CardEntity.Popis):
-                    filter = l => l.Popis == strFilter;
-                    break;
+                switch (strFilterAtrib)
+                {
+                    case nameof(CardEntity.Question):
+                        filter = l => l.Question.ToLower().Contains(strFilter.ToLower());
+                        break;
+                    case nameof(CardEntity.Description):
+                        filter = l => l.Description!.ToLower().Contains(strFilter.ToLower());
+                        break;
+                }
             }
             
             Func<IQueryable<CardEntity>, IOrderedQueryable<CardEntity>>? orderBy = null;
             switch (strSortBy)
             {
-                case nameof(CardEntity.Otazka):
+                case nameof(CardEntity.Question):
                     orderBy = sortDesc 
-                        ? l => l.OrderBy(s => s.Otazka) 
-                        : l => l.OrderByDescending(s => s.Otazka);
+                        ? l => l.OrderBy(s => s.Question) 
+                        : l => l.OrderByDescending(s => s.Question);
                     break;
-                case nameof(CardEntity.Popis):
+                case nameof(CardEntity.Description):
                     orderBy = sortDesc 
-                        ? l => l.OrderBy(s => s.Popis) 
-                        : l => l.OrderByDescending(s => s.Popis);
+                        ? l => l.OrderBy(s => s.Description) 
+                        : l => l.OrderByDescending(s => s.Description);
                     break;
             }
             
-            return await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
+            var res = await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
+            return Ok(res.ToList());
         }
         
         public override async Task<ActionResult<CardDetailModel>> PostCardEntity(CardDetailModel model)

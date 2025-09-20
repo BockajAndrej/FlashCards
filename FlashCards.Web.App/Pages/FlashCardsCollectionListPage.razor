@@ -1,9 +1,26 @@
 ﻿@page "/FlashCards"
+@page "/FlashCards/{CollectionId:guid}"
+@using FlashCards.Web.App.Components
+@using FlashCards.Web.App.Components.Buttons
+@using FlashCards.Web.App.Components.Matrixes
+@using FlashCards.Web.Bl.ApiClient
+@attribute [StreamRendering]
 
 <h3>FlashCardsCollectionListPage</h3>
 
+<div class="header-container">
+    <div class="button-group">
+        <CustomButton Text="New Collection" OnClick="OnNewCardClicked" BackgroundColor="--purple-main"
+                      BorderColor="--purple-border" TextColor="--text-light"/>
+        <CustomButton Text="Delete" OnClick="OnDeleteClicked" BackgroundColor="--purple-main"
+                      BorderColor="--purple-border" TextColor="--text-light"/>
+    </div>
+    <div class="search-container">
+        <SearchComponent Placeholder="Search..." OnSearchChanged="PerformSearch"/>
+    </div>
+</div>
 
-@if (Collections == null)
+@if (Cards == null)
 {
     <p>
         <em>Loading...</em>
@@ -11,24 +28,11 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th aria-label="Temperature in Celsius">Temp. (C)</th>
-            <th aria-label="Temperature in Farenheit">Temp. (F)</th>
-            <th>Summary</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var forecast in Collections)
-        {
-            <tr>
-                <td>@forecast.Otazka Date.ToShortDateString()</td>
-                <td>@forecast.SpravnaOdpoved</td>
-                <td>@forecast.DoplnujuciPopis</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <MatrixComponent TItem="CardListModel" Items="@FilteredCards" Columns="3"> @*<-- CHANGE HERE *@
+        <ChildContent Context="card">
+            <MatrixCardItem CardList="@card"/>
+        </ChildContent>
+    </MatrixComponent>
+
+    <Paginator PageNumber="currentPage" PageNumberChanged="HandlePageChange"/>
 }

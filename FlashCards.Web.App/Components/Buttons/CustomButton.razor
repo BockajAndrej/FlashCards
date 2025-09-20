@@ -1,0 +1,17 @@
+@if (IsSubmitButton)
+{
+    <button class="custom-btn"
+            style="background-color: @BackgroundColor; color: @TextColor; border: 2px solid @BorderColor;"
+            @attributes="AdditionalAttributes">
+        @Text
+    </button>
+}
+else
+{
+    <button class="custom-btn"
+            style="background-color: @BackgroundColor; color: @TextColor; border: 2px solid @BorderColor;"
+            @onclick="OnClick"
+            @attributes="AdditionalAttributes">
+        @Text
+    </button>
+}

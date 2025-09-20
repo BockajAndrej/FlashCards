@@ -1,0 +1,47 @@
+@page "/"
+@page "/CollectionsPage"
+@attribute [StreamRendering]
+@using FlashCards.Web.App.Components
+@using FlashCards.Web.App.Components.Buttons
+@using FlashCards.Web.App.Components.Matrixes
+@using FlashCards.Web.Bl.ApiClient
+
+
+<h3>CollectionsPage</h3>
+
+<div class="header-container">
+    <div class="button-group">
+        <CustomButton Text="New Collection" OnClick="OnNewCollectionClicked" BackgroundColor="--purple-main"
+                      BorderColor="--purple-border" TextColor="--text-light"/>
+        <CustomButton Text="Delete" OnClick="OnDeleteClicked" BackgroundColor="--purple-main"
+                      BorderColor="--purple-border" TextColor="--text-light"/>
+    </div>
+    <div class="search-container">
+        <SearchComponent Placeholder="Search..." OnSearchChanged="PerformSearch"/>
+    </div>
+</div>
+
+@if (Collections == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <MatrixComponent TItem="CardCollectionListModel" Items="@FilteredCollections" Columns="3">
+        <ChildContent Context="collection">
+            <MatrixCollectionItem Collection="@collection"/>
+        </ChildContent>
+    </MatrixComponent>
+
+    <Paginator PageNumber="currentPage" PageNumberChanged="HandlePageChange"/>
+}
+
+@* --- ADD THE MODAL HERE --- *@
+<ModalComponent IsVisible="@_showAddCollectionModal" OnClose="OnCloseAddCollectionModal">
+    <ChildContent>
+        <h4>Add New Collection</h4>
+        <AddCollectionForm OnSubmit="HandleAddCollectionSubmit" />
+    </ChildContent>
+</ModalComponent>

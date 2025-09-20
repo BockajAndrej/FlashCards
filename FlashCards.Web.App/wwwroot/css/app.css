@@ -112,3 +112,24 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+
+
+.custom-btn:active {
+    animation: flash-border 0.1s ease-out;
+}
+
+@keyframes flash-border {
+    0% {
+        /* Start with no extra shadow */
+        box-shadow: 0 0 0 0 rgba(123, 44, 191, 0.5);
+    }
+    50% {
+        /* At the midpoint, create a vibrant purple "glow" */
+        box-shadow: 0 0 0 4px rgba(123, 44, 191, 0.8);
+    }
+    100% {
+        /* End with no extra shadow */
+        box-shadow: 0 0 0 0 rgba(123, 44, 191, 0);
+    }
+}
