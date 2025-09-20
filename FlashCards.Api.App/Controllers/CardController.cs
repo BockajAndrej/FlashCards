@@ -16,7 +16,7 @@ namespace FlashCards.Api.App.Controllers
         // GET: api/Card
         [HttpGet]
         [Authorize(Policy = "AdminRole")]
-        public override async Task<IQueryable<CardListModel>> GetCard(
+        public override async Task<ActionResult<IEnumerable<CardListModel>>> GetCard(
             [FromQuery] string? strFilterAtrib,
             [FromQuery] string? strFilter,
             [FromQuery] string? strSortBy,
@@ -25,14 +25,17 @@ namespace FlashCards.Api.App.Controllers
             [FromQuery] int pageSize = 10)
         {
             Expression<Func<CardEntity, bool>> filter = l => true;
-            switch (strFilterAtrib)
+            if (!string.IsNullOrEmpty(strFilter))
             {
-                case nameof(CardEntity.Question):
-                    filter = l => l.Question == strFilter;
-                    break;
-                case nameof(CardEntity.Description):
-                    filter = l => l.Description == strFilter;
-                    break;
+                switch (strFilterAtrib)
+                {
+                    case nameof(CardEntity.Question):
+                        filter = l => l.Question.ToLower().Contains(strFilter.ToLower());
+                        break;
+                    case nameof(CardEntity.Description):
+                        filter = l => l.Description!.ToLower().Contains(strFilter.ToLower());
+                        break;
+                }
             }
             
             Func<IQueryable<CardEntity>, IOrderedQueryable<CardEntity>>? orderBy = null;
@@ -50,7 +53,8 @@ namespace FlashCards.Api.App.Controllers
                     break;
             }
             
-            return await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
+            var res = await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
+            return Ok(res.ToList());
         }
         
         public override async Task<ActionResult<CardDetailModel>> PostCardEntity(CardDetailModel model)

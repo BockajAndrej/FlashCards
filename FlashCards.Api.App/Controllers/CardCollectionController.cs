@@ -15,7 +15,7 @@ namespace FlashCards.Api.App.Controllers
 	{
 		// GET: api/Card
 		[HttpGet]
-		public override async Task<IQueryable<CardCollectionListModel>> GetCard(
+		public override async Task<ActionResult<IEnumerable<CardCollectionListModel>>> GetCard(
 			[FromQuery] string? strFilterAtrib,
 			[FromQuery] string? strFilter,
 			[FromQuery] string? strSortBy,
@@ -25,9 +25,10 @@ namespace FlashCards.Api.App.Controllers
 		{
 			Expression<Func<CardCollectionEntity, bool>>? filter = null;
 			if (!string.IsNullOrEmpty(strFilter))
-				filter = l => l.Title.Contains(strFilter);
-			//filter = l => l.Title == strFilter;
-
+			{
+				if (!string.IsNullOrEmpty(strFilter))
+					filter = l => l.Title.ToLower().Contains(strFilter.ToLower());
+			}
 
 			Func<IQueryable<CardCollectionEntity>, IOrderedQueryable<CardCollectionEntity>>? orderBy = null;
 			switch (strSortBy)
@@ -39,7 +40,8 @@ namespace FlashCards.Api.App.Controllers
 					break;
 			}
 
-			return await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
+			var result = await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
+			return Ok(result.ToList());
 		}
 
 		[HttpPost]

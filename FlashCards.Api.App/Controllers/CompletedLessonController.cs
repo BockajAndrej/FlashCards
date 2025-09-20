@@ -15,9 +15,7 @@ namespace FlashCards.Api.App.Controllers
     public class CompletedLessonController(ICompletedLessonFacade facade)
         : ControllerBase<CompletedLessonEntity, CompletedLessonListModel, CompletedLessonDetailModel>(facade)
     {
-        
-        //Todo: Zistit a implementovat ako spravne pouzivat filter, radit
-        public override async Task<IQueryable<CompletedLessonListModel>> GetCard(
+        public override async Task<ActionResult<IEnumerable<CompletedLessonListModel>>> GetCard(
             string? strFilterAtrib, 
             string? strFilter,
             string? strSortBy, 
@@ -27,7 +25,10 @@ namespace FlashCards.Api.App.Controllers
         {
             Expression<Func<CompletedLessonEntity, bool>>? filter = null;
             if (!string.IsNullOrEmpty(strFilter))
-                filter = l => l.CardCollection.Title == strFilter;
+            {
+                if (!string.IsNullOrEmpty(strFilter))
+                    filter = l => l.CardCollection.Title.ToLower().Contains(strFilter.ToLower());
+            }
             
             Func<IQueryable<CompletedLessonEntity>, IOrderedQueryable<CompletedLessonEntity>>? orderBy = null;
             switch (strSortBy)
@@ -39,7 +40,8 @@ namespace FlashCards.Api.App.Controllers
                     break;
             }
             
-            return await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
+            var result = await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
+            return Ok(result.ToList());
         }
         
         [HttpPost]
