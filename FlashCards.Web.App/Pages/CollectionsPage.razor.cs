@@ -40,7 +40,7 @@ public partial class CollectionsPage : ComponentBase
 
 		// The server now does the filtering for us using the _currentSearchText
 		var collectionsFromServer = await CardCollectionWebFacade.GetAllAsync(
-			filterAtrib: "Nazev",
+			filterAtrib: "Title",
 			filter: _currentSearchText,
 			pageNumber: pageNumber,
 			pageSize: 9);
