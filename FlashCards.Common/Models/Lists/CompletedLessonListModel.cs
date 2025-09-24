@@ -11,14 +11,11 @@ public class CompletedLessonListModel : IEntityModel
     [Required]
     public DateTime CreatedDateTime { get; set; }
     [Required]
-    //It is designed to be used with EnumAbsolvovaneLekceTypOdpovedi
     public ICollection<int> NumberOfCorrectAnswersByTypes { get; set; } = new List<int>(Enum.GetNames(typeof(EnumCompletedLessonAnswerType)).Length);
 
     [Required]
-    public Guid CardsCollectionId { get; set; }
-    [Required]
-    public CardCollectionListModel CardCollection { get; set; } = null!;
-    [Required]
-    public string UserId { get; set; } = null!;
+    public Guid CardCollectionId { get; set; }
+    public CardCollectionListModel? CardCollection { get; set; }
+    public string? UserId { get; set; }
     
 }

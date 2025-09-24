@@ -15,22 +15,21 @@ namespace FlashCards.Api.App.Controllers
     public class CompletedLessonController(ICompletedLessonFacade facade)
         : ControllerBase<CompletedLessonEntity, CompletedLessonListModel, CompletedLessonDetailModel>(facade)
     {
-        public override async Task<ActionResult<IEnumerable<CompletedLessonListModel>>> GetCard(
-            string? strFilterAtrib, 
-            string? strFilter,
-            string? strSortBy, 
-            bool sortDesc = false, 
-            int pageNumber = 1,
-            int pageSize = 10)
+        protected override Expression<Func<CompletedLessonEntity, bool>> CreateFilter(string? strFilterAtrib, string? strFilter)
         {
-            Expression<Func<CompletedLessonEntity, bool>>? filter = null;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Expression<Func<CompletedLessonEntity, bool>> filter = l => l.UserId == userId;
             if (!string.IsNullOrEmpty(strFilter))
             {
                 if (!string.IsNullOrEmpty(strFilter))
-                    filter = l => l.CardCollection.Title.ToLower().Contains(strFilter.ToLower());
+                    filter = l => l.CardCollection.Title.ToLower().Contains(strFilter.ToLower()) && l.UserId == userId;
             }
-            
-            Func<IQueryable<CompletedLessonEntity>, IOrderedQueryable<CompletedLessonEntity>>? orderBy = null;
+            return filter;
+        }
+
+        protected override Func<IQueryable<CompletedLessonEntity>, IOrderedQueryable<CompletedLessonEntity>> CreateOrderBy(string? strSortBy, bool sortDesc)
+        {
+            Func<IQueryable<CompletedLessonEntity>, IOrderedQueryable<CompletedLessonEntity>> orderBy = l => l.OrderBy(s => s.Id);
             switch (strSortBy)
             {
                 case nameof(CompletedLessonEntity.CardCollection.Title):
@@ -39,9 +38,8 @@ namespace FlashCards.Api.App.Controllers
                         : l => l.OrderByDescending(s => s.CardCollection.Title);
                     break;
             }
-            
-            var result = await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
-            return Ok(result.ToList());
+
+            return orderBy;
         }
         
         [HttpPost]

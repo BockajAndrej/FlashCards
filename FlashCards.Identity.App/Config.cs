@@ -1,4 +1,5 @@
 ﻿using Duende.IdentityServer.Models;
+using IdentityModel;
 
 namespace FlashCards.Identity.App;
 
@@ -8,7 +9,15 @@ public static class Config
         new IdentityResource[]
         {
             new IdentityResources.OpenId(),
-            new IdentityResources.Profile(),
+            new IdentityResources.Profile()
+            {
+                UserClaims =
+                {
+                    JwtClaimTypes.Picture,
+                    JwtClaimTypes.Role,
+                    JwtClaimTypes.WebSite
+                }
+            }
         };
 
     public static IEnumerable<ApiScope> ApiScopes =>
@@ -20,7 +29,7 @@ public static class Config
             }
         };
 
-    public static IEnumerable<Client> Clients =>
+    public static IEnumerable<Client> Clients(IConfiguration configuration) =>
         new Client[]
         {
             // interactive client using code flow + pkce
@@ -48,12 +57,10 @@ public static class Config
                 AllowedGrantTypes = GrantTypes.Code,
                 RequirePkce = true,
                 
-                RedirectUris = { "https://localhost:7046/authentication/login-callback" },
-                PostLogoutRedirectUris = { "https://localhost:7046" },
-                // FrontChannelLogoutUri = "https://localhost:44300/signout-oidc",
-                // PostLogoutRedirectUris = { "https://localhost:44300/signout-callback-oidc" },
+                RedirectUris = { configuration.GetSection("Clients")["RedirectUris"] ?? throw new InvalidOperationException() },
+                PostLogoutRedirectUris = { configuration.GetSection("Clients")["PostLogoutRedirectUris"] ?? throw new InvalidOperationException() },
                 
-                AllowedCorsOrigins = { "https://localhost:7046" },
+                AllowedCorsOrigins = { configuration.GetSection("Clients")["AllowedCorsOrigins"] ?? throw new InvalidOperationException() },
 
                 AllowOfflineAccess = true,
                 AllowedScopes = { "openid", "profile", "FlashCardsApiScope" }

@@ -22,11 +22,13 @@
 /FlashCards.Identity.App/appsettings.json
 /FlashCards.Identity.App/Data/Migrations
 /FlashCards.Identity.App/keys
+/FlashCards.Identity.App/Migrations
 
-/FlashCards.Web.App/bin
-/FlashCards.Web.App/obj
-/FlashCards.Web.App/wwwroot/appsettings.json
+/FlashCards.WebBlazor.App/bin
+/FlashCards.WebBlazor.App/obj
+/FlashCards.WebBlazor.App/wwwroot/appsettings.json
+/FlashCards.WebBlazor.App/wwwroot/appsettings.Development.json
 
-/FlashCards.Web.Bl/bin
-/FlashCards.Web.Bl/obj
-/FlashCards.Web.Bl/ApiClients/GeneratedApiClient.cs
+/FlashCards.WebBlazor.Bl/bin
+/FlashCards.WebBlazor.Bl/obj
+/FlashCards.WebBlazor.Bl/ApiClients/GeneratedApiClient.cs

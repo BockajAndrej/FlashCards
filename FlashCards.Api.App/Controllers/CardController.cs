@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Security.Claims;
 using FlashCards.Api.Bl.Facades.Interfaces;
 using FlashCards.Api.Dal.Entities;
 using FlashCards.Common.Models.Details;
@@ -13,32 +14,37 @@ namespace FlashCards.Api.App.Controllers
     public class CardController(ICardFacade facade) : ControllerBase<CardEntity, CardListModel, CardDetailModel>(facade)
     {
         
-        // GET: api/Card
-        [HttpGet]
-        [Authorize(Policy = "AdminRole")]
-        public override async Task<ActionResult<IEnumerable<CardListModel>>> GetCard(
-            [FromQuery] string? strFilterAtrib,
-            [FromQuery] string? strFilter,
-            [FromQuery] string? strSortBy,
-            [FromQuery] bool sortDesc = false,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+        protected override Expression<Func<CardEntity, bool>> CreateFilter(string? strFilterAtrib, string? strFilter)
         {
-            Expression<Func<CardEntity, bool>> filter = l => true;
-            if (!string.IsNullOrEmpty(strFilter))
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            Expression<Func<CardEntity, bool>> filter = l => l.CardCollection.UserId == userId;
+            if (!string.IsNullOrEmpty(strFilter) && !string.IsNullOrEmpty(strFilterAtrib) && strFilterAtrib.Split(',').Length == strFilter.Split(',').Length)
             {
-                switch (strFilterAtrib)
+                for (int i = 0; i < strFilterAtrib.Split(',').Length; i++)
                 {
-                    case nameof(CardEntity.Question):
-                        filter = l => l.Question.ToLower().Contains(strFilter.ToLower());
-                        break;
-                    case nameof(CardEntity.Description):
-                        filter = l => l.Description!.ToLower().Contains(strFilter.ToLower());
-                        break;
+                    var atrib = strFilterAtrib.Split(',')[i];
+                    var str = strFilter.Split(',')[i];
+                    switch (atrib)
+                    {
+                        case nameof(CardEntity.Question):
+                            filter = ExpressionAnd(filter, l => l.Question.ToLower().Contains(str.ToLower()));
+                            break;
+                        case nameof(CardEntity.Description):
+                            filter = ExpressionAnd(filter, l => l.Description!.ToLower().Contains(str.ToLower()));
+                            break;
+                        case nameof(CardEntity.CardCollectionId):
+                            filter = ExpressionAnd(filter, l => l.CardCollectionId.ToString() == str);
+                            break;
+                    }
                 }
             }
-            
-            Func<IQueryable<CardEntity>, IOrderedQueryable<CardEntity>>? orderBy = null;
+            return filter;
+        }
+
+        protected override Func<IQueryable<CardEntity>, IOrderedQueryable<CardEntity>> CreateOrderBy(string? strSortBy, bool sortDesc)
+        {
+            Func<IQueryable<CardEntity>, IOrderedQueryable<CardEntity>> orderBy = l => l.OrderBy(s => s.Id);
             switch (strSortBy)
             {
                 case nameof(CardEntity.Question):
@@ -52,11 +58,11 @@ namespace FlashCards.Api.App.Controllers
                         : l => l.OrderByDescending(s => s.Description);
                     break;
             }
-            
-            var res = await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
-            return Ok(res.ToList());
+            return orderBy;
         }
         
+        // [Authorize(Policy = "AdminRole")]
+        [Authorize]
         public override async Task<ActionResult<CardDetailModel>> PostCardEntity(CardDetailModel model)
         {
             model.Id = Guid.Empty;

@@ -13,24 +13,26 @@ namespace FlashCards.Api.App.Controllers
 	[ApiController]
 	public class CardCollectionController(ICardCollectionFacade facade) : ControllerBase<CardCollectionEntity, CardCollectionListModel, CardCollectionDetailModel>(facade)
 	{
-		// GET: api/Card
-		[HttpGet]
-		public override async Task<ActionResult<IEnumerable<CardCollectionListModel>>> GetCard(
-			[FromQuery] string? strFilterAtrib,
-			[FromQuery] string? strFilter,
-			[FromQuery] string? strSortBy,
-			[FromQuery] bool sortDesc = false,
-			[FromQuery] int pageNumber = 1,
-			[FromQuery] int pageSize = 10)
+		protected override Expression<Func<CardCollectionEntity, bool>> CreateFilter(string? strFilterAtrib, string? strFilter)
 		{
-			Expression<Func<CardCollectionEntity, bool>>? filter = null;
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			Expression<Func<CardCollectionEntity, bool>>? filter = l => l.UserId == userId;
 			if (!string.IsNullOrEmpty(strFilter))
 			{
-				if (!string.IsNullOrEmpty(strFilter))
-					filter = l => l.Title.ToLower().Contains(strFilter.ToLower());
+				switch (strFilterAtrib)
+				{
+					case nameof(CardCollectionEntity.Title):
+						filter = l => l.Title.ToLower().Contains(strFilter.ToLower()) && l.UserId == userId;
+						break;
+				}
 			}
 
-			Func<IQueryable<CardCollectionEntity>, IOrderedQueryable<CardCollectionEntity>>? orderBy = null;
+			return filter;
+		}
+
+		protected override Func<IQueryable<CardCollectionEntity>, IOrderedQueryable<CardCollectionEntity>> CreateOrderBy(string? strSortBy, bool sortDesc)
+		{
+			Func<IQueryable<CardCollectionEntity>, IOrderedQueryable<CardCollectionEntity>> orderBy = l => l.OrderBy(s => s.Id);
 			switch (strSortBy)
 			{
 				case nameof(CardCollectionEntity.Title):
@@ -39,11 +41,9 @@ namespace FlashCards.Api.App.Controllers
 						: l => l.OrderByDescending(s => s.Title);
 					break;
 			}
-
-			var result = await facade.GetAsync(filter, orderBy, pageNumber, pageSize);
-			return Ok(result.ToList());
+			return orderBy;
 		}
-
+		
 		[HttpPost]
 		[Authorize]
 		public override async Task<ActionResult<CardCollectionDetailModel>> PostCardEntity(CardCollectionDetailModel model)
