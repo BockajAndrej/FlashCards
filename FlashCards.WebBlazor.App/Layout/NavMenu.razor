@@ -1,0 +1,29 @@
+﻿@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Buttons
+@using FlashCards.WebBlazor.App.Components
+@using Syncfusion.Blazor.Inputs
+
+@inject NavigationManager Navigation;
+
+<SfAppBar CssClass="appbar-specific-navbar">
+    <a href="/" role="link">
+        <div class="application-logo-navbar"></div>
+    </a>
+    
+    <AppBarSpacer></AppBarSpacer>
+    <SfButton IconCss="fa-solid fa-puzzle-piece" CssClass="btn-specific-cardcollection-navbar" Content="Card collections" @onclick="OnCardCollectionBtnClicked"></SfButton>
+    <AppBarSpacer></AppBarSpacer>
+    <SfTextBox CssClass="searchbar-specific-navbar" Placeholder='Search...'></SfTextBox>
+    
+    <AppBarSpacer></AppBarSpacer>
+    <LoginDisplay/>
+</SfAppBar>
+
+@code{
+
+    private void OnCardCollectionBtnClicked()
+    {
+        Navigation.NavigateTo("/FlashCardsCollections");
+    }
+
+}

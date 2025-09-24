@@ -14,7 +14,7 @@ public class CompletedLessonEntity : IEntity
     public ICollection<int> NumberOfCorrectAnswersByTypes { get; set; } = new List<int>(Enum.GetNames(typeof(EnumCompletedLessonAnswerType)).Length);
 
     [Required]
-    public Guid CardsCollectionId { get; set; }
+    public Guid CardCollectionId { get; set; }
     [Required]
     public CardCollectionEntity CardCollection { get; set; } = null!;
     [Required]
