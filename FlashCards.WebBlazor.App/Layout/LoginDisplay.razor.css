@@ -40,3 +40,12 @@
 .custom-dropdown-menu li:hover {
     background-color: #f0f0f0;
 }
+
+.custom-login-text{
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    vertical-align: center;
+    font-size: 14px;
+    color: rgb(253, 189, 0);
+}

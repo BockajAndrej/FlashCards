@@ -1,0 +1,11 @@
+﻿@using Syncfusion.Blazor.Cards
+
+<SfCard Width="500px" @onclick="@OnCollectionClicked">
+    <CardHeader Title=@Title>
+        <div class="advanced-tag">@Value</div>
+    </CardHeader>
+    <CardContent>
+        <div>Start: @StartTime</div>
+        <div>End: @EndTime</div>
+    </CardContent>
+</SfCard>

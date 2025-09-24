@@ -2,8 +2,15 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<AuthorizeView>
+    <Authorized>
+        <h3> - Welcome authenticated user</h3>
+    </Authorized>
+    <NotAuthorized>
+        <div class="alert alert-warning" role="alert">
+            Unauthenticated user, please <a href="authentication/login">log in</a> to unlock full functionality.
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
-<div class="alert alert-warning" role="alert">
-    Before authentication will function correctly, you must configure your provider details in <code>Program.cs</code>
-</div>
+<h1>Hello, this is my new flash cards app!</h1>

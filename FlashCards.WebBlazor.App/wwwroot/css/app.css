@@ -152,24 +152,30 @@ code {
 .btn-specific-cardcollection-navbar{
     background-color: transparent !important;
     height: 35px !important;
-    color: #287981 !important;
+    color: #fdbd00 !important;
     border: none !important;
     min-width: 200px !important;
 }
 .btn-specific-cardcollection-navbar:hover{
     background-color: transparent !important;
-    color: #a9dbe1 !important;
+    color: #00fdfd !important;
     border: none !important;
 }
 
 /*------------ Searchbar ------------*/
 .searchbar-specific-navbar{
     border-radius: 10px !important;
+    background-color: rgb(197, 197, 197) !important;
 }
-.searchbar-specific-navbar:focus{
-    border-color: red !important;
-    outline: none !important;
+
+.searchbar-specific-filterbox{
+    height: 100% !important;
+    border-radius: 10px !important;
+    background-color: rgb(255, 255, 255) !important;
+    font-size: 20px !important;
+    align-items: center !important;
 }
+
 
 /*------------ AppBar ------------*/
 .appbar-specific-navbar {
@@ -178,13 +184,27 @@ code {
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    background-color: rgb(246, 246, 246) !important;
+    background-color: rgb(4, 20, 53) !important;
     overflow: visible !important;
 }
 
 /*------------ BreadCrumb ------------*/
 .breadcrumb-specific-navbar{
     background-color: rgb(186, 186, 186) !important;
+}
+
+/*------------ DropDown ------------*/
+.dropdown-specific-filterbox {
+    background-color: white !important;
+    width: 150px !important;
+    height: 100% !important;
+    align-items: center !important;
+    border-radius: 10px !important;
+    font-size: 16px !important;
+}
+
+.dropdown-specific-filterbox-item {
+    border-radius: 10px !important;
 }
 
 /*---------------------------------*/
