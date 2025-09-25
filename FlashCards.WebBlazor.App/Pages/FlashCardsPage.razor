@@ -1,15 +1,14 @@
-﻿@page "/FlashCardsCollections"
+﻿@page "/FlashCardsPage/{CardCollectionId:guid}"
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.DropDowns
-@using Syncfusion.Blazor.Cards
 @using FlashCards.WebBlazor.App.Components
 
 <div class="container-filterbox">
     <SfTextBox Input="FilterSearch" CssClass="searchbar-specific-filterbox" Placeholder="Search..."></SfTextBox>
-    <SfDropDownList CssClass="dropdown-specific-filterbox" TValue="string" TItem="string" @bind-Value="@SelectedOptionForOrdering" DataSource="@_collectionOptionsforOrdering"/>
+    <SfDropDownList CssClass="dropdown-specific-filterbox" TValue="string" TItem="string" @bind-Value="@SelectedOptionForOrdering" DataSource="@_cardOptionsforOrdering"/>
 </div>
 
-<div>
+<div class="page-container">
     @if (_cardCollections == null)
     {
         <div class="card-container">
@@ -22,10 +21,10 @@
             @foreach (var item in @_cardCollections)
             {
                 <CollectionCardComponent
-                    Title=@item.Title
+                    Title=@item.Question
                     CollectionId=@item.Id
-                    StartTime=@item.StartTimeForAcceptedAnswers.Value.DateTime.ToString()
-                    EndTime=@item.EndTimeForAcceptedAnswers.Value.DateTime.ToString()/>
+                    StartTime=@item.CorrectAnswer
+                    EndTime=@item.Description/>
             }
         </div>
     }

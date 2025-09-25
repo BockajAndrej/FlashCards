@@ -19,6 +19,6 @@ public partial class CollectionCardComponent : ComponentBase
     
     private void OnCollectionClicked()
     {
-        Navigation.NavigateTo($"/FlashCards/{CollectionId}");
+        Navigation.NavigateTo($"/FlashCardsPage/{CollectionId}");
     }
 }

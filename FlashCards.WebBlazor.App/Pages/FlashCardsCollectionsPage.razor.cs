@@ -1,16 +1,29 @@
 ﻿using FlashCards.WebBlazor.Bl.ApiClient;
 using FlashCards.WebBlazor.Bl.Facades;
 using Microsoft.AspNetCore.Components;
+using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Inputs;
 
 namespace FlashCards.WebBlazor.App.Pages;
 
-public partial class FlashCardsCollections : ComponentBase
+public partial class FlashCardsCollectionsPage : ComponentBase
 {
     [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
     
-    private List<string> _collectionOptionsforOrdering = new() {"Recent", "Name", "Creation"};
-    private string SelectedOptionForOrdering { get; set; } = "Recent";
+    private List<string> _collectionOptionsforOrdering = new() {"Recent", nameof(CardCollectionDetailModel.Title), nameof(CardCollectionDetailModel.StartTimeForAcceptedAnswers)};
+    private string _selectedOptionForOrdering = "Recent";
+    public string SelectedOptionForOrdering 
+    {
+        get => _selectedOptionForOrdering;
+        set
+        {
+            if (_selectedOptionForOrdering != value)
+            {
+                _selectedOptionForOrdering = value;
+                _ = LoadCollectionData();
+            }
+        }
+    }
     private string SelectedOptionForName { get; set; } = "";
 
     private IEnumerable<CardCollectionListModel>? _cardCollections;
@@ -29,6 +42,10 @@ public partial class FlashCardsCollections : ComponentBase
         
         StateHasChanged();
     }
+    private async Task FilterDropDownSearch()
+    {
+        await LoadCollectionData();
+    }
 
     private async Task LoadCollectionData()
     {
@@ -36,8 +53,9 @@ public partial class FlashCardsCollections : ComponentBase
             filterAtrib: nameof(CardCollectionListModel.Title), 
             filter: SelectedOptionForName,
             orderBy: SelectedOptionForOrdering,
-            sortDesc: false,
+            sortDesc: true,
             pageNumber: 1,
             pageSize: _totalNumberOfPagesize);
+        StateHasChanged();
     }
 }

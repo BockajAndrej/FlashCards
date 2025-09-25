@@ -119,12 +119,12 @@ code {
 
 /*------------ Card ------------*/
 .e-card {
-    flex: 1 1 calc(33.33% - 20px);
+    flex: calc(32%) !important;
     border-radius: 8px !important;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
     box-sizing: border-box !important;
-    min-width: 250px !important;
-    max-width: 400px !important;
+    max-width: calc(32%) !important;
+    min-width: 300px !important;
 }
 
 .e-card:hover{
@@ -165,7 +165,7 @@ code {
 /*------------ Searchbar ------------*/
 .searchbar-specific-navbar{
     border-radius: 10px !important;
-    background-color: rgb(197, 197, 197) !important;
+    background-color: rgb(221, 221, 221) !important;
 }
 
 .searchbar-specific-filterbox{

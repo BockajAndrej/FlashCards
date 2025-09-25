@@ -1,0 +1,32 @@
+﻿@page "/FlashCardsCollectionsPage"
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Cards
+@using FlashCards.WebBlazor.App.Components
+
+<div class="container-filterbox">
+    <SfTextBox Input="FilterSearch" CssClass="searchbar-specific-filterbox" Placeholder="Search..."></SfTextBox>
+    <SfDropDownList CssClass="dropdown-specific-filterbox" TValue="string" TItem="string" @bind-Value="@SelectedOptionForOrdering" DataSource="@_collectionOptionsforOrdering"/>
+</div>
+
+<div class="page-container">
+    @if (_cardCollections == null)
+    {
+        <div class="card-container">
+            <em>Loading...</em>
+        </div>
+    }
+    else
+    {
+        <div class="card-container">
+            @foreach (var item in @_cardCollections)
+            {
+                <CollectionCardComponent
+                    Title=@item.Title
+                    CollectionId=@item.Id
+                    StartTime=@item.StartTimeForAcceptedAnswers.Value.DateTime.ToString()
+                    EndTime=@item.EndTimeForAcceptedAnswers.Value.DateTime.ToString()/>
+            }
+        </div>
+    }
+</div>
