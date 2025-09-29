@@ -1,0 +1,3 @@
+[submodule "FlashCards_Backend"]
+	path = FlashCards_Backend
+	url = https://github.com/BockajAndrej/FlashCards_Backend
