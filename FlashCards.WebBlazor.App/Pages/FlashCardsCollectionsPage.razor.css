@@ -1,10 +1,7 @@
 ﻿.container-filterbox{
-    height: 40px !important;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin: 10px 30px 0 30px;
-    gap: 1rem !important;
+    width: 95%;
+    justify-content: center;
+    margin: 20px auto;
 }
 
 .card-container {
@@ -16,9 +13,8 @@
     margin: 0 auto;
 }
 
-.page-container {
-    display: flex;
+.recent-section-container{
+    width: 95%;
     justify-content: center;
-    width: 100%;
-    margin: 20px auto;
+    margin: 30px auto;
 }

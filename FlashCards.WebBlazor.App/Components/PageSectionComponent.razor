@@ -1,0 +1,15 @@
+﻿<div class="ordering-container">
+    <div class="ordering-header">
+        <span class="ordering-title">@NameOfSection</span>
+    </div>
+    <div class="ordering-content">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    [Parameter]
+    public string NameOfSection { get; set; } = "NONE";
+}

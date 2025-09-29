@@ -3,30 +3,51 @@
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Cards
 @using FlashCards.WebBlazor.App.Components
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Buttons
 
 <div class="container-filterbox">
-    <SfTextBox Input="FilterSearch" CssClass="searchbar-specific-filterbox" Placeholder="Search..."></SfTextBox>
-    <SfDropDownList CssClass="dropdown-specific-filterbox" TValue="string" TItem="string" @bind-Value="@SelectedOptionForOrdering" DataSource="@_collectionOptionsforOrdering"/>
+    <PageToolbarComponent>
+        <SfDropDownList CssClass="dropdown-specific-filterbox" TValue="string" TItem="string" @bind-Value="@SelectedOptionForOrdering" DataSource="@_collectionOptionsforOrdering"/>
+        <SfButton IconCss="fa-solid fa-trash"/>
+    </PageToolbarComponent>
 </div>
 
-<div class="page-container">
-    @if (_cardCollections == null)
-    {
-        <div class="card-container">
-            <em>Loading...</em>
-        </div>
-    }
-    else
-    {
-        <div class="card-container">
-            @foreach (var item in @_cardCollections)
-            {
-                <CollectionCardComponent
-                    Title=@item.Title
-                    CollectionId=@item.Id
-                    StartTime=@item.StartTimeForAcceptedAnswers.Value.DateTime.ToString()
-                    EndTime=@item.EndTimeForAcceptedAnswers.Value.DateTime.ToString()/>
-            }
-        </div>
-    }
-</div>
+@if (_cardCollections == null)
+{
+    <div class="card-container">
+        <SfSpinner Visible="true" Label="Loading..."/>
+    </div>
+}
+else
+{
+    <div class="recent-section-container">
+        <PageSectionComponent NameOfSection="Recent">
+            <div class="card-container">
+                @foreach (var item in @_cardCollections)
+                {
+                    <CollectionCardComponent
+                        Title=@item.Title
+                        CollectionId=@item.Id
+                        StartTime=@item.StartTimeForAcceptedAnswers.Value.DateTime.ToString()
+                        EndTime=@item.EndTimeForAcceptedAnswers.Value.DateTime.ToString()/>
+                }
+            </div>
+        </PageSectionComponent>
+    </div>
+    
+    <div class="recent-section-container">
+        <PageSectionComponent NameOfSection="All">
+            <div class="card-container">
+                @foreach (var item in @_cardCollections)
+                {
+                    <CollectionCardComponent
+                        Title=@item.Title
+                        CollectionId=@item.Id
+                        StartTime=@item.StartTimeForAcceptedAnswers.Value.DateTime.ToString()
+                        EndTime=@item.EndTimeForAcceptedAnswers.Value.DateTime.ToString()/>
+                }
+            </div>
+        </PageSectionComponent>
+    </div>
+}

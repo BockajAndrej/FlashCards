@@ -196,7 +196,7 @@ code {
 /*------------ DropDown ------------*/
 .dropdown-specific-filterbox {
     background-color: white !important;
-    width: 150px !important;
+    width: 200px !important;
     height: 100% !important;
     align-items: center !important;
     border-radius: 10px !important;

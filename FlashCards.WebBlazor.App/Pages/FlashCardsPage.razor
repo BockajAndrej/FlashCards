@@ -2,17 +2,20 @@
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.DropDowns
 @using FlashCards.WebBlazor.App.Components
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Spinner
 
 <div class="container-filterbox">
     <SfTextBox Input="FilterSearch" CssClass="searchbar-specific-filterbox" Placeholder="Search..."></SfTextBox>
     <SfDropDownList CssClass="dropdown-specific-filterbox" TValue="string" TItem="string" @bind-Value="@SelectedOptionForOrdering" DataSource="@_cardOptionsforOrdering"/>
+    <SfButton Content="Play"></SfButton>
 </div>
 
 <div class="page-container">
     @if (_cardCollections == null)
     {
         <div class="card-container">
-            <em>Loading...</em>
+            <SfSpinner Visible="true" Label="Loading..."/>
         </div>
     }
     else

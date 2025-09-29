@@ -16,6 +16,8 @@ public class CardEntity : IEntity
     [Required]
     public string CorrectAnswer { get; set; } = null!;
     public string? Description { get; set; }
+    [Required]
+    public DateTime LastModifiedDateTime { get; set; }
     
     [Required]
     public Guid CardCollectionId { get; set; }

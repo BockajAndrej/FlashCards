@@ -11,5 +11,7 @@ public class CardCollectionListModel : IEntityModel
     public string Title { get; set; } = null!;
     public DateTime? StartTimeForAcceptedAnswers { get; set; }
     public DateTime? EndTimeForAcceptedAnswers { get; set; }
+    public DateTime? LastModifiedDateTime { get; set; }
+    public DateTime? LastPlayedDateTime { get; set; }
     public string? UserId { get; set; }
 }

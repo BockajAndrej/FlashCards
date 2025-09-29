@@ -16,4 +16,5 @@ public class CardListModel : IEntityModel
     [Required]
     public string CorrectAnswer { get; set; } = null!;
     public string? Description { get; set; }
+    public DateTime? LastModifiedDateTime { get; set; }
 }

@@ -44,6 +44,7 @@ namespace FlashCards.Api.App.Controllers
 
         protected override Func<IQueryable<CardEntity>, IOrderedQueryable<CardEntity>> CreateOrderBy(string? strSortBy, bool sortDesc)
         {
+            sortDesc = !sortDesc;
             Func<IQueryable<CardEntity>, IOrderedQueryable<CardEntity>> orderBy = l => l.OrderBy(s => s.Id);
             switch (strSortBy)
             {
@@ -57,6 +58,11 @@ namespace FlashCards.Api.App.Controllers
                         ? l => l.OrderBy(s => s.Description) 
                         : l => l.OrderByDescending(s => s.Description);
                     break;
+                case nameof(CardEntity.LastModifiedDateTime):
+                    orderBy = sortDesc 
+                        ? l => l.OrderBy(s => s.LastModifiedDateTime) 
+                        : l => l.OrderByDescending(s => s.LastModifiedDateTime);
+                    break;
             }
             return orderBy;
         }
@@ -65,6 +71,7 @@ namespace FlashCards.Api.App.Controllers
         [Authorize]
         public override async Task<ActionResult<CardDetailModel>> PostCardEntity(CardDetailModel model)
         {
+            model.LastModifiedDateTime = DateTime.Now;
             model.Id = Guid.Empty;
             var result = await facade.SaveAsync(model);
             return Ok(result);

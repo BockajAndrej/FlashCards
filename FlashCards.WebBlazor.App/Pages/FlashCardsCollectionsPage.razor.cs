@@ -10,8 +10,8 @@ public partial class FlashCardsCollectionsPage : ComponentBase
 {
     [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
     
-    private List<string> _collectionOptionsforOrdering = new() {"Recent", nameof(CardCollectionDetailModel.Title), nameof(CardCollectionDetailModel.StartTimeForAcceptedAnswers)};
-    private string _selectedOptionForOrdering = "Recent";
+    private List<string> _collectionOptionsforOrdering = new() {nameof(CardCollectionDetailModel.LastPlayedDateTime), nameof(CardCollectionDetailModel.Title), nameof(CardCollectionDetailModel.LastModifiedDateTime)};
+    private string _selectedOptionForOrdering = nameof(CardCollectionDetailModel.LastPlayedDateTime);
     public string SelectedOptionForOrdering 
     {
         get => _selectedOptionForOrdering;
@@ -28,6 +28,7 @@ public partial class FlashCardsCollectionsPage : ComponentBase
 
     private IEnumerable<CardCollectionListModel>? _cardCollections;
     private readonly int _totalNumberOfPagesize = 12;
+    private int _actualPageNumber = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -42,19 +43,15 @@ public partial class FlashCardsCollectionsPage : ComponentBase
         
         StateHasChanged();
     }
-    private async Task FilterDropDownSearch()
-    {
-        await LoadCollectionData();
-    }
-
+    
     private async Task LoadCollectionData()
     {
         _cardCollections = await CardCollectionWebFacade.GetAllAsync(
             filterAtrib: nameof(CardCollectionListModel.Title), 
             filter: SelectedOptionForName,
             orderBy: SelectedOptionForOrdering,
-            sortDesc: true,
-            pageNumber: 1,
+            sortDesc: false,
+            pageNumber: _actualPageNumber,
             pageSize: _totalNumberOfPagesize);
         StateHasChanged();
     }
