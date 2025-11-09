@@ -1,0 +1,52 @@
+﻿@page "/StatisticPage"
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashCards.WebBlazor.Bl.Facades
+
+<MudButton Style="color: var(--card-text-Primary); margin: 20px;" StartIcon="@Icons.Material.Filled.ArrowBack"
+           Size="Size.Large" Href="/CollectionPage">Spat
+</MudButton>
+
+
+<div style="text-align: center;">
+    <MudText Style="color: var(--color-text-main)" Typo="Typo.h4">Uspesne ukoncene</MudText>
+    <MudText Style="color: var(--color-text-secondary)" Typo="Typo.body1">Kolekcia - Lection01</MudText>
+</div>
+
+<MudPaper
+    Style="width: 60%; padding: 20px; margin: 20px auto; background-color: var(--card-background-Primary); border-radius: 15px;">
+    <MudText Style="color: var(--card-text-Primary); margin-top: -2px" Typo="Typo.h6">Vysledky</MudText>
+    
+    <MudStack Row StretchItems="StretchItems.All">
+        <MudPaper>
+            <MudStack Style="margin: 5px auto">
+                <MudIcon Icon="@Icons.Material.Outlined.Cancel"/>
+                <MudText>1</MudText>
+                <MudText>Neviem</MudText>
+            </MudStack>
+        </MudPaper>
+        <MudPaper>
+            <MudStack Style="margin: 5px auto">
+                <MudIcon Icon="@Icons.Material.Outlined.Cancel"/>
+                <MudText>1</MudText>
+                <MudText>Neviem</MudText>
+            </MudStack>
+        </MudPaper>
+        <MudPaper>
+            <MudStack Style="margin: 5px auto">
+                <MudIcon Icon="@Icons.Material.Outlined.Cancel"/>
+                <MudText>1</MudText>
+                <MudText>Neviem</MudText>
+            </MudStack>
+        </MudPaper>
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
+    [Inject] private CompletedLessonWebFacade CompletedLessonWebFacade { get; set; } = null!;
+    [Inject] public NavigationManager Navigation { get; set; } = null!;
+    
+    private CompletedLessonDetailModel completedLesson { get; set; }
+    
+    
+}

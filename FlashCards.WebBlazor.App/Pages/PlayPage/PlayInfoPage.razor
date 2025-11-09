@@ -15,23 +15,26 @@
 
     <MudPaper
         Style="width: 60%; padding: 20px; margin: 20px auto; background-color: var(--card-background-Primary); border-radius: 15px;">
-        <MudStack Spacing="5" Row>
+        <MudStack Spacing="3" Row>
             <MudIcon Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.AutoAwesomeMotion"/>
-            <MudText Style="color: var(--card-text-Primary)" Typo="Typo.h6">@Collection.NumberOfCards</MudText>
+            <MudText Style="color: var(--card-text-Primary); margin-top: -2px" Typo="Typo.h6">@Collection.NumberOfCards</MudText>
         </MudStack>
-        <MudDivider/>
+        <MudDivider Style="margin: 5px auto"/>
         @if (string.IsNullOrEmpty(@Collection.Note))
         {
-            <MudText Style="color: var(--card-text-Primary)">Bez popisu</MudText>
+            <MudText Style="color: var(--card-text-Secondary)">Bez popisu</MudText>
         }
         else
         {
-            <MudText>@Collection.Note</MudText>
+            <MudText Style="color: var(--card-text-Primary)">@Collection.Note</MudText>
         }
     </MudPaper>
 
     <div style="text-align: center;">
-        <MudButton Style="width: 60%; margin: 20px auto; color: var(--card-text-Primary); background-color: rebeccapurple" StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large">Zacat</MudButton>
+        <MudButton
+            Style="width: 60%; margin: 20px auto; color: var(--card-text-Primary); background-color:#3b7a9e"
+            StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large" OnClick="HandleZacatUcenieClick">Zacat
+        </MudButton>
     </div>
 }
 
@@ -48,14 +51,10 @@
         Collection = await CardCollectionWebFacade.GetByIdAsync(Id);
     }
 
-    private void HandleSpatClick()
-    {
-        Navigation.NavigateTo("/CollectionPage");
-    }
-
     private void HandleZacatUcenieClick()
     {
         Navigation.NavigateTo($"/PlayPage/{Id}");
     }
+
 
 }
