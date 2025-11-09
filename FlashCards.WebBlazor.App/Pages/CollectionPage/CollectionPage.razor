@@ -1,0 +1,142 @@
+﻿@page "/CollectionPage"
+@using FlashCards.WebBlazor.App.Components
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashCards.WebBlazor.Bl.Facades
+
+@inject NavigationManager Navigation;
+
+<FilterComponent IsCardVisualisationList="@IsCardVisualisation" TypeOfVisualisationChangedEvent="@HandleVisualisation"
+                 IsDeleteModeActiveChangedEvent="HandleDeleteMode" SearchTermChangedEvent="HandleCollectionSearch"
+                 OrderTypeChangedEvent="HandleCollectionOrder"/>
+
+@if (CardCollectionsExt != null)
+{
+    <MudStack Class="collectionpage-specific-collection-container" Wrap="Wrap.Wrap" Row AlignItems="AlignItems.Start"
+              Justify="Justify.Center">
+        @foreach (var item in CardCollectionsExt)
+        {
+            <CollectionComponent
+                Id="@item.Id"
+                TValue="Guid"
+                Title="@item.Title"
+                Description="@item.Description"
+                CardCount="@item.NumberOfCards"
+                HeaderColor="#ff0000"
+                OnCardRun="HandleCardRun"
+                OnCardEdit="HandleCardEdit"
+                IsExpand="IsCardVisualisation"
+                IsSelected="@item.IsSelectedForDelete"/>
+        }
+    </MudStack>
+
+    <MudPagination Class="pagination-center-wrapper" Color="Color.Info" Size="Size.Large"
+                   Count="@((int)Math.Ceiling((double)CardCollectionsExt.Count / _pageSize) + 1)"
+                   @bind-Selected="@_selectedPage" @bind-Selected:after="OnInitializedAsync"/>
+}
+else
+{
+    <div style="text-align: center;">
+        <MudProgressCircular Color="Color.Info" Size="Size.Large" Indeterminate="true"/>
+    </div>
+}
+
+
+@code{
+    [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
+
+    private int _selectedPage = 1;
+    private int _pageSize = 20;
+
+    private class CardCollectionExt : CardCollectionListModel
+    {
+        public bool IsSelectedForDelete { get; set; } = false;
+    }
+
+    private List<CardCollectionExt>? CardCollectionsExt { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var collection = await CardCollectionWebFacade.GetAllAsync(null, null, OrderType, false, _selectedPage, _pageSize);
+        CardCollectionsExt = GetExtendedCardCollection(collection);
+    }
+
+    private bool IsCardVisualisation { get; set; } = false;
+    private bool IsDeleteModeActive { get; set; } = false;
+
+    private string OrderType { get; set; } = "";
+
+    private void HandleVisualisation(bool value)
+    {
+        IsCardVisualisation = value;
+        StateHasChanged();
+    }
+
+    private void HandleDeleteMode(bool value)
+    {
+        IsDeleteModeActive = value;
+        if (!IsDeleteModeActive)
+        {
+            var result = CardCollectionsExt?.FindAll(s => s.IsSelectedForDelete);
+            if (result != null)
+                foreach (var item in result)
+                {
+                    item.IsSelectedForDelete = false;
+                }
+        }
+
+        StateHasChanged();
+    }
+
+    private void HandleCardRun(Guid id)
+    {
+        var result = CardCollectionsExt?.Find(s => s.Id == id);
+
+        if (result != null && IsDeleteModeActive)
+        {
+            result.IsSelectedForDelete = !result.IsSelectedForDelete;
+        }
+        else
+        {
+            Navigation.NavigateTo($"/PlayInfoPage/{id}");
+        }
+    }
+
+    private void HandleCardEdit(Guid id)
+    {
+        Navigation.NavigateTo($"/CollectionEditPage/edit/{id}");
+    }
+
+    private async Task HandleCollectionSearch(string term)
+    {
+        var collection = await CardCollectionWebFacade.GetAllAsync(nameof(CardCollectionListModel.Title), term, OrderType, false, _selectedPage, _pageSize);
+        CardCollectionsExt = GetExtendedCardCollection(collection);
+    }
+
+    private void HandleCollectionOrder(string orderType)
+    {
+    }
+
+    private List<CardCollectionExt> GetExtendedCardCollection(ICollection<CardCollectionListModel> collection)
+    {
+        List<CardCollectionExt> extCollection = new();
+        if (extCollection == null) throw new ArgumentNullException(nameof(extCollection));
+
+        foreach (var item in collection)
+        {
+            extCollection.Add(new CardCollectionExt()
+            {
+                Id = item.Id,
+                Title = item.Title,
+                Description = item.Description,
+                NumberOfCards = item.NumberOfCards,
+                EndTimeForAcceptedAnswers = item.EndTimeForAcceptedAnswers,
+                LastModifiedDateTime = item.LastModifiedDateTime,
+                LastPlayedDateTime = item.LastPlayedDateTime,
+                StartTimeForAcceptedAnswers = item.StartTimeForAcceptedAnswers
+            });
+        }
+
+        return extCollection;
+    }
+
+}

@@ -1,0 +1,73 @@
+
+.custom-select-container {
+    position: relative;
+    display: inline-block;
+    min-width: 150px;
+    user-select: none;
+    height: auto;
+}
+
+.select-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid var(--selector-border-color) ;
+    border-radius: 10px;
+    padding: 14px;
+    background-color: var(--selector-background) ;
+    color: var(--selector-text-color) ;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.select-display:hover {
+    background-color: var(--selector-action-color) ;
+}
+
+.select-options-list {
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background-color: var(--selector-background) ;
+    border: 2px solid var(--selector-border-color) ;
+    border-top: none;
+    border-radius: 5px 5px 10px 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.select-options-list li {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--selector-text-color) ;
+}
+
+.select-options-list li:hover {
+    background-color: var(--selector-action-color) ;
+}
+
+.select-options-list li.selected {
+    background-color: var(--selector-selected-color) ;
+    font-weight: bold;
+}
+
+
+.select-arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--selector-border-color) ;
+
+    transition: transform 0.3s ease;
+}
+
+/* Stav, keď je dropdown otvorený: otočí šípku */
+.select-arrow.rotated {
+    transform: rotate(180deg);
+}

@@ -1,0 +1,255 @@
+﻿@page "/CollectionEditPage/edit/{Id:guid}"
+@page "/CollectionEditPage/create"
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashCards.WebBlazor.Bl.Facades
+
+<MudStack Row StretchItems="StretchItems.All" Style="margin: 15px auto; padding: 15px; width: 95%; border-radius: 10px;">
+    <MudButton ButtonType="ButtonType.Submit"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               OnClick="HandleSubmit">
+        @if (IsSavingProcess)
+        {
+            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+            <MudText Class="ms-2">Processing</MudText>
+        }
+        else
+        {
+            <MudText>Save</MudText>
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Secondary"
+               OnClick="ResetForm">
+        Reset
+    </MudButton>
+</MudStack>
+
+<MudForm Model="@Model" @ref="form" ValidationDelay="0">
+    <MudPaper Style="margin: 0 auto; padding: 15px; width: 95%; border-radius: 10px ;background-color: var(--form-background-Primary)">
+        <MudTextField @bind-Value="Model.Title"
+                      Style="color: var(--form-text-Primary);"
+                      AdornmentColor="Color.Info"
+                      Label="Názov kolekcie"
+                      For="@(() => Model.Title)"
+                      Required="true"
+                      RequiredError="Názov kolekcie je povinný."
+                      Clearable="true" 
+                      Variant="Variant.Outlined"/>
+        
+        <MudTextField @bind-Value="Model.Description"
+                      Style="color: var(--form-text-Primary);"
+                      AdornmentColor="Color.Info"
+                      Label="Popis kolekcie"
+                      For="@(() => Model.Description)"
+                      Clearable="true" 
+                      Variant="Variant.Outlined"/>
+            
+        <MudStack Row>
+            <MudDatePicker @bind-Date="StartTimeDate"
+                           Style="color: var(--form-text-Primary)"
+                           Label="Začiatok pre prijímané odpovede (Dátum)"
+                           DateFormat="dd.MM.yyyy"
+                           Clearable="true" 
+                           Variant="Variant.Outlined"/>
+            <MudDatePicker @bind-Date="EndTimeDate"
+                           Label="Koniec pre prijímané odpovede (Dátum)"
+                           DateFormat="dd.MM.yyyy"
+                           Clearable="true" 
+                           Variant="Variant.Outlined"/>
+        </MudStack>
+
+        <MudStack Row>
+            <MudTimePicker @bind-Time="StartTimeTime"
+                           Label="Začiatok pre prijímané odpovede"
+                           AmPm="false"
+                           Clearable="true" 
+                           Variant="Variant.Outlined"/>
+            <MudTimePicker @bind-Time="EndTimeTime"
+                           Label="Koniec pre prijímané odpovede (Čas)"
+                           AmPm="false"
+                           Clearable="true" 
+                           Variant="Variant.Outlined"/>
+        </MudStack>
+
+    </MudPaper>
+    
+    <MudDivider Style="margin: 20px auto; width: 90%;"/>
+
+    
+    <MudStack Row Style="margin: 0 auto; width: 95%" Justify="Justify.SpaceAround" Wrap="Wrap.Wrap">
+        @foreach (var item in CardModels)
+        {
+            <MudPaper Style="padding: 15px; width: 48%; border-radius: 10px ;background-color: var(--form-background-Primary)">
+                <MudStack Row StretchItems="StretchItems.All">
+            
+                    <MudTextField T="string" Label="Otazka" Variant="Variant.Outlined" Required="true" @bind-Value="@item.Question" />
+            
+                    <MudSelect T="EnumCardType" @bind-Value="@item.QuestionTypeEnum" Label="Type" Variant="Variant.Outlined">
+                        @foreach (var subItem in _CardOptions)
+                        {
+                            <MudSelectItem Value="@subItem.Key">
+                                <MudIcon Icon="@subItem.Value"/>
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+            
+                    <MudTextField T="string" Label="Odpoved" Variant="Variant.Outlined" Required="true" @bind-Value="@item.CorrectAnswer" />
+            
+                    <MudSelect T="EnumCardType" @bind-Value="@item.AnswerTypeEnum" Label="Type" Variant="Variant.Outlined">
+                        @foreach (var subItem in _CardOptions)
+                        {
+                            <MudSelectItem Value="@subItem.Key">
+                                <MudIcon Icon="@subItem.Value"/>
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
+        
+                <MudTextField T="string" Label="Description" Variant="Variant.Outlined" @bind-Value="@item.Description" />
+            </MudPaper>
+        }
+    </MudStack>
+    
+    <MudIconButton OnClick="@AddNewCard" Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Style="color: var(--form-background-Primary); margin: 20px auto; width: 95%; border-radius: 10px;"></MudIconButton>
+
+</MudForm>
+
+@code {
+    [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
+    [Inject] private CardWebFacade CardWebFacade { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+
+    [Parameter]
+    public Guid Id { get; set; } = Guid.Empty;
+
+    protected List<CardDetailModel> CardModels { get; set; } = new ();
+
+    private readonly Dictionary<EnumCardType, string> _CardOptions = new ()
+    {
+        { EnumCardType._0, Icons.Material.Filled.TextFields },
+        { EnumCardType._1, Icons.Material.Filled.Image }
+    };
+    
+    protected CardCollectionDetailModel Model { get; set; } = new();
+    private MudForm form = new();
+
+    private DateTime? StartTimeDate { get; set; }
+    private TimeSpan? StartTimeTime { get; set; }
+    private DateTime? EndTimeDate { get; set; }
+    private TimeSpan? EndTimeTime { get; set; }
+    
+    private TimeSpan DefaultOffset { get; set; } = TimeZoneInfo.Local.GetUtcOffset(DateTimeOffset.Now);
+
+    private bool IsSavingProcess { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            Model = await CardCollectionWebFacade.GetByIdAsync(Id);
+            CardModels.Clear();
+
+            foreach (var card in Model.Cards)
+            {
+                CardModels.Add(new CardDetailModel()
+                {
+                    Id = card.Id,
+                    Question = card.Question,
+                    QuestionTypeEnum = card.QuestionTypeEnum,
+                    CorrectAnswer = card.CorrectAnswer,
+                    AnswerTypeEnum = card.AnswerTypeEnum,
+                    Description = card.Description,
+                });
+            }
+        }
+        else
+        {
+            Model = new CardCollectionDetailModel
+            {
+                Title = "",
+                Description = "",
+                StartTimeForAcceptedAnswers = DateTimeOffset.Now,
+                EndTimeForAcceptedAnswers = DateTimeOffset.Now,
+                LastModifiedDateTime = DateTimeOffset.Now
+            };
+        }
+        
+        if (Model.StartTimeForAcceptedAnswers.HasValue)
+        {
+            StartTimeDate = Model.StartTimeForAcceptedAnswers.Value.DateTime;
+            StartTimeTime = Model.StartTimeForAcceptedAnswers.Value.TimeOfDay;
+            DefaultOffset = Model.StartTimeForAcceptedAnswers.Value.Offset;
+        }
+        if (Model.EndTimeForAcceptedAnswers.HasValue)
+        {
+            EndTimeDate = Model.EndTimeForAcceptedAnswers.Value.DateTime;
+            EndTimeTime = Model.EndTimeForAcceptedAnswers.Value.TimeOfDay;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        await form.Validate();
+        IsSavingProcess = true;
+
+        if (form.IsValid)
+        {
+            Model.StartTimeForAcceptedAnswers = CombineDateTimeOffset(StartTimeDate, StartTimeTime, Model.StartTimeForAcceptedAnswers?.Offset ?? DefaultOffset);
+            Model.EndTimeForAcceptedAnswers = CombineDateTimeOffset(EndTimeDate, EndTimeTime, Model.EndTimeForAcceptedAnswers?.Offset ?? DefaultOffset);
+
+            Model.LastModifiedDateTime = DateTimeOffset.Now;
+
+            
+            var collectionId = await CardCollectionWebFacade.SaveToApiAsync(Model);
+
+            if (collectionId == Guid.Empty)
+                collectionId = Id;
+
+            foreach (var cardDetailModel in CardModels)
+            {
+                cardDetailModel.CardCollectionId = collectionId;
+                await CardWebFacade.SaveToApiAsync(cardDetailModel);
+            }
+            Navigation.NavigateTo("/CollectionPage");
+        }
+        IsSavingProcess = false;
+    }
+
+    private async Task ResetForm()
+    {
+        form.ResetValidation();
+        await OnInitializedAsync();
+    }
+
+    private void AddNewCard()
+    {
+        CardModels.Add(
+            new CardDetailModel()
+            {
+                Question = "",
+                QuestionTypeEnum = 0,
+                CorrectAnswer = "",
+                AnswerTypeEnum = 0,
+                Description = "",
+            }
+        );
+        StateHasChanged();
+    }
+    
+    
+    private DateTimeOffset? CombineDateTimeOffset(DateTime? date, TimeSpan? time, TimeSpan offset)
+    {
+        if (date.HasValue)
+        {
+            var datePart = date.Value.Date;
+            var timePart = time ?? new TimeSpan(0, 0, 0);
+
+            var dateTime = datePart.Add(timePart);
+
+            return new DateTimeOffset(dateTime, offset);
+        }
+        
+        return null; 
+    }
+}

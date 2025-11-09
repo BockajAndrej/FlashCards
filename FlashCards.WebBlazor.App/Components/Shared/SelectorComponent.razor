@@ -1,0 +1,61 @@
+﻿@typeparam TItem
+@typeparam TValue
+
+<div class="custom-select-container">
+    <div class="select-display @(IsDropdownOpen ? "open" : "")" @onclick="ToggleDropdown">
+        @SelectedDisplay
+        <span class="select-arrow @(IsDropdownOpen ? "rotated" : "")"></span>
+    </div>
+    
+    @if (IsDropdownOpen)
+    {
+        <ul class="select-options-list">
+            @foreach (var item in Items)
+            {
+                <li class="@(Comparer.Equals(Value, ValueSelector(item)) ? "selected" : "")"
+                    @onclick="() => HandleSelection(item)">
+                    @ItemTemplate(item)
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    private bool IsDropdownOpen { get; set; } = false;
+
+    [Parameter]
+    public TValue Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TValue> ValueChanged { get; set; }
+    
+    [Parameter]
+    public IReadOnlyList<TItem> Items { get; set; }
+
+    [Parameter]
+    public Func<TItem, TValue> ValueSelector { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem> ItemTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment SelectedDisplay { get; set; }
+
+    protected IEqualityComparer<TValue> Comparer { get; set; } = EqualityComparer<TValue>.Default;
+
+    
+    private void ToggleDropdown()
+    {
+        IsDropdownOpen = !IsDropdownOpen;
+    }
+
+    private async Task HandleSelection(TItem selectedItem)
+    {
+        TValue newValue = ValueSelector(selectedItem);
+        
+        await ValueChanged.InvokeAsync(newValue);
+
+        IsDropdownOpen = false;
+    }
+}

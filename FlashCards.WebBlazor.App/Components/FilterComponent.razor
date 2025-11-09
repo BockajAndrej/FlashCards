@@ -1,0 +1,103 @@
+﻿@using FlashCards.WebBlazor.App.Components.Shared
+
+
+<MudPaper Class="filtercomponent-specific-paper" Outlined>
+    <MudStack Row>
+        @if (IsCardVisualisationList)
+        {
+            <MudIconButton Class="filtercomponent-specific-layoutBtn" Icon="@Icons.Material.Filled.Dashboard" OnClick="TypeOfVisualisationChanged"></MudIconButton>
+        }
+        else
+        {
+            <MudIconButton Class="filtercomponent-specific-layoutBtn" Icon="@Icons.Material.Filled.TableRows" OnClick="TypeOfVisualisationChanged"></MudIconButton>
+        }
+        <SelectorComponent TItem="SelectOption" TValue="string"
+                           Items="OrderTypeValues"
+                           ValueSelector="(option) => option.ValueId"
+                           @bind-Value="@OrderType">
+
+            <ItemTemplate Context="option">
+                <span>@option.DisplayName</span>
+            </ItemTemplate>
+
+            <SelectedDisplay>
+                @{
+                    var currentOption = OrderTypeValues.FirstOrDefault(o => o.ValueId == OrderType);
+                }
+                @if (currentOption != null)
+                {
+                    <strong>@currentOption.DisplayName</strong>
+                }
+                else
+                {
+                    <span>Vyberte poradie...</span>
+                }
+            </SelectedDisplay>
+
+        </SelectorComponent>
+        <input class="filtercomponent-specific-searchbar" type="text" placeholder="Search..." @bind-value="SearchTerm" 
+               @bind-value:event="oninput" 
+               @bind-value:after="SearchTermChanged"/>
+        
+        @if (IsDeleteModeActive)
+        {
+            <MudIconButton Class="filtercomponent-specific-deleteBtn" Style="background-color: var(--color-error);" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
+            <MudIconButton Class="filtercomponent-specific-deleteBtn" Icon="@Icons.Material.Filled.Close" OnClick="IsDeleteModeActiveChanged"></MudIconButton>
+        }
+        else
+        {
+            <MudIconButton Class="filtercomponent-specific-deleteBtn"  Icon="@Icons.Material.Filled.Delete" OnClick="IsDeleteModeActiveChanged"></MudIconButton>
+        }
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter] public bool IsCardVisualisationList { get; set; } = false;
+    [Parameter] public EventCallback<bool> TypeOfVisualisationChangedEvent { get; set; }
+
+    [Parameter] public bool IsDeleteModeActive { get; set; } = false;
+    [Parameter] public EventCallback<bool> IsDeleteModeActiveChangedEvent { get; set; }
+
+    [Parameter] public string SearchTerm { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> SearchTermChangedEvent { get; set; }
+
+    [Parameter] public string OrderType { get; set; } = "a";
+    [Parameter] public EventCallback<string> OrderTypeChangedEvent { get; set; }
+
+    public class SelectOption
+    {
+        public string ValueId { get; set; }
+        public string DisplayName { get; set; }
+    }
+
+    // Váš zoznam dát
+    private List<SelectOption> OrderTypeValues = new List<SelectOption>
+    {
+        new SelectOption { ValueId = "a", DisplayName = "A-Z" },
+        new SelectOption { ValueId = "b", DisplayName = "Z-A" },
+        new SelectOption { ValueId = "c", DisplayName = "Recently played" }
+    };
+
+    private async Task TypeOfVisualisationChanged()
+    {
+        IsCardVisualisationList = !IsCardVisualisationList;
+        await TypeOfVisualisationChangedEvent.InvokeAsync(IsCardVisualisationList);
+    }
+
+    private async Task IsDeleteModeActiveChanged()
+    {
+        IsDeleteModeActive = !IsDeleteModeActive;
+        await IsDeleteModeActiveChangedEvent.InvokeAsync(IsDeleteModeActive);
+    }
+
+    private async Task OrderTypeChanged()
+    {
+        await OrderTypeChangedEvent.InvokeAsync(OrderType);
+    }
+
+    private async Task SearchTermChanged()
+    {
+        await SearchTermChangedEvent.InvokeAsync(SearchTerm);
+    }
+
+}

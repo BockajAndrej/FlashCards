@@ -1,0 +1,61 @@
+﻿@page "/PlayInfoPage/{Id:guid}"
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashCards.WebBlazor.Bl.Facades
+
+<MudButton Style="color: var(--card-text-Primary); margin: 20px;" StartIcon="@Icons.Material.Filled.ArrowBack"
+           Size="Size.Large" Href="/CollectionPage">Spat
+</MudButton>
+
+@if (Collection != null)
+{
+    <div style="text-align: center;">
+        <MudText Style="color: var(--color-text-main)" Typo="Typo.h4">@Collection.Title</MudText>
+        <MudText Style="color: var(--color-text-secondary)" Typo="Typo.body1">@Collection.Description</MudText>
+    </div>
+
+    <MudPaper
+        Style="width: 60%; padding: 20px; margin: 20px auto; background-color: var(--card-background-Primary); border-radius: 15px;">
+        <MudStack Spacing="5" Row>
+            <MudIcon Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.AutoAwesomeMotion"/>
+            <MudText Style="color: var(--card-text-Primary)" Typo="Typo.h6">@Collection.NumberOfCards</MudText>
+        </MudStack>
+        <MudDivider/>
+        @if (string.IsNullOrEmpty(@Collection.Note))
+        {
+            <MudText Style="color: var(--card-text-Primary)">Bez popisu</MudText>
+        }
+        else
+        {
+            <MudText>@Collection.Note</MudText>
+        }
+    </MudPaper>
+
+    <div style="text-align: center;">
+        <MudButton Style="width: 60%; margin: 20px auto; color: var(--card-text-Primary); background-color: rebeccapurple" StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large">Zacat</MudButton>
+    </div>
+}
+
+@code {
+    [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
+    [Inject] public NavigationManager Navigation { get; set; } = null!;
+
+    [Parameter] public Guid Id { get; set; }
+
+    private CardCollectionDetailModel? Collection { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Collection = await CardCollectionWebFacade.GetByIdAsync(Id);
+    }
+
+    private void HandleSpatClick()
+    {
+        Navigation.NavigateTo("/CollectionPage");
+    }
+
+    private void HandleZacatUcenieClick()
+    {
+        Navigation.NavigateTo($"/PlayPage/{Id}");
+    }
+
+}
