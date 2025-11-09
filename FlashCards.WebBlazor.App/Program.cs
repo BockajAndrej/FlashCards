@@ -4,6 +4,7 @@ using FlashCards.WebBlazor.App;
 using FlashCards.WebBlazor.Bl.ApiClient;
 using FlashCards.WebBlazor.Bl.Installers;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using MudBlazor.Services;
 using Syncfusion.Blazor;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -49,10 +50,10 @@ builder.Services.AddHttpClient<ICompletedLessonApiClient, CompletedLessonApiClie
 builder.Services.AddOidcAuthentication(options =>
 {
     builder.Configuration.Bind("IdentityServer", options.ProviderOptions);
+    options.AuthenticationPaths.LogOutSucceededPath = "/";
 });
 
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(builder.Configuration.GetSection("Licenses")["SyncfusionKey"]);
-builder.Services.AddSyncfusionBlazor();
+builder.Services.AddMudServices();
 
 WebBlInstaller.Install(builder.Services, apiBaseUrl);
 

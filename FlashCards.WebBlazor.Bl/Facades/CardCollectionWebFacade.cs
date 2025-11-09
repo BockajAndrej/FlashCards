@@ -28,7 +28,12 @@ public class CardCollectionWebFacade(ICardCollectionApiClient apiClient) : IWebF
 
 	public async Task<Guid> SaveToApiAsync(CardCollectionDetailModel data)
 	{
-		var result = await apiClient.CardCollectionPOSTAsync(data);
-		return (Guid)result.Id!;
+		if (data.Id == Guid.Empty)
+		{
+			var result = await apiClient.CardCollectionPOSTAsync(data);
+			return result.Id;
+		}
+		await apiClient.CardCollectionPUTAsync(data.Id, data);
+		return Guid.Empty;
 	}
 }

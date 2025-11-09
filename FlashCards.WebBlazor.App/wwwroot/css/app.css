@@ -1,5 +1,57 @@
+:root {
+    /* Akcentové farby */
+    --color-primary: #1b6ec2;
+    --color-link: #0071c1;
+    --color-success: #26b050;
+    --color-error: red;
+    /* Svetle pozadie a svetlý text */
+    --color-background-app: #1a3a51;
+    --coloer-border-app: #35546b;
+
+    --color-background-Primary: #1d536b;
+    --color-background-Secondary: #234962;
+    --color-background-Tercial: #74bbcc;
+    --color-background-Quartal: #6f919f;
+    
+    --color-action-Primary: #1b5167;
+    --color-action-Secondary: #2b86b3;
+
+    --color-text-main: #f2f2f2;
+    --color-text-secondary: #c8c8c8;
+    --color-text-secondary-main: #FFF0DD;
+    --color-text-secondary-secondary: #FFF0DD;
+    --color-surface: #ffffff;
+    --color-loading-circle: #1b6ec2;
+    
+    --filtercomponent-background: var(--color-background-Secondary);
+    --filtercomponent-text-color: var(--color-text-secondary);
+    --filtercomponent-action-color: var(--color-action-Primary);
+    --filtercomponent-selected-color: var(--color-action-Secondary);
+    --filtercomponent-border-color: var(--coloer-border-app);
+    
+    --selector-background: var(--filtercomponent-background);
+    --selector-text-color: var(--filtercomponent-text-color);
+    --selector-action-color: var(--filtercomponent-action-color);
+    --selector-selected-color: var(--filtercomponent-selected-color);
+    --selector-border-color: var(--filtercomponent-border-color);
+
+    --card-background-Primary: var(--color-background-Secondary);
+    --card-background-Secondary: var(--color-background-Primary);
+    --card-text-Primary: var(--color-text-main);
+    --card-text-Secondary: var(--color-text-secondary);
+    --card-action: var(--color-action-Primary);
+    --card-border: var(--color-background-Secondary);
+
+    --form-background-Primary: var(--color-text-main);
+    --form-background-Secondary: var(--color-background-Secondary);
+    --form-text-Primary: var(--color-background-Primary);
+    --form-text-Secondary: var(--color-text-secondary);
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: var(--color-background-app);    
+    scrollbar-gutter: stable;
 }
 
 h1:focus {
@@ -117,104 +169,123 @@ code {
 /*-----------------SPECIFICATION-----------------*/
 /*-----------------------------------------------*/
 
-/*------------ Card ------------*/
-.e-card {
-    flex: calc(32%) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-    box-sizing: border-box !important;
-    max-width: calc(32%) !important;
-    min-width: 300px !important;
+/* -- MUDBLAZOR -- */
+/* -- Global --*/
+.global-background {
+    background-color: var(--color-background-app);
 }
 
-.e-card:hover{
-    transform: translateY(-5px) !important;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+.pagination-center-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    color: var(--color-text-main);
+}
+
+
+.appbar-specific{
+    margin: 5px auto !important; 
+    width: 95% !important; 
+    border-radius: 50px !important;
+    background-color: var(--color-background-Primary) !important;
+}
+
+.appbar-specific-mudavatar{
+    width: 35px !important; 
+    height: 35px !important;
+    background-color: transparent !important;
+}
+
+.appbar-specific-text{
+    color: var(--color-text-main) !important;
+}
+
+.appbar-specific-buttons{
+    color: var(--color-text-main) !important;
+    border-radius: 20px !important; 
+    padding-left: 100px !important; 
+    padding-right: 100px !important;
+}
+
+
+
+.filtercomponent-specific-paper{
+    background-color: var(--filtercomponent-background) !important;
+    border: 2px solid var(--filtercomponent-border-color) !important;
+    border-radius: 10px !important;
+    margin: 10px auto !important;
+    width: 95% !important;
+    padding: 10px !important;
+}
+
+.filtercomponent-specific-layoutBtn{
+    border-radius: 10px !important;
+    border: 2px solid var(--filtercomponent-border-color) !important;
+    color: var(--filtercomponent-text-color) !important;
+}
+.filtercomponent-specific-deleteBtn{
+    border-radius: 10px !important;
+    border: 2px solid var(--filtercomponent-border-color) !important;
+    color: var(--filtercomponent-text-color) !important;
+}
+.filtercomponent-specific-searchbar{
+    background-color: var(--filtercomponent-background) !important;
+    color: var(--filtercomponent-text-color) !important;
+    border-radius: 10px;
+    border: 2px solid var(--filtercomponent-border-color) !important ;
+    width: 100% !important;
+    padding: 10px !important;
+    font-size: 18px !important;
+}
+.filtercomponent-specific-searchbar:focus{
+    background-color: var(--filtercomponent-action-color) !important;
+    outline: none !important;
+}
+
+.filtercomponent-specific-searchbar:hover{
+    background-color: var(--filtercomponent-action-color) !important;
+}
+
+
+
+.collectionpage-specific-collection-container{
+    margin: 10px auto !important;
+    background-color: var(--color-background-app);
+}
+.collectionpagecomponent-specific-card-paper {
+    min-width: 400px;
+    padding: 20px 25px;
+    overflow: hidden !important;
+    border-radius: 10px !important;
+}
+.collectionpagecomponent-specific-card-paper:hover {
+    margin: -5px 0 !important;
     cursor: pointer !important;
 }
-.e-card:active{
-    border-color: rgba(171, 62, 255) !important;
-}
-
-.e-card-content {
-    color: gray !important;
-}
-
-.e-card .e-card-header {
-    font-family: "Arial Black", Arial, sans-serif;
-    font-style: normal;
-}
-
-.card-specific-userprofile-navbar{
-}
-
-/*------------ Button ------------*/
-.btn-specific-cardcollection-navbar{
-    background-color: transparent !important;
-    height: 35px !important;
-    color: #fdbd00 !important;
-    border: none !important;
-    min-width: 200px !important;
-}
-.btn-specific-cardcollection-navbar:hover{
-    background-color: transparent !important;
-    color: #00fdfd !important;
-    border: none !important;
-}
-
-/*------------ Searchbar ------------*/
-.searchbar-specific-navbar{
-    border-radius: 10px !important;
-    background-color: rgb(221, 221, 221) !important;
-}
-
-.searchbar-specific-filterbox{
-    height: 100% !important;
-    border-radius: 10px !important;
-    background-color: rgb(255, 255, 255) !important;
-    font-size: 20px !important;
-    align-items: center !important;
-}
-
-
-/*------------ AppBar ------------*/
-.appbar-specific-navbar {
-    min-height: 50px !important;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    background-color: rgb(4, 20, 53) !important;
-    overflow: visible !important;
-}
-
-/*------------ BreadCrumb ------------*/
-.breadcrumb-specific-navbar{
-    background-color: rgb(186, 186, 186) !important;
-}
-
-/*------------ DropDown ------------*/
-.dropdown-specific-filterbox {
-    background-color: white !important;
-    width: 200px !important;
-    height: 100% !important;
-    align-items: center !important;
-    border-radius: 10px !important;
-    font-size: 16px !important;
-}
-
-.dropdown-specific-filterbox-item {
+.collectionpagecomponent-specific-card-paper-list{
+    width: 95%; 
+    margin: -7px 0; 
+    padding: 5px 15px;
+    overflow: hidden !important;
     border-radius: 10px !important;
 }
+.collectionpagecomponent-specific-card-paper-list:hover {
+    width: 97%;
+    cursor: pointer !important;
+}
 
-/*---------------------------------*/
-/*-------------- OWN --------------*/
-/*---------------------------------*/
-
-.application-logo-navbar {
-    background-image: url("/Images/flash-card.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    height: 30px;
-    width: 30px;
+.collectionpagecomponent-specific-card-count-badge {
+    margin: 0;
+    height: min-content !important;
+    border-radius: 5px !important;
+    background-color: var(--card-background-Secondary) !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    color: var(--card-text-Primary) !important;
 }

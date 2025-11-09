@@ -1,35 +1,98 @@
-﻿@using Syncfusion.Blazor.Navigations
-@using Syncfusion.Blazor.Buttons
-@using FlashCards.WebBlazor.App.Components
-@using Syncfusion.Blazor.Inputs
+﻿@using IdentityModel
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 @inject NavigationManager Navigation;
 
-<SfAppBar CssClass="appbar-specific-navbar">
-    <a href="/" role="link">
-        <div class="application-logo-navbar"></div>
-    </a>
-    
-    <AppBarSpacer></AppBarSpacer>
-    <SfButton IconCss="fa-solid fa-grip" CssClass="btn-specific-cardcollection-navbar" Content="Overview" @onclick="OnCardCollectionBtnClicked"></SfButton>
-    <AppBarSpacer></AppBarSpacer>
-    <AppBarSeparator></AppBarSeparator>
-    <SfButton IconCss="fa-solid fa-plus" CssClass="btn-specific-cardcollection-navbar" Content="Collection" @onclick="OnCardCollectionBtnClicked"></SfButton>
-    <AppBarSpacer></AppBarSpacer>
-    <AppBarSeparator></AppBarSeparator>
-    <SfButton IconCss="fa-solid fa-plus" CssClass="btn-specific-cardcollection-navbar" Content="Card" @onclick="OnCardCollectionBtnClicked"></SfButton>
-    <AppBarSpacer></AppBarSpacer>
-    <SfTextBox CssClass="searchbar-specific-navbar" Placeholder='Search...'></SfTextBox>
-    
-    <AppBarSpacer></AppBarSpacer>
-    <LoginDisplay/>
-</SfAppBar>
+<MudAppBar Class="appbar-specific" Dense Elevation="5">
+    <MudAvatar Class="appbar-specific-mudavatar" Square>
+        <MudImage Src="Images/flash-card.png"></MudImage>
+    </MudAvatar>
+    <MudSpacer/>
+    <MudButton Class="appbar-specific-buttons" Href="/CollectionPage" StartIcon="@Icons.Material.Filled.CollectionsBookmark">Collections</MudButton>
+    <MudButton Class="appbar-specific-buttons" Href="/CollectionEditPage/create" StartIcon="@Icons.Material.Filled.Create">New Collection</MudButton>
+    <MudButton Class="appbar-specific-buttons" StartIcon="@Icons.Material.Filled.QueryStats">Statistics</MudButton>
+    <MudSpacer/>
+    <AuthorizeView>
+        <Authorizing>
+            <MudIconButton Class="appbar-specific-text" Icon="@Icons.Material.Filled.Login" Href="authentication/login"></MudIconButton>
+        </Authorizing>
+        <Authorized>
+            <MudMenu OpenChanged="@ToggleProfile" RelativeWidth="DropdownWidth.Adaptive" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <ActivatorContent>
+                    <MudAvatar Class="appbar-specific-mudavatar">
+                        <MudImage Src="@ProfileImage" Alt="Profile"/>
+                    </MudAvatar>
+                </ActivatorContent>
+                <ChildContent >
+                    <MudStack Style="margin-left: 10px; margin-right: 50px" Spacing="1">
+                        <MudText Typo="Typo.h6"> @UserName</MudText>
+                    </MudStack>
+                    <MudDivider/>
+                    <MudMenuItem Href="/ProfilePage" Icon="@Icons.Material.Filled.Person">Profile</MudMenuItem>
+                    <MudDivider/>
+                    <MudMenuItem OnClick="@BeginLogOut" Icon="@Icons.Material.Filled.Logout">Log out</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        </Authorized>
+        <NotAuthorized>
+            <MudIconButton Class="appbar-specific-text" Icon="@Icons.Material.Filled.Login" Href="authentication/login"></MudIconButton>
+        </NotAuthorized>
+    </AuthorizeView>
+</MudAppBar>
 
 @code{
-
-    private void OnCardCollectionBtnClicked()
+    const string DefaultProfileImage = "Images/randomBoyIcon.png";
+    
+    [Inject] public AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
+    [Parameter] public string UserName { get; set; } = "Default User";
+    [Parameter] public string UserRole { get; set; } = "Default Role";
+    [Parameter] public string ProfileImage { get; set; } = DefaultProfileImage;
+    
+    private bool _openProfile = true;
+    
+    protected override async Task OnInitializedAsync()
     {
-        Navigation.NavigateTo("/FlashCardsCollectionsPage");
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        await GetUserInfo();
     }
+    
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        await GetUserInfo();
+        StateHasChanged();
+    }
+    
+    public void BeginLogOut()
+    {
+        Navigation.NavigateToLogout("authentication/logout");
+    }
+    
+    private async Task GetUserInfo()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            if (user.Identity.Name != null) 
+                UserName = user.Identity.Name;
+            else
+                UserName = "Anonymous";
+            var userRole = user.FindFirst(JwtClaimTypes.Role);
+            if (userRole != null)
+                UserRole = userRole.Value;
+            else
+                UserRole = "None";
+            var pictureClaim = user.FindFirst(JwtClaimTypes.Picture);
+            if (pictureClaim != null)
+                ProfileImage = pictureClaim.Value;
+            else
+                ProfileImage = DefaultProfileImage;
+        }
+    }
+    
+    private void ToggleProfile()
+    {
+        _openProfile = !_openProfile;
+    }
 }
