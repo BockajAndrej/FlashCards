@@ -34,6 +34,20 @@
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js?v=1"></script>
 
+    <script>
+        /*Posunie okno prehliadača na samý spodok dokumentu.*/
+        function scrollToBottom() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        /**Posunie okno na špecifický element podľa ID.(Alternatíva, ak chceš cieliť na konkrétne miesto.)*/
+        function scrollToElement(elementId) {
+            document.getElementById(elementId).scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 
 </html>

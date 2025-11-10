@@ -3,27 +3,61 @@
 
 @inject NavigationManager Navigation;
 
-<MudAppBar Class="appbar-specific" Dense Elevation="5">
+<MudAppBar Class="appbar-specific" Dense Elevation="0">
     <MudAvatar Class="appbar-specific-mudavatar" Square>
         <MudImage Src="Images/flash-card.png"></MudImage>
     </MudAvatar>
-    <MudSpacer/>
-    <MudButton Class="appbar-specific-buttons" Href="/CollectionPage" StartIcon="@Icons.Material.Filled.CollectionsBookmark">Collections</MudButton>
-    <MudButton Class="appbar-specific-buttons" Href="/CollectionEditPage/create" StartIcon="@Icons.Material.Filled.Create">New Collection</MudButton>
-    <MudButton Class="appbar-specific-buttons" Href="/StatisticPage" StartIcon="@Icons.Material.Filled.QueryStats">Statistics</MudButton>
+    
+    <MudDivider Style="margin: 0 15px; height: 60%;" Vertical="true"/>
+    
+    <AuthorizeView>
+        <Authorized>
+            <MudStack Row StretchItems="StretchItems.All" Style="margin: 0 auto; align-items: center;"> 
+                <MudNavLink 
+                    Class="appbar-specific-buttons" 
+                    Match="NavLinkMatch.Prefix" 
+                    Href="/CollectionPage"
+                    Icon="@Icons.Material.Filled.MenuBook"
+                    IconColor="Color.Inherit"
+                    ActiveClass="appbar-specific-buttons-matchingPrefix">Collections
+                </MudNavLink>
+                <MudNavLink 
+                    Class="appbar-specific-buttons" 
+                    Match="NavLinkMatch.Prefix" 
+                    Href="/CollectionEditPage/create"
+                    Icon="@Icons.Material.Filled.Add" 
+                    IconColor="Color.Inherit"
+                    ActiveClass="appbar-specific-buttons-matchingPrefix">Create Collection
+                </MudNavLink>
+                <MudNavLink 
+                    Class="appbar-specific-buttons nav-link-appbar" 
+                    Match="NavLinkMatch.Prefix" 
+                    Href="/StatisticPage"
+                    Icon="@Icons.Material.Filled.BarChart" 
+                    IconColor="Color.Inherit"
+                    ActiveClass="appbar-specific-buttons-matchingPrefix">Statistics
+                </MudNavLink>
+            </MudStack>
+        </Authorized>
+    </AuthorizeView>
+    
+
+
     <MudSpacer/>
     <AuthorizeView>
         <Authorizing>
-            <MudIconButton Class="appbar-specific-text" Icon="@Icons.Material.Filled.Login" Href="authentication/login"></MudIconButton>
+            <MudIconButton Class="appbar-specific-text" Icon="@Icons.Material.Filled.Login"
+                           Href="authentication/login"></MudIconButton>
         </Authorizing>
         <Authorized>
-            <MudMenu OpenChanged="@ToggleProfile" RelativeWidth="DropdownWidth.Adaptive" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <MudMenu OpenChanged="@ToggleProfile" RelativeWidth="DropdownWidth.Adaptive"
+                     AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
                 <ActivatorContent>
                     <MudAvatar Class="appbar-specific-mudavatar">
                         <MudImage Src="@ProfileImage" Alt="Profile"/>
                     </MudAvatar>
                 </ActivatorContent>
-                <ChildContent >
+                <ChildContent>
                     <MudStack Style="margin-left: 10px; margin-right: 50px" Spacing="1">
                         <MudText Typo="Typo.h6"> @UserName</MudText>
                     </MudStack>
@@ -35,38 +69,39 @@
             </MudMenu>
         </Authorized>
         <NotAuthorized>
-            <MudIconButton Class="appbar-specific-text" Icon="@Icons.Material.Filled.Login" Href="authentication/login"></MudIconButton>
+            <MudIconButton Class="appbar-specific-text" Icon="@Icons.Material.Filled.Login"
+                           Href="authentication/login"></MudIconButton>
         </NotAuthorized>
     </AuthorizeView>
 </MudAppBar>
 
 @code{
     const string DefaultProfileImage = "Images/randomBoyIcon.png";
-    
+
     [Inject] public AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
     [Parameter] public string UserName { get; set; } = "Default User";
     [Parameter] public string UserRole { get; set; } = "Default Role";
     [Parameter] public string ProfileImage { get; set; } = DefaultProfileImage;
-    
+
     private bool _openProfile = true;
-    
+
     protected override async Task OnInitializedAsync()
     {
         AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
         await GetUserInfo();
     }
-    
+
     private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
     {
         await GetUserInfo();
         StateHasChanged();
     }
-    
+
     public void BeginLogOut()
     {
         Navigation.NavigateToLogout("authentication/logout");
     }
-    
+
     private async Task GetUserInfo()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -74,7 +109,7 @@
 
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {
-            if (user.Identity.Name != null) 
+            if (user.Identity.Name != null)
                 UserName = user.Identity.Name;
             else
                 UserName = "Anonymous";
@@ -90,9 +125,10 @@
                 ProfileImage = DefaultProfileImage;
         }
     }
-    
+
     private void ToggleProfile()
     {
         _openProfile = !_openProfile;
     }
+
 }

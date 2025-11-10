@@ -3,66 +3,66 @@
 
 @if (IsExpand)
 {
-    <MudPaper Class="collectionpagecomponent-specific-card-paper-list" Style="@(IsSelected ? "border: 1px solid var(--color-error); background-color: rgba(255, 0, 0, 0.05)" : "background-color: var(--card-background-Primary)")" @onclick="@HandleCardRun">
+    <MudPaper Class="collectionpagecomponent-specific-card-paper-list"
+              Style="@(IsSelected ? "border: 1px solid var(--color-error); background-color: rgba(255, 0, 0, 0.05)" : "background-color: var(--card-background-Primary)")"
+              @onclick="@HandleCardRun">
         <MudPaper Style="border-radius: 0; width: 5px; background-color: red; margin-left: -15px;"></MudPaper>
         <MudStack Row>
             <MudText Style="color: var(--card-text-Primary);margin: auto 0;" Typo="Typo.h6">@Title</MudText>
             <MudSpacer/>
             <MudText Style="color: var(--card-text-Secondary);margin: auto 0;" Typo="Typo.body1">@Description</MudText>
             <MudSpacer/>
-            <MudText Class="collectionpagecomponent-specific-card-count-badge" Style="margin: auto 0;">@CardCount @(CardCount == 1 ? "karta" : "kariet")</MudText>
-            <MudIconButton Style="color: var(--card-text-Secondary); margin: auto 0" 
-                           Icon="@Icons.Material.Filled.Edit" @onclick="HandleCardEdit"/>
+            <MudText Class="collectionpagecomponent-specific-card-count-badge"
+                     Style="margin: auto 0;">@CardCount @(CardCount == 1 ? "card" : "cards")</MudText>
         </MudStack>
     </MudPaper>
 }
 else
 {
-    <MudPaper Class="collectionpagecomponent-specific-card-paper" Style="@(IsSelected ? "border: 1px solid var(--color-error); background-color: rgba(255, 0, 0, 0.05)" : "background-color: var(--card-background-Primary)")" @onclick="@HandleCardRun">
-        <MudPaper Style="border-radius: 0; width: 5px; background-color: rgba(255, 0, 0, 0.2); margin-left: -15px;"></MudPaper>
+    <MudPaper Class="collectionpagecomponent-specific-card-paper"
+              Style="@(IsSelected ? "border: 1px solid var(--color-error); background-color: rgba(255, 0, 0, 0.05)" : "background-color: var(--card-background-Primary)")"
+              @onclick="@HandleCardRun">
+        <MudPaper
+            Style="border-radius: 0; width: 5px; background-color: rgba(255, 0, 0, 0.2); margin-left: -15px;"></MudPaper>
         <MudStack Row>
-            <MudText Style="color: var(--card-text-Primary)" Typo="Typo.h5">@Title</MudText>
+            <MudText
+                Style="color: var(--card-text-Primary); max-width: 200px; white-space: normal;"
+                Typo="Typo.h5">
+                @Title
+            </MudText>
             <MudSpacer/>
-            <MudText Class="collectionpagecomponent-specific-card-count-badge">@CardCount @(CardCount == 1 ? "karta" : "kariet")</MudText>
-            <MudIconButton Style="color: var(--card-text-Secondary); margin-top: -20px;margin-right: -20px;" Icon="@Icons.Material.Filled.Edit" @onclick="HandleCardEdit"/>
+            <MudText
+                Class="collectionpagecomponent-specific-card-count-badge">@CardCount @(CardCount == 1 ? "karta" : "kariet")</MudText>
         </MudStack>
-        <MudText Style="color: var(--card-text-Secondary)" Typo="Typo.body2">@Description</MudText>
+        <MudText Style="color: var(--card-text-Secondary); max-width: 200px;" Typo="Typo.body2">@(string.IsNullOrEmpty(Description) ? "Description" : Description)</MudText>
     </MudPaper>
 }
 
 
 @code {
-    [Parameter]
-    public TValue Id { get; set; }
-    [Parameter]
-    public string Title { get; set; } = "Názov kurzu";
-    [Parameter]
-    public string Description { get; set; } = "Podrobný popis pre začiatočníkov.";
-    [Parameter]
-    public int CardCount { get; set; } = 5;
-    [Parameter]
-    public string HeaderColor { get; set; } = "#ff0000"; // Dynamická farba čiary
-    
-    [Parameter]
-    public bool IsExpand { get; set; } = false;
-    
-    [Parameter]
-    public bool IsSelected { get; set; } = false;
-    
-    [Parameter]
-    public EventCallback<TValue> OnCardRun { get; set; }
-    [Parameter]
-    public EventCallback<TValue> OnCardEdit { get; set; }
+    [Parameter] public TValue Id { get; set; }
+    [Parameter] public string Title { get; set; } = "Názov kurzu";
+    [Parameter] public string Description { get; set; } = "Podrobný popis pre začiatočníkov.";
+    [Parameter] public int CardCount { get; set; } = 5;
+    [Parameter] public string HeaderColor { get; set; } = "#ff0000"; // Dynamická farba čiary
+
+    [Parameter] public bool IsExpand { get; set; } = false;
+
+    [Parameter] public bool IsSelected { get; set; } = false;
+
+    [Parameter] public EventCallback<TValue> OnCardRun { get; set; }
+    [Parameter] public EventCallback<TValue> OnCardEdit { get; set; }
 
     private async Task HandleCardRun()
     {
         // Vráti ID karty
         await OnCardRun.InvokeAsync(Id);
     }
-    
+
     private async Task HandleCardEdit()
     {
         // Vráti ID karty
         await OnCardEdit.InvokeAsync(Id);
     }
+
 }

@@ -42,9 +42,9 @@
     --card-action: var(--color-action-Primary);
     --card-border: var(--color-background-Secondary);
 
-    --form-background-Primary: var(--color-text-main);
+    --form-background-Primary: var(--card-background-Primary);
     --form-background-Secondary: var(--color-background-Secondary);
-    --form-text-Primary: var(--color-background-Primary);
+    --form-text-Primary: var(--card-text-Primary);
     --form-text-Secondary: var(--color-text-secondary);
 }
 
@@ -190,10 +190,10 @@ code {
 
 
 .appbar-specific{
-    margin: 5px auto !important; 
-    width: 95% !important; 
-    border-radius: 50px !important;
-    background-color: var(--color-background-Primary) !important;
+    margin: 0 auto !important; 
+    width: 100% !important; 
+    background-color: var(--color-background-app) !important;
+    border-bottom: 1px solid var(--filtercomponent-border-color) !important;
 }
 
 .appbar-specific-mudavatar{
@@ -208,11 +208,18 @@ code {
 
 .appbar-specific-buttons{
     color: var(--color-text-main) !important;
-    border-radius: 20px !important; 
-    padding-left: 100px !important; 
-    padding-right: 100px !important;
+    border-radius: 20px !important;
+    font-size: 17px !important;
+    height: auto !important;
+    text-align: center !important;
+    width: auto !important;
 }
-
+.appbar-specific-buttons-matchingPrefix {
+    color: #fdbd00 !important;
+}
+.appbar-specific-buttons-matchingPrefix .mud-icon-root {
+    color: #fdbd00 !important;
+}
 
 
 .filtercomponent-specific-paper{
@@ -256,10 +263,11 @@ code {
 
 .collectionpage-specific-collection-container{
     margin: 10px auto !important;
+    margin-bottom: 60px !important;
     background-color: var(--color-background-app);
 }
 .collectionpagecomponent-specific-card-paper {
-    min-width: 400px;
+    width: 400px;
     padding: 20px 25px;
     overflow: hidden !important;
     border-radius: 10px !important;
@@ -307,4 +315,23 @@ code {
 }
 .flip-card-back {
     transform: rotateY(180deg);
+}
+
+
+.inputComponent-specific-searchbar{
+    background-color: var(--filtercomponent-background) !important;
+    color: var(--card-text-Primary) !important;
+    border-radius: 10px;
+    border: 2px solid var(--card-text-Primary) !important ;
+    width: 100% !important;
+    padding: 10px !important;
+    font-size: 18px !important;
+}
+.inputComponent-specific-searchbar:focus{
+    background-color: var(--filtercomponent-action-color) !important;
+    outline: none !important;
+}
+
+.inputComponent-specific-searchbar:hover{
+    background-color: var(--filtercomponent-action-color) !important;
 }

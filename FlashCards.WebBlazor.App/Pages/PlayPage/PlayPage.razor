@@ -3,7 +3,7 @@
 @using FlashCards.WebBlazor.Bl.Facades
 
 <MudButton Style="color: var(--card-text-Primary); margin: 20px;" StartIcon="@Icons.Material.Filled.ArrowBack"
-           Size="Size.Large" Href="/CollectionPage">Spat
+           Size="Size.Large" OnClick="OnBackBtnClicked">Back
 </MudButton>
 
 <div style="width: 70%; margin: -20px auto">
@@ -27,7 +27,7 @@
         <div class="flip-card-inner" 
              style="@($"transform: rotateY({_rotationAngle}deg)")"> 
 
-            @* === PREDNÁ STRANA (Otázka) === *@
+            @* === PREDNÁ STRANA === *@
             <MudPaper Class="flip-card-front"
                       Style="border-radius: 10px; background-color: var(--card-background-Primary);"
                       Elevation="6">
@@ -38,7 +38,7 @@
             
             </MudPaper>
 
-            @* === ZADNÁ STRANA (Odpoveď) === *@
+            @* === ZADNÁ STRANA === *@
             <MudPaper Class="flip-card-back"
                       Style="border-radius: 10px; background-color: var(--card-background-Secondary);"
                       Elevation="6">
@@ -59,13 +59,13 @@
 
     <MudStack Style="margin: 70px 0" Row Spacing="5" StretchItems="StretchItems.All">
         <MudButton Color="Color.Error" StartIcon="@Icons.Material.Outlined.Cancel" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._1))" Size="Size.Large">Neviem
+                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._1))" Size="Size.Large">Unknown
         </MudButton>
         <MudButton Color="Color.Warning" StartIcon="@Icons.Material.Outlined.QuestionMark" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._2))" Size="Size.Large">Niesom si isty
+                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._2))" Size="Size.Large">50/50
         </MudButton>
         <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.Done" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._0))" Size="Size.Large">Viem
+                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._0))" Size="Size.Large">Know
         </MudButton>
     </MudStack>
 </div>
@@ -118,5 +118,10 @@
     private void FlipCard()
     {
         _rotationAngle = (_rotationAngle == 0) ? 180 : 0;
+    }
+
+    private void OnBackBtnClicked()
+    {
+        Navigation.NavigateTo($"/PlayInfoPage/{Id}");
     }
 }

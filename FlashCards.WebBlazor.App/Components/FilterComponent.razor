@@ -14,7 +14,8 @@
         <SelectorComponent TItem="SelectOption" TValue="string"
                            Items="OrderTypeValues"
                            ValueSelector="(option) => option.ValueId"
-                           @bind-Value="@OrderType">
+                           @bind-Value="@OrderType"
+                           @bind-Value:after="OrderTypeChanged">
 
             <ItemTemplate Context="option">
                 <span>@option.DisplayName</span>
@@ -35,9 +36,36 @@
             </SelectedDisplay>
 
         </SelectorComponent>
+        
         <input class="filtercomponent-specific-searchbar" type="text" placeholder="Search..." @bind-value="SearchTerm" 
                @bind-value:event="oninput" 
                @bind-value:after="SearchTermChanged"/>
+        
+        <SelectorComponent TItem="SelectOption" TValue="string"
+                           Items="NumberOfCardsOnPage"
+                           ValueSelector="(option) => option.ValueId"
+                           @bind-Value="@_selectedOptionNumberOfCardsOnPage"
+                           @bind-Value:after="NumberOfCardsPerPageChanged">
+
+            <ItemTemplate Context="option">
+                <span>@option.DisplayName</span>
+            </ItemTemplate>
+
+            <SelectedDisplay>
+                @{
+                    var currentOption = NumberOfCardsOnPage.FirstOrDefault(o => o.ValueId == _selectedOptionNumberOfCardsOnPage);
+                }
+                @if (currentOption != null)
+                {
+                    <strong>@currentOption.DisplayName</strong>
+                }
+                else
+                {
+                    <span>Vyberte poradie...</span>
+                }
+            </SelectedDisplay>
+
+        </SelectorComponent>
         
         @if (IsDeleteModeActive)
         {
@@ -63,6 +91,9 @@
 
     [Parameter] public string OrderType { get; set; } = "a";
     [Parameter] public EventCallback<string> OrderTypeChangedEvent { get; set; }
+    
+    [Parameter] public EventCallback<int> NumberOfCardsPerPageChangedEvent { get; set; }
+
 
     public class SelectOption
     {
@@ -70,13 +101,21 @@
         public string DisplayName { get; set; }
     }
 
-    // Váš zoznam dát
-    private List<SelectOption> OrderTypeValues = new List<SelectOption>
+    private static readonly List<SelectOption> OrderTypeValues = new ()
     {
-        new SelectOption { ValueId = "a", DisplayName = "A-Z" },
-        new SelectOption { ValueId = "b", DisplayName = "Z-A" },
-        new SelectOption { ValueId = "c", DisplayName = "Recently played" }
+        new () { ValueId = "a", DisplayName = "A-Z" },
+        new () { ValueId = "b", DisplayName = "Z-A" },
+        new () { ValueId = "c", DisplayName = "Recently played" }
     };
+
+    private static readonly List<SelectOption> NumberOfCardsOnPage = new()
+    {
+        new() { ValueId = "16", DisplayName = "16" },
+        new() { ValueId = "32", DisplayName = "32" },
+        new() { ValueId = "64", DisplayName = "64" }
+    };
+
+    private string _selectedOptionNumberOfCardsOnPage = NumberOfCardsOnPage[1].ValueId;
 
     private async Task TypeOfVisualisationChanged()
     {
@@ -100,4 +139,16 @@
         await SearchTermChangedEvent.InvokeAsync(SearchTerm);
     }
 
+    private async Task NumberOfCardsPerPageChanged()
+    {
+        int number;
+        if (int.TryParse(_selectedOptionNumberOfCardsOnPage, out number))
+        {
+            await NumberOfCardsPerPageChangedEvent.InvokeAsync(number);
+        }
+        else
+        {
+            throw new Exception();
+        }
+    }
 }

@@ -7,7 +7,7 @@
 
 <FilterComponent IsCardVisualisationList="@IsCardVisualisation" TypeOfVisualisationChangedEvent="@HandleVisualisation"
                  IsDeleteModeActiveChangedEvent="HandleDeleteMode" SearchTermChangedEvent="HandleCollectionSearch"
-                 OrderTypeChangedEvent="HandleCollectionOrder"/>
+                 OrderTypeChangedEvent="HandleCollectionOrder" NumberOfCardsPerPageChangedEvent="HandleCollectionNumberOfCardsPerPage"/>
 
 @if (CardCollectionsExt != null)
 {
@@ -30,8 +30,8 @@
     </MudStack>
 
     <MudPagination Class="pagination-center-wrapper" Color="Color.Info" Size="Size.Large"
-                   Count="@((int)Math.Ceiling((double)CardCollectionsExt.Count / _pageSize) + 1)"
-                   @bind-Selected="@_selectedPage" @bind-Selected:after="OnInitializedAsync"/>
+                   Count="_numberOfPages"
+                   @bind-Selected="@_selectedPage" @bind-Selected:after="LoadCardCollection"/>
 }
 else
 {
@@ -45,7 +45,8 @@ else
     [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
 
     private int _selectedPage = 1;
-    private int _pageSize = 20;
+    private int _pageSize = 32;
+    private int _numberOfPages;
 
     private class CardCollectionExt : CardCollectionListModel
     {
@@ -54,16 +55,20 @@ else
 
     private List<CardCollectionExt>? CardCollectionsExt { get; set; }
 
+    private string CollectionFilterSearchTerm { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
-        var collection = await CardCollectionWebFacade.GetAllAsync(null, null, OrderType, false, _selectedPage, _pageSize);
-        CardCollectionsExt = GetExtendedCardCollection(collection);
+        await LoadCardCollection();
+        if (CardCollectionsExt != null) 
+            _numberOfPages = (CardCollectionsExt.Count / _pageSize) + 1;
     }
 
     private bool IsCardVisualisation { get; set; } = false;
     private bool IsDeleteModeActive { get; set; } = false;
 
-    private string OrderType { get; set; } = "";
+    private string OrderType { get; set; } = "Title";
+    private bool SortDesc { get; set; } = true;
 
     private void HandleVisualisation(bool value)
     {
@@ -108,13 +113,51 @@ else
 
     private async Task HandleCollectionSearch(string term)
     {
-        var collection = await CardCollectionWebFacade.GetAllAsync(nameof(CardCollectionListModel.Title), term, OrderType, false, _selectedPage, _pageSize);
+        CollectionFilterSearchTerm = term;
+        await LoadCardCollection();
+        StateHasChanged();
+    }
+
+    private async Task HandleCollectionOrder(string orderType)
+    {
+        if (orderType == "a")
+        {
+            OrderType = "Title";
+            SortDesc = true;
+        }
+        else if (orderType == "b")
+        {
+            OrderType = "Title";
+            SortDesc = false;
+        }
+        else if (orderType == "c")
+        {
+            OrderType = "Title";
+            SortDesc = true;
+        }
+        await LoadCardCollection();
+        StateHasChanged();
+    }
+    
+    private async Task HandleCollectionNumberOfCardsPerPage(int number)
+    {
+        bool isLower = _pageSize > number;
+        _pageSize = number;
+        
+        if(isLower)
+            if (CardCollectionsExt != null) _numberOfPages = (CardCollectionsExt.Count / _pageSize) + 1;
+        await LoadCardCollection();
+        if(!isLower)
+            if (CardCollectionsExt != null) _numberOfPages = (CardCollectionsExt.Count / _pageSize) + 1;
+        StateHasChanged();
+    }
+
+    private async Task LoadCardCollection()
+    {
+        var collection = await CardCollectionWebFacade.GetAllAsync(nameof(CardCollectionListModel.Title), CollectionFilterSearchTerm, OrderType, SortDesc, _selectedPage, _pageSize);
         CardCollectionsExt = GetExtendedCardCollection(collection);
     }
 
-    private void HandleCollectionOrder(string orderType)
-    {
-    }
 
     private List<CardCollectionExt> GetExtendedCardCollection(ICollection<CardCollectionListModel> collection)
     {

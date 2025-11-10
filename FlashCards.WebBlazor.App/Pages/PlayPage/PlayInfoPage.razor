@@ -3,15 +3,36 @@
 @using FlashCards.WebBlazor.Bl.Facades
 
 <MudButton Style="color: var(--card-text-Primary); margin: 20px;" StartIcon="@Icons.Material.Filled.ArrowBack"
-           Size="Size.Large" Href="/CollectionPage">Spat
+           Size="Size.Large" Href="/CollectionPage">Back
 </MudButton>
 
 @if (Collection != null)
 {
-    <div style="text-align: center;">
-        <MudText Style="color: var(--color-text-main)" Typo="Typo.h4">@Collection.Title</MudText>
-        <MudText Style="color: var(--color-text-secondary)" Typo="Typo.body1">@Collection.Description</MudText>
-    </div>
+    if (IsEditMode)
+    {
+        <div style="text-align: center; width: 60%; margin: 0 auto;">
+            <MudTextField Label="Title" T="string" Style="color: var(--color-text-main); text-align: center;" Typo="Typo.h4" Variant="Variant.Outlined" @bind-Value="@Collection.Title"></MudTextField>
+            <MudTextField Label="Description" T="string" Style="color: var(--color-text-secondary); text-align: center;" Typo="Typo.body1" Variant="Variant.Outlined" @bind-Value="@Collection.Description"></MudTextField>
+        </div>
+    }
+    else
+    {
+        <div style="text-align: center;">
+            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-main)" Typo="Typo.h4">@Collection.Title</MudText>
+            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-secondary)" Typo="Typo.body1">@Collection.Description</MudText>
+        </div>
+    }
+    
+    <MudStack Style="width: 60%; margin: 10px auto;" Row>
+        @if (IsEditMode)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" OnClick="OnEditTextClicked">Save changes</MudButton>
+        }
+        <MudSpacer/>
+        <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" OnClick="OnEditBtnClicked"></MudIconButton>
+        <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Delete"
+                       Variant="Variant.Outlined" OnClick="OnDeleteBtnClicked"></MudIconButton>
+    </MudStack>
 
     <MudPaper
         Style="width: 60%; padding: 20px; margin: 20px auto; background-color: var(--card-background-Primary); border-radius: 15px;">
@@ -30,9 +51,9 @@
         }
     </MudPaper>
 
-    <div style="text-align: center;">
+    <div style="text-align: center; width: 60%; height: 30%; margin: 70px auto;">
         <MudButton
-            Style="width: 60%; margin: 20px auto; color: var(--card-text-Primary); background-color:#3b7a9e"
+            Style="width: 100%; height: 120px; color: var(--card-text-Primary); border-radius: 10px; background-color:#3b7a9e; font-size: 25px;"
             StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large" OnClick="HandleZacatUcenieClick">Zacat
         </MudButton>
     </div>
@@ -41,10 +62,13 @@
 @code {
     [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
 
     [Parameter] public Guid Id { get; set; }
 
     private CardCollectionDetailModel? Collection { get; set; }
+
+    private bool IsEditMode { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,8 +77,41 @@
 
     private void HandleZacatUcenieClick()
     {
+        if (@Collection.NumberOfCards <= 0)
+        {
+            Snackbar.Add("Collection does not have any flash cards", Severity.Error, config =>
+            {
+                config.OnClick = snackbar =>
+                {
+                    Navigation.NavigateTo($"/CollectionEditPage/edit/{Id}");
+                    return Task.CompletedTask;
+                };
+            });
+            return;
+        }
+
         Navigation.NavigateTo($"/PlayPage/{Id}");
     }
 
+    private async Task OnEditTextClicked()
+    {
+        if (IsEditMode)
+        {
+            if (Collection != null)
+                await CardCollectionWebFacade.SaveToApiAsync(Collection);
+        }
+
+        IsEditMode = !IsEditMode;
+    }
+
+    private void OnEditBtnClicked()
+    {
+        Navigation.NavigateTo($"/CollectionEditPage/edit/{Id}");
+    }
+
+    private void OnDeleteBtnClicked()
+    {
+        
+    }
 
 }
