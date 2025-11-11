@@ -8,8 +8,12 @@
 </MudPaper>
 
 <MudStack Style="width: 95%; margin: 0 auto;" Row Wrap="Wrap.Wrap">
-    <MudPaper Style="background-color: var(--card-background-Primary); border-radius: 10px;)">
+    <MudPaper Style="background-color: var(--card-background-Primary); border-radius: 10px; padding: 10px;)">
         <MudChart  Style="color: white" ChartType="ChartType.Pie" InputData="@data" @bind-SelectedIndex="Index" InputLabels="@labels" Width="300px" Height="300px" />
+    </MudPaper>
+    
+    <MudPaper Style="background-color: var(--card-background-Primary); border-radius: 10px; padding: 10px; color: white">
+        <MudChart Style="color: white;" ChartType="ChartType.StackedBar" ChartSeries="@_series" @bind-SelectedIndex="_index" LegendPosition="Position.Bottom" XAxisLabels="@_xAxisLabels" Width="650" Height="300"></MudChart>
     </MudPaper>
 </MudStack>
 
@@ -26,4 +30,13 @@
         "Neptunium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Mudblaznium" };
     
     double[] data = { 77, 23 };
+    
+    private int _index = -1;
+    private List<ChartSeries> _series = new List<ChartSeries>()
+    {
+        new () { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
+        new () { Name = "Germany", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
+        new () { Name = "Sweden", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
+    };
+    private string[] _xAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
 }

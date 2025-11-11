@@ -75,6 +75,7 @@
 @code {
     [Inject] private CardWebFacade CardWebFacade { get; set; } = null!;
     [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
+    [Inject] private CompletedLessonWebFacade CompletedLessonWebFacade { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
 
     [Parameter] public Guid Id { get; set; } = Guid.Empty;
@@ -89,6 +90,8 @@
     
     private int _rotationAngle = 0;
 
+    private CompletedLessonDetailModel CompletedLesson { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
         DetailCollection = await CardCollectionWebFacade.GetByIdAsync(Id);
@@ -100,6 +103,10 @@
         CurrentCard = Cards[_numberOfAnswered];
         if (CurrentCard == null)
             Navigation.NavigateTo($"/PlayInfoPage/{Id}");
+        
+        CompletedLesson.NumberOfCorrectAnswersByTypes.Add(0);
+        CompletedLesson.NumberOfCorrectAnswersByTypes.Add(0);
+        CompletedLesson.NumberOfCorrectAnswersByTypes.Add(0);
     }
 
     private async Task SelectedAnswear(EnumCompletedLessonAnswerType answerType)
@@ -110,8 +117,10 @@
             Navigation.NavigateTo($"/PlayFinishPage/{Id}");
             return;
         }
+
+        CompletedLesson.CardCollectionId = Id;
         _rotationAngle = 0;
-        await Task.Delay(200);
+        await Task.Delay(100);
         CurrentCard = Cards[_numberOfAnswered];
     }
 

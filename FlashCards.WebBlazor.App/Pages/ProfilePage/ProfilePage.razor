@@ -1,6 +1,59 @@
 ﻿@page "/ProfilePage"
-<h3>ProfilePage</h3>
+@using IdentityModel
+
+<MudPaper Style=" border-radius: 15px; padding: 15px; width: 95%; margin: 10px auto; background-color: var(--card-background-Primary)">
+    <MudStack Row>
+        <MudAvatar Style="background-color: transparent; width: 120px;  height: 120px;">
+            <MudImage Src="@ProfileImage" Alt="Profile"/>
+        </MudAvatar>
+        <MudStack Style="margin: 10px;" AlignItems="AlignItems.Center" Justify="Justify.Center">
+            <MudText Style="color: white" Typo="Typo.h4"> @UserName</MudText>
+        </MudStack>
+    </MudStack>
+</MudPaper>
 
 @code {
+    [Inject] public AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
+
+    [Parameter] public string UserName { get; set; } = "Default User";
+    [Parameter] public string UserRole { get; set; } = "Default Role";
+    [Parameter] public string ProfileImage { get; set; } = DefaultProfileImage;
     
+    const string DefaultProfileImage = "Images/randomBoyIcon.png";
+    
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        await GetUserInfo();
+    }
+    
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        await GetUserInfo();
+        StateHasChanged();
+    }
+
+    private async Task GetUserInfo()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            if (user.Identity.Name != null)
+                UserName = user.Identity.Name;
+            else
+                UserName = "Anonymous";
+            var userRole = user.FindFirst(JwtClaimTypes.Role);
+            if (userRole != null)
+                UserRole = userRole.Value;
+            else
+                UserRole = "None";
+            var pictureClaim = user.FindFirst(JwtClaimTypes.Picture);
+            if (pictureClaim != null)
+                ProfileImage = pictureClaim.Value;
+            else
+                ProfileImage = DefaultProfileImage;
+        }
+    }
 }

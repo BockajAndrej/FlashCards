@@ -28,7 +28,12 @@ public class CompletedLessonWebFacade(ICompletedLessonApiClient apiClient) : IWe
 
 	public async Task<Guid> SaveToApiAsync(CompletedLessonDetailModel data)
 	{
-		var result = await apiClient.CompletedLessonPOSTAsync(data);
-		return (Guid)result.Id!;
+		if (data.Id == Guid.Empty)
+		{
+			var result = await apiClient.CompletedLessonPOSTAsync(data);
+			return result.Id;
+		}
+		await apiClient.CompletedLessonPUTAsync(data.Id, data);
+		return Guid.Empty;
 	}
 }

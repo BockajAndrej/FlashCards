@@ -50,7 +50,7 @@
                            Href="authentication/login"></MudIconButton>
         </Authorizing>
         <Authorized>
-            <MudMenu OpenChanged="@ToggleProfile" RelativeWidth="DropdownWidth.Adaptive"
+            <MudMenu Style="border-radius: 15px;" OpenChanged="@ToggleProfile" RelativeWidth="DropdownWidth.Adaptive"
                      AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
                 <ActivatorContent>
                     <MudAvatar Class="appbar-specific-mudavatar">
@@ -58,13 +58,27 @@
                     </MudAvatar>
                 </ActivatorContent>
                 <ChildContent>
-                    <MudStack Style="margin-left: 10px; margin-right: 50px" Spacing="1">
-                        <MudText Typo="Typo.h6"> @UserName</MudText>
+                    <MudStack Style="margin-left: 10px; margin-right: 50px; margin-top: 5px; margin-bottom: 5px;" Spacing="1">
+                        <MudText Typo="Typo.h6" Style="color:#ffffff;"> @UserName</MudText> 
                     </MudStack>
-                    <MudDivider/>
-                    <MudMenuItem Href="/ProfilePage" Icon="@Icons.Material.Filled.Person">Profile</MudMenuItem>
-                    <MudDivider/>
-                    <MudMenuItem OnClick="@BeginLogOut" Icon="@Icons.Material.Filled.Logout">Log out</MudMenuItem>
+                    <MudDivider Style="width: 90%; margin: 5px auto;"/>
+        
+                    <MudMenuItem Style="color:#ffffff;" 
+                                 Href="/ProfilePage" 
+                                 Icon="@Icons.Material.Filled.Person" 
+                                 IconColor="Color.Tertiary">
+                        Profile
+                    </MudMenuItem>
+        
+                    <MudDivider Style="width: 90%; margin: 5px auto;"/>
+        
+                    <MudMenuItem Style="color:#ffffff;" 
+                                 OnClick="@BeginLogOut" 
+                                 Icon="@Icons.Material.Filled.Logout" 
+                                 IconColor="Color.Tertiary">
+                        Log out
+                    </MudMenuItem>
+        
                 </ChildContent>
             </MudMenu>
         </Authorized>
