@@ -2,10 +2,11 @@
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
 
-<MudStack Style="margin: 20px; " Row>
-    <MudButton Style="color: var(--card-text-Primary);" StartIcon="@Icons.Material.Filled.ArrowBack"
-               Size="Size.Large" Href="/CollectionPage">Back
-    </MudButton>
+<MudButton Style="color: var(--card-text-Primary);" StartIcon="@Icons.Material.Filled.ArrowBack"
+           Size="Size.Large" Href="/CollectionPage">Back
+</MudButton>
+
+<MudStack Style="margin-top: -20px; margin-right: 30px; " Row>
     <MudSpacer/>
     <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined"
                    OnClick="OnEditBtnClicked"></MudIconButton>
