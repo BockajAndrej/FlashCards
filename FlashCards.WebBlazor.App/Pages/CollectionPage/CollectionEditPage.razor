@@ -2,10 +2,12 @@
 @page "/CollectionEditPage/create"
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
+@using FlashCards.WebBlazor.App.Components
 
 <MudStack Row StretchItems="StretchItems.All" Style="margin: 15px auto; padding: 15px; width: 95%; border-radius: 10px;">
-    <MudButton Style="background-color: var(--color-action-Secondary); color: var(--card-text-Primary); border-radius: 10px;" ButtonType="ButtonType.Submit"
+    <MudButton Style="background-color: var(--color-action-Secondary); color: var(--card-text-Primary); border-radius: 10px; height: 50px; font-size: 30px;" ButtonType="ButtonType.Submit"
                Variant="Variant.Filled"
+               Size="Size.Large"
                OnClick="HandleSubmit">
         @if (IsSavingProcess)
         {
@@ -24,69 +26,90 @@
         <MudStack Row>
             <MudText Typo="Typo.h6">Collection</MudText>
             <MudSpacer/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete"/>
+            @if (Id != Guid.Empty)
+            {
+                <MudIconButton Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Color="Color.Error"/>
+            }
         </MudStack>
         
-        <MudTextField @bind-Value="Model.Title"
+        <MudTextField Style="margin: 10px 0;" @bind-Value="Model.Title"
                       AdornmentColor="Color.Info"
                       Label="Collection name"
                       Required="true"
                       RequiredError="Collection name is mandatory."
                       Clearable="true"
-                      Variant="Variant.Outlined"/>
+                      Variant="Variant.Filled"/>
 
         <MudTextField @bind-Value="Model.Description"
                       AdornmentColor="Color.Info"
                       Label="Description"
                       Clearable="true"
-                      Variant="Variant.Outlined"/>
+                      Variant="Variant.Text"/>
         
     </MudPaper>
     
-    <MudDivider Style="margin: 20px auto; width: 90%;"/>
-
+    <MudText Style="margin-left: 3%; margin-top: 20px;" Typo="Typo.h5">Cards</MudText>
+    <MudDivider Style="margin: 5px auto; width: 95%;"/>
+    
+    @if (IsFilterVisible)
+    {
+        <div style="width: 90%; margin: 15px auto;">
+            <input class="filtercomponent-specific-searchbar" type="text" placeholder="Search..." @bind-value="SearchTerm" 
+                   @bind-value:event="oninput" 
+                   @bind-value:after="SearchTermChanged"/>    
+        </div>
+    }
+    
     
     <MudStack Row Style="margin: 0 auto; width: 95%" Justify="Justify.SpaceAround" Wrap="Wrap.Wrap">
         @{ int i = 0;}
         @foreach (var item in CardModels)
         {
             <MudPaper Style="padding: 15px; width: 48%; border-radius: 10px;">
-                <MudStack Row>
-                    <MudText Typo="Typo.h6">Card @i</MudText>
-                    <MudSpacer/>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(() => RemoveCard(item))"/>
+                
+                <MudStack Row StretchItems="StretchItems.Start">
+                    <MudStack>
+                        <MudStack Row StretchItems="StretchItems.All">
+                            <MudTextField Style="margin-top: 8px" T="string" Label="Question" Variant="Variant.Filled" Required="true" @bind-Value="@item.Question"/>
+
+                            <MudSelect T="EnumCardType" @bind-Value="@item.QuestionTypeEnum" Label="Type" Variant="Variant.Outlined">
+                                @foreach (var subItem in _cardOptions)
+                                {
+                                    <MudSelectItem Value="@subItem.Key">
+                                        <MudIcon Icon="@subItem.Value"/>
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <MudTextField Style="margin-top: 8px" T="string" Label="Answer" Variant="Variant.Filled" Required="true" @bind-Value="@item.CorrectAnswer"/>
+
+                            <MudSelect T="EnumCardType" @bind-Value="@item.AnswerTypeEnum" Label="Type" Variant="Variant.Outlined">
+                                @foreach (var subItem in _cardOptions)
+                                {
+                                    <MudSelectItem Value="@subItem.Key">
+                                        <MudIcon Icon="@subItem.Value"/>
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudStack>
+
+                        <MudTextField T="string" Label="Description" Variant="Variant.Text" @bind-Value="@item.Description"/>
+                    </MudStack>
+                    <MudIconButton Variant="Variant.Outlined" Size="Size.Small" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => RemoveCard(item))"/>
                 </MudStack>
-
-                <MudStack Row StretchItems="StretchItems.All">
-                    <MudTextField T="string" Label="Otazka" Variant="Variant.Outlined" Required="true" @bind-Value="@item.Question"/>
-
-                    <MudSelect T="EnumCardType" @bind-Value="@item.QuestionTypeEnum" Label="Type" Variant="Variant.Outlined">
-                        @foreach (var subItem in _cardOptions)
-                        {
-                            <MudSelectItem Value="@subItem.Key">
-                                <MudIcon Icon="@subItem.Value"/>
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-
-                    <MudTextField T="string" Label="Odpoved" Variant="Variant.Outlined" Required="true" @bind-Value="@item.CorrectAnswer"/>
-
-                    <MudSelect T="EnumCardType" @bind-Value="@item.AnswerTypeEnum" Label="Type" Variant="Variant.Outlined">
-                        @foreach (var subItem in _cardOptions)
-                        {
-                            <MudSelectItem Value="@subItem.Key">
-                                <MudIcon Icon="@subItem.Value"/>
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudStack>
-
-                <MudTextField T="string" Label="Description" Variant="Variant.Outlined" @bind-Value="@item.Description"/>
             </MudPaper>
         }
     </MudStack>
     
-    <MudIconButton OnClick="@AddNewCard" Icon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Style="color: var(--form-text-Primary); background-color: var(--card-background-Primary); margin: 20px auto; width: 95%; border-radius: 10px;"></MudIconButton>
+    <MudIconButton OnClick="@(() => 
+                            {
+                                AddNewCard();
+                                IsFilterVisible = true;
+                            })" 
+                   Icon="@Icons.Material.Filled.Add" 
+                   Variant="Variant.Filled" 
+                   Style="color: var(--form-text-Primary); background-color: var(--card-background-Primary); margin: 20px auto; width: 95%; border-radius: 10px;">
+    </MudIconButton>
 
 </MudForm>
 
@@ -95,6 +118,7 @@
     [Inject] private CardWebFacade CardWebFacade { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
 
     [Parameter]
     public Guid Id { get; set; } = Guid.Empty;
@@ -119,6 +143,10 @@
     private TimeSpan DefaultOffset { get; set; } = TimeZoneInfo.Local.GetUtcOffset(DateTimeOffset.Now);
 
     private bool IsSavingProcess { get; set; } = false;
+    private bool IsFilterVisible { get; set; } = false;
+    
+    private string SearchTerm { get; set; } = string.Empty;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -163,6 +191,9 @@
             EndTimeDate = Model.EndTimeForAcceptedAnswers.Value.DateTime;
             EndTimeTime = Model.EndTimeForAcceptedAnswers.Value.TimeOfDay;
         }
+        
+        if(CardModels.Any())
+            IsFilterVisible = true;
     }
 
     private async Task HandleSubmit()
@@ -200,8 +231,7 @@
                     
                 }
             }
-            
-            Navigation.NavigateTo("/CollectionPage");
+            Snackbar.Add($"Successfully saved '{Model.Title}' collection", Severity.Success);
         }
         IsSavingProcess = false;
     }
@@ -235,6 +265,8 @@
         {
             RemovedCardModels.Add(model);
         }
+        if(!CardModels.Any())
+            IsFilterVisible = false;
     }
     
     private DateTimeOffset? CombineDateTimeOffset(DateTime? date, TimeSpan? time, TimeSpan offset)
@@ -250,5 +282,10 @@
         }
         
         return null; 
+    }
+    
+    private void SearchTermChanged()
+    {
+        
     }
 }

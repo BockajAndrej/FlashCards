@@ -2,43 +2,62 @@
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
 
-<MudButton Style="color: var(--card-text-Primary); margin: 20px;" StartIcon="@Icons.Material.Filled.ArrowBack"
-           Size="Size.Large" Href="/CollectionPage">Back
-</MudButton>
+<MudStack Style="margin: 20px; " Row>
+    <MudButton Style="color: var(--card-text-Primary);" StartIcon="@Icons.Material.Filled.ArrowBack"
+               Size="Size.Large" Href="/CollectionPage">Back
+    </MudButton>
+    <MudSpacer/>
+    <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined"
+                   OnClick="OnEditBtnClicked"></MudIconButton>
+    <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Delete"
+                   Variant="Variant.Outlined" OnClick="OnDeleteBtnClicked"></MudIconButton>
+</MudStack>
+
+
 
 @if (Collection != null)
 {
     if (IsEditMode)
     {
         <div style="text-align: center; width: 60%; margin: 0 auto;">
-            <MudTextField Label="Title" T="string" Style="color: var(--color-text-main); text-align: center;" Typo="Typo.h4" Variant="Variant.Outlined" @bind-Value="@Collection.Title"></MudTextField>
-            <MudTextField Label="Description" T="string" Style="color: var(--color-text-secondary); text-align: center;" Typo="Typo.body1" Variant="Variant.Outlined" @bind-Value="@Collection.Description"></MudTextField>
+            <MudTextField Label="Title" T="string" Style="color: var(--color-text-main); text-align: center;"
+                          Typo="Typo.h4" Variant="Variant.Outlined" @bind-Value="@Collection.Title"></MudTextField>
+            <MudTextField Label="Description" T="string" Style="color: var(--color-text-secondary); text-align: center;"
+                          Typo="Typo.body1" Variant="Variant.Outlined"
+                          @bind-Value="@Collection.Description"></MudTextField>
         </div>
     }
     else
     {
         <div style="text-align: center;">
-            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-main)" Typo="Typo.h4">@Collection.Title</MudText>
-            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-secondary)" Typo="Typo.body1">@Collection.Description</MudText>
+            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-main)"
+                     Typo="Typo.h4">@Collection.Title</MudText>
+            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-secondary)"
+                     Typo="Typo.body1">@Collection.Description</MudText>
         </div>
     }
-    
-    <MudStack Style="width: 60%; margin: 10px auto;" Row>
+
+    <MudStack Style="width: 60%; margin: 10px auto;" Row AlignItems="AlignItems.Center" Justify="Justify.Center">
         @if (IsEditMode)
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Edit" OnClick="OnEditTextClicked">Save changes</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Edit"
+                       OnClick="OnEditTextClicked">Save changes
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Cancel"
+                       OnClick="() => IsEditMode = false">Cancel
+            </MudButton>
         }
-        <MudSpacer/>
-        <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" OnClick="OnEditBtnClicked"></MudIconButton>
-        <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Delete"
-                       Variant="Variant.Outlined" OnClick="OnDeleteBtnClicked"></MudIconButton>
+
     </MudStack>
 
     <MudPaper
         Style="width: 60%; padding: 20px; margin: 20px auto; background-color: var(--card-background-Primary); border-radius: 15px;">
         <MudStack Spacing="3" Row>
             <MudIcon Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.AutoAwesomeMotion"/>
-            <MudText Style="color: var(--card-text-Primary); margin-top: -2px" Typo="Typo.h6">@Collection.NumberOfCards</MudText>
+            <MudText Style="color: var(--card-text-Primary); margin-top: -2px"
+                     Typo="Typo.h6">@Collection.NumberOfCards</MudText>
+            <MudSpacer/>
+            <MudIconButton Style="color: var(--card-text-Primary); margin-top: -12px;" OnClick="OnEditBtnClicked" Icon="@Icons.Material.Filled.Add" Variant="Variant.Text"/>
         </MudStack>
         <MudDivider Style="margin: 5px auto"/>
         @if (string.IsNullOrEmpty(@Collection.Note))
@@ -50,11 +69,33 @@
             <MudText Style="color: var(--card-text-Primary)">@Collection.Note</MudText>
         }
     </MudPaper>
-
-    <div style="text-align: center; width: 60%; height: 30%; margin: 70px auto;">
+    
+    <div style="text-align: center; width: 60%; margin: 25px auto;">
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Large">
+            @if (TypeOfGame == 0)
+            {
+                <MudButton Style="background-color: var(--color-action-Secondary); color: var(--card-text-Primary)">ALL</MudButton>
+            }
+            else
+            {
+                <MudButton OnClick="() => TypeOfGame = 0">ALL</MudButton>
+            }
+            @if (TypeOfGame == 1)
+            {
+                <MudButton Style="background-color: var(--color-action-Secondary); color: var(--card-text-Primary)">LIMITED</MudButton>
+            }
+            else
+            {
+                <MudButton OnClick="() => TypeOfGame = 1">LIMITED</MudButton>
+            }
+        </MudButtonGroup>
+    </div>
+    
+    
+    <div style="text-align: center; width: 60%; height: 30%; margin: 25px auto;">
         <MudButton
             Style="width: 100%; height: 120px; color: var(--card-text-Primary); border-radius: 10px; background-color:#3b7a9e; font-size: 25px;"
-            StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large" OnClick="HandleZacatUcenieClick">Zacat
+            StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large" OnClick="HandleZacatUcenieClick">Start
         </MudButton>
     </div>
 }
@@ -69,6 +110,8 @@
     private CardCollectionDetailModel? Collection { get; set; }
 
     private bool IsEditMode { get; set; } = false;
+
+    private int TypeOfGame = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,7 +154,6 @@
 
     private void OnDeleteBtnClicked()
     {
-        
     }
 
 }

@@ -4,6 +4,7 @@ using FlashCards.WebBlazor.App;
 using FlashCards.WebBlazor.Bl.ApiClient;
 using FlashCards.WebBlazor.Bl.Installers;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using MudBlazor;
 using MudBlazor.Services;
 using Syncfusion.Blazor;
 
@@ -53,7 +54,18 @@ builder.Services.AddOidcAuthentication(options =>
     options.AuthenticationPaths.LogOutSucceededPath = "/";
 });
 
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
+
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = false;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 3000;
+    config.SnackbarConfiguration.HideTransitionDuration = 400;
+    config.SnackbarConfiguration.ShowTransitionDuration = 400;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+});
 
 WebBlInstaller.Install(builder.Services, apiBaseUrl);
 

@@ -1,7 +1,5 @@
 ﻿@page "/"
 
-
-
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-16">
     <MudGrid Justify="Justify.Center">
         <MudItem xs="12" sm="10" md="8" Class="text-center">
@@ -10,15 +8,32 @@
                 <MudIcon Icon="@Icons.Material.Filled.FlashOn" Size="Size.Large" Class="mr-2" Color="Color.Primary"/>
                 FlashCards
             </MudText>
-            
+
             <MudText Style="color: var(--color-text-secondary); margin: 20px auto;" Typo="Typo.h6">
-                Váš nástroj na rýchle a spoľahlivé opakovanie učiva. Vytvárajte, spravujte a precvičujte si vlastné sady
-                otázok a odpovedí.
+                Your tool for quick and reliable revision. Create, manage and practice your own sets of questions and
+                answers.
             </MudText>
 
-            <MudButton Style="width: 100%;" Href="/CollectionPage" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Class="mt-4 mr-3">
-                Začať Učenie
-            </MudButton>
+            <AuthorizeView>
+                <Authorizing>
+                    <MudIconButton Class="appbar-specific-text" Icon="@Icons.Material.Filled.Login"
+                                   Href="authentication/login"></MudIconButton>
+                </Authorizing>
+                <Authorized>
+                    <MudButton Style="width: 100%;" Href="/CollectionPage" Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Size="Size.Large" Class="mt-4 mr-3">
+                        Start learning
+                    </MudButton>
+                </Authorized>
+                <NotAuthorized>
+                    <MudButton Style="width: 100%;" Href="/authentication/login" Variant="Variant.Filled"
+                               Color="Color.Warning"
+                               Size="Size.Large" Class="mt-4 mr-3">
+                        Continue to login
+                    </MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
         </MudItem>
     </MudGrid>
 
@@ -28,7 +43,7 @@
 
         <MudItem xs="12">
             <MudText Typo="Typo.h4" Class="mb-4 text-center">
-                Vlastnosti
+                Features
             </MudText>
         </MudItem>
 
@@ -38,9 +53,9 @@
                     <div class="d-flex align-center justify-center mb-3">
                         <MudIcon Icon="@Icons.Material.Filled.LibraryAdd" Size="Size.Large" Color="Color.Info"/>
                     </div>
-                    <MudText Typo="Typo.h6" Class="text-center">Vlastné Kolekcie</MudText>
-                    <MudText Typo="Typo.body2" Class="text-center">Vytvárajte a spravujte vlastné sady kartičiek s
-                        otázkami a odpoveďami.
+                    <MudText Typo="Typo.h6" Class="text-center">Custom Collections</MudText>
+                    <MudText Typo="Typo.body2" Class="text-center">Create and manage your own sets of flashcards with
+                        questions and answers.
                     </MudText>
                 </MudCardContent>
             </MudCard>
@@ -52,9 +67,9 @@
                     <div class="d-flex align-center justify-center mb-3">
                         <MudIcon Icon="@Icons.Material.Filled.Factory" Size="Size.Large" Color="Color.Success"/>
                     </div>
-                    <MudText Typo="Typo.h6" Class="text-center">Režim Precvičovania</MudText>
-                    <MudText Typo="Typo.body2" Class="text-center">Interaktívne rozhranie pre efektívne precvičovanie a
-                        testovanie znalostí.
+                    <MudText Typo="Typo.h6" Class="text-center">Practice Mode</MudText>
+                    <MudText Typo="Typo.body2" Class="text-center">Interactive interface for effective practice and
+                        knowledge testing.
                     </MudText>
                 </MudCardContent>
             </MudCard>
@@ -66,9 +81,9 @@
                     <div class="d-flex align-center justify-center mb-3">
                         <MudIcon Icon="@Icons.Material.Filled.BarChart" Size="Size.Large" Color="Color.Warning"/>
                     </div>
-                    <MudText Typo="Typo.h6" Class="text-center">Prehľadné Štatistiky</MudText>
-                    <MudText Typo="Typo.body2" Class="text-center">Sledujte svoj pokrok, úspešnosť a dokončené
-                        kolekcie.
+                    <MudText Typo="Typo.h6" Class="text-center">Clear Statistics</MudText>
+                    <MudText Typo="Typo.body2" Class="text-center">Track your progress, success rate, and completed
+                        collections.
                     </MudText>
                 </MudCardContent>
             </MudCard>
@@ -80,55 +95,60 @@
                     <div class="d-flex align-center justify-center mb-3">
                         <MudIcon Icon="@Icons.Material.Filled.ManageSearch" Size="Size.Large" Color="Color.Error"/>
                     </div>
-                    <MudText Typo="Typo.h6" Class="text-center">Jednoduchá Správa</MudText>
-                    <MudText Typo="Typo.body2" Class="text-center">Jednoduché pridávanie, úprava, mazanie, vyhľadávanie
-                        a filtrovanie kartičiek.
+                    <MudText Typo="Typo.h6" Class="text-center">Easy Management</MudText>
+                    <MudText Typo="Typo.body2" Class="text-center">Easy adding, editing, deleting, searching,
+                        and filtering of flashcards.
                     </MudText>
                 </MudCardContent>
             </MudCard>
         </MudItem>
     </MudGrid>
 
-    <MudDivider Class="my-10"/>
+    <AuthorizeView>
+        <Authorized>
+            <MudDivider Class="my-10"/>
 
-    <MudGrid Spacing="4">
+            <MudGrid Spacing="4">
 
-        <MudItem xs="12" sm="6">
-            <MudList T="string" Clickable="false">
-                <MudListItem T="string" Icon="@Icons.Material.Filled.ListAlt" IconColor="Color.Primary">
-                    <MudText Typo="Typo.subtitle1">Zoznam kolekcií kartičiek</MudText>
-                    <MudText Typo="Typo.body2">Prehľad všetkých vytvorených sád s možnosťou ich otvorenia a úpravy.
-                    </MudText>
-                </MudListItem>
-                <MudListItem T="string" Icon="@Icons.Material.Filled.Description" IconColor="Color.Primary">
-                    <MudText Typo="Typo.subtitle1">Detail kolekcie</MudText>
-                    <MudText Typo="Typo.body2">Zobrazenie jednotlivých kartičiek a správa otázok a odpovedí.</MudText>
-                </MudListItem>
-            </MudList>
-        </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudList T="string" Clickable="false">
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.ListAlt" IconColor="Color.Primary">
+                            <MudText Typo="Typo.subtitle1">Flashcard Collections List</MudText>
+                            <MudText Typo="Typo.body2">Overview of all created sets with the option to open and edit
+                                them.
+                            </MudText>
+                        </MudListItem>
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.Description" IconColor="Color.Primary">
+                            <MudText Typo="Typo.subtitle1">Collection Detail</MudText>
+                            <MudText Typo="Typo.body2">Display of individual flashcards and management of questions and
+                                answers.
+                            </MudText>
+                        </MudListItem>
+                    </MudList>
+                </MudItem>
 
-        <MudItem xs="12" sm="6">
-            <MudList T="string" Clickable="false">
-                <MudListItem T="string" Icon="@Icons.Material.Filled.Quiz" IconColor="Color.Primary">
-                    <MudText Typo="Typo.subtitle1">Režim učenia (Practice)</MudText>
-                    <MudText Typo="Typo.body2">Interaktívne rozhranie na precvičovanie a testovanie znalostí (kľúčová
-                        funkcionalita).
-                    </MudText>
-                </MudListItem>
-                <MudListItem Href="/StatisticPage" T="string" Icon="@Icons.Material.Filled.TrendingUp" IconColor="Color.Primary">
-                    <MudText Typo="Typo.subtitle1">Štatistiky / pokrok</MudText>
-                    <MudText Typo="Typo.body2">Sumarizácia úspešnosti používateľa v jednotlivých kolekciách.</MudText>
-                </MudListItem>
-            </MudList>
-        </MudItem>
-    </MudGrid>
-
+                <MudItem xs="12" sm="6">
+                    <MudList T="string" Clickable="false">
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.Quiz" IconColor="Color.Primary">
+                            <MudText Typo="Typo.subtitle1">Learning Mode (Practice)</MudText>
+                            <MudText Typo="Typo.body2">Interactive interface for practicing and testing knowledge (key
+                                functionality).
+                            </MudText>
+                        </MudListItem>
+                        <MudListItem Href="/StatisticPage" T="string" Icon="@Icons.Material.Filled.TrendingUp"
+                                     IconColor="Color.Primary">
+                            <MudText Typo="Typo.subtitle1">Statistics / Progress</MudText>
+                            <MudText Typo="Typo.body2">Summarization of user success in individual collections.
+                            </MudText>
+                        </MudListItem>
+                    </MudList>
+                </MudItem>
+            </MudGrid>
+        </Authorized>
+    </AuthorizeView>
+    
 </MudContainer>
 
 @code {
-    // Ak by ste chceli pridať logiku pre tlačidlá, bola by tu, napr.:
-    // private void GoToLearning()
-    // {
-    //     // Navigácia na stránku učenia
-    // }
+
 }

@@ -4,9 +4,13 @@
 @inject NavigationManager Navigation;
 
 <MudAppBar Class="appbar-specific" Dense Elevation="0">
-    <MudAvatar Class="appbar-specific-mudavatar" Square>
-        <MudImage Src="Images/flash-card.png"></MudImage>
-    </MudAvatar>
+    
+    
+    <NavLink href="/">
+        <MudAvatar Class="appbar-specific-mudavatar" Square>
+            <MudImage Src="Images/flash-card.png"></MudImage>
+        </MudAvatar>
+    </NavLink>
     
     <MudDivider Style="margin: 0 15px; height: 60%;" Vertical="true"/>
     
@@ -90,12 +94,14 @@
 </MudAppBar>
 
 @code{
-    const string DefaultProfileImage = "Images/randomBoyIcon.png";
-
     [Inject] public AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
+    
     [Parameter] public string UserName { get; set; } = "Default User";
     [Parameter] public string UserRole { get; set; } = "Default Role";
     [Parameter] public string ProfileImage { get; set; } = DefaultProfileImage;
+    
+    const string DefaultProfileImage = "Images/randomBoyIcon.png";
 
     private bool _openProfile = true;
 
@@ -137,7 +143,13 @@
                 ProfileImage = pictureClaim.Value;
             else
                 ProfileImage = DefaultProfileImage;
+            SuccessfullyLoginSnackbar();
         }
+    }
+
+    private void SuccessfullyLoginSnackbar()
+    {
+        Snackbar.Add($"Welcome back {UserName}", Severity.Info);
     }
 
     private void ToggleProfile()

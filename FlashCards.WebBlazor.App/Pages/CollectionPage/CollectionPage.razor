@@ -29,13 +29,13 @@
         }
     </MudStack>
 
-    <MudPagination Class="pagination-center-wrapper" Color="Color.Info" Size="Size.Large"
+    <MudPagination Class="pagination-center-wrapper" Color="Color.Primary" Size="Size.Large"
                    Count="_numberOfPages"
                    @bind-Selected="@_selectedPage" @bind-Selected:after="LoadCardCollection"/>
 }
 else
 {
-    <div style="text-align: center;">
+    <div style="text-align: center; margin-top: 200px;">
         <MudProgressCircular Color="Color.Info" Size="Size.Large" Indeterminate="true"/>
     </div>
 }
