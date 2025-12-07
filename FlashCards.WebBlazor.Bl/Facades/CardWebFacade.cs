@@ -1,19 +1,19 @@
-﻿using FlashCards.WebBlazor.Bl.ApiClient;
+﻿using FlashCards.Common.QueryObjects;
+using FlashCards.WebBlazor.Bl.ApiClient;
 using FlashCards.WebBlazor.Bl.Facades.Interfaces;
 
 namespace FlashCards.WebBlazor.Bl.Facades;
 
-public class CardWebFacade(ICardApiClient apiClient) : IWebFacade<CardListModel, CardDetailModel>
+public class CardWebFacade(ICardApiClient apiClient) : IWebFacade<CardQueryObject, CardListModel, CardDetailModel>
 {
     public async Task DeleteAsync(Guid id)
     {
         await apiClient.CardDELETEAsync(id);
     }
 
-	public async Task<ICollection<CardListModel>> GetAllAsync(string? filterAtrib = null, string? filter = null, string? orderBy = null, bool? sortDesc = null,
-		int? pageNumber = null, int? pageSize = null)
+	public async Task<ICollection<CardListModel>> GetAllAsync(CardQueryObject queryObject)
 	{
-		return await apiClient.CardAllAsync(filterAtrib, filter, orderBy, sortDesc, pageNumber, pageSize);
+		return await apiClient.CardAllAsync(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
 	}
 
     public async Task<CardDetailModel> GetByIdAsync(Guid id)
@@ -21,9 +21,9 @@ public class CardWebFacade(ICardApiClient apiClient) : IWebFacade<CardListModel,
         return await apiClient.CardGETAsync(id);
     }
 
-    public async Task<int> GetCountAsync(string? strFilterAtrib = null, string? strFilter = null)
+    public async Task<int> GetCountAsync(CardQueryObject queryObject)
     {
-        return await apiClient.CountAsync(strFilterAtrib, strFilter);
+        return await apiClient.Count2Async(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
     }
 
     public async Task<Guid> SaveToApiAsync(CardDetailModel data)

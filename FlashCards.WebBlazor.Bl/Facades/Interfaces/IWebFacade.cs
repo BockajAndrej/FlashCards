@@ -1,13 +1,15 @@
-﻿namespace FlashCards.WebBlazor.Bl.Facades.Interfaces;
+﻿using FlashCards.WebBlazor.Bl.ApiClient;
 
-public interface IWebFacade<TListModel, TDetailModel>
+namespace FlashCards.WebBlazor.Bl.Facades.Interfaces;
+
+public interface IWebFacade<TQueryObjects, TListModel, TDetailModel>
 {
     public Task DeleteAsync(Guid id);
 
-    public Task<ICollection<TListModel>> GetAllAsync(string? filterAtrib = null, string? filter = null, string? orderBy = null, bool? sortDesc = null, int? pageNumber = null, int? pageSize = null);
+    public Task<ICollection<TListModel>> GetAllAsync(TQueryObjects queryObject);
 
     public Task<TDetailModel> GetByIdAsync(Guid id);
-    public Task<int> GetCountAsync(string? strFilterAtrib = null, string? strFilter = null);
+    public Task<int> GetCountAsync(TQueryObjects queryObject);
 
     public Task<Guid> SaveToApiAsync(TDetailModel data);
 }

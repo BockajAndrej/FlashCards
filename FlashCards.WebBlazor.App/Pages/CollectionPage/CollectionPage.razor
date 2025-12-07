@@ -1,4 +1,5 @@
 ﻿@page "/CollectionPage"
+@using FlashCards.Common.QueryObjects
 @using FlashCards.WebBlazor.App.Components
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
@@ -42,13 +43,13 @@ else
 
 
 @code{
-    [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
+    [Inject] private CollectionWebFacade CollectionWebFacade { get; set; } = null!;
 
     private int _selectedPage = 1;
     private int _pageSize = 32;
     private int _numberOfPages;
 
-    private class CardCollectionExt : CardCollectionListModel
+    private class CardCollectionExt : CollectionListModel
     {
         public bool IsSelectedForDelete { get; set; } = false;
     }
@@ -154,12 +155,19 @@ else
 
     private async Task LoadCardCollection()
     {
-        var collection = await CardCollectionWebFacade.GetAllAsync(nameof(CardCollectionListModel.Title), CollectionFilterSearchTerm, OrderType, SortDesc, _selectedPage, _pageSize);
+        CollectionQueryObject collectionQuery = new CollectionQueryObject();
+        collectionQuery.IsDescending = true;
+        collectionQuery.PageNumber =  _selectedPage;
+        collectionQuery.PageSize = _pageSize;
+        collectionQuery.Name = CollectionFilterSearchTerm;
+        collectionQuery.TagIds = new List<Guid>();
+        
+        var collection = await CollectionWebFacade.GetAllAsync(collectionQuery);
         CardCollectionsExt = GetExtendedCardCollection(collection);
     }
 
 
-    private List<CardCollectionExt> GetExtendedCardCollection(ICollection<CardCollectionListModel> collection)
+    private List<CardCollectionExt> GetExtendedCardCollection(ICollection<CollectionListModel> collection)
     {
         List<CardCollectionExt> extCollection = new();
         if (extCollection == null) throw new ArgumentNullException(nameof(extCollection));

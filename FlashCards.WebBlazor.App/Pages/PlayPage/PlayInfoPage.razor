@@ -102,13 +102,13 @@
 }
 
 @code {
-    [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
+    [Inject] private CollectionWebFacade CollectionWebFacade { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
     [Inject] ISnackbar Snackbar { get; set; } = null!;
 
     [Parameter] public Guid Id { get; set; }
 
-    private CardCollectionDetailModel? Collection { get; set; }
+    private CollectionDetailModel? Collection { get; set; }
 
     private bool IsEditMode { get; set; } = false;
 
@@ -116,12 +116,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Collection = await CardCollectionWebFacade.GetByIdAsync(Id);
+        Collection = await CollectionWebFacade.GetByIdAsync(Id);
     }
 
     private void HandleZacatUcenieClick()
     {
-        if (@Collection.NumberOfCards <= 0)
+        if (Collection?.NumberOfCards <= 0)
         {
             Snackbar.Add("Collection does not have any flash cards", Severity.Error, config =>
             {
@@ -142,7 +142,7 @@
         if (IsEditMode)
         {
             if (Collection != null)
-                await CardCollectionWebFacade.SaveToApiAsync(Collection);
+                await CollectionWebFacade.SaveToApiAsync(Collection);
         }
 
         IsEditMode = !IsEditMode;

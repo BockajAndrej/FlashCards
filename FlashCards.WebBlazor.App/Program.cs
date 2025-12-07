@@ -25,7 +25,7 @@ builder.Services.AddHttpClient<ICardApiClient, CardApiClient>(client =>
         scopes: new[] { builder.Configuration["IdentityServer:Scope"]  ?? throw new InvalidOperationException()}!);
 });
 
-builder.Services.AddHttpClient<ICardCollectionApiClient, CardCollectionApiClient>(client =>
+builder.Services.AddHttpClient<ICollectionApiClient, CollectionApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 }).AddHttpMessageHandler(serviceProvider =>
@@ -37,7 +37,18 @@ builder.Services.AddHttpClient<ICardCollectionApiClient, CardCollectionApiClient
 });
 
 
-builder.Services.AddHttpClient<ICompletedLessonApiClient, CompletedLessonApiClient>(client =>
+builder.Services.AddHttpClient<IAttemptApiClient, AttemptApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler(serviceProvider =>
+{
+    var authHandler = serviceProvider.GetRequiredService<AuthorizationMessageHandler>();
+    return authHandler.ConfigureHandler(
+        authorizedUrls: new[] { apiBaseUrl },
+        scopes: new[] { "FlashCardsApiScope" });
+});
+
+builder.Services.AddHttpClient<IRecordApiClient, RecordApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 }).AddHttpMessageHandler(serviceProvider =>

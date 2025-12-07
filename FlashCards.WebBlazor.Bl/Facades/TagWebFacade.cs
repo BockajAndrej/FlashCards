@@ -1,19 +1,19 @@
-﻿using FlashCards.WebBlazor.Bl.ApiClient;
+﻿using FlashCards.Common.QueryObjects;
+using FlashCards.WebBlazor.Bl.ApiClient;
 using FlashCards.WebBlazor.Bl.Facades.Interfaces;
 
 namespace FlashCards.WebBlazor.Bl.Facades;
 
-public class TagWebFacade(ITagApiClient apiClient) : IWebFacade<TagListModel, TagDetailModel>
+public class TagWebFacade(ITagApiClient apiClient) : IWebFacade<TagQueryObject, TagListModel, TagDetailModel>
 {
     public async Task DeleteAsync(Guid id)
     {
         await apiClient.TagDELETEAsync(id);
     }
 
-    public async Task<ICollection<TagListModel>> GetAllAsync(string? filterAtrib = null, string? filter = null, string? orderBy = null, bool? sortDesc = null,
-        int? pageNumber = null, int? pageSize = null)
+    public async Task<ICollection<TagListModel>> GetAllAsync(TagQueryObject queryObject)
     {
-        return await apiClient.TagAllAsync(filterAtrib, filter, orderBy, sortDesc, pageNumber, pageSize);
+        return await apiClient.TagAllAsync(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
     }
 
     public async Task<TagDetailModel> GetByIdAsync(Guid id)
@@ -21,9 +21,9 @@ public class TagWebFacade(ITagApiClient apiClient) : IWebFacade<TagListModel, Ta
         return await apiClient.TagGETAsync(id);
     }
 
-    public async Task<int> GetCountAsync(string? strFilterAtrib = null, string? strFilter = null)
+    public async Task<int> GetCountAsync(TagQueryObject queryObject)
     {
-        return await apiClient.Count4Async(strFilterAtrib, strFilter);
+        return await apiClient.Count5Async(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
     }
 
     public async Task<Guid> SaveToApiAsync(TagDetailModel data)

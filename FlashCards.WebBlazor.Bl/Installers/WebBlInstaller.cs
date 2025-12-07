@@ -10,7 +10,7 @@ public static class WebBlInstaller
     {
         serviceCollection.Scan(selector =>
             selector.FromAssemblyOf<CardWebFacade>()
-                .AddClasses(classes => classes.AssignableTo(typeof(IWebFacade<,>)))
+                .AddClasses(classes => classes.AssignableTo(typeof(IWebFacade<,,>)))
                 .AsSelfWithInterfaces()
                 .WithScopedLifetime());
     }

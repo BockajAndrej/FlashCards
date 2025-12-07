@@ -42,12 +42,12 @@
 </MudPaper>
 
 @code {
-    [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
-    [Inject] private CompletedLessonWebFacade CompletedLessonWebFacade { get; set; } = null!;
+    [Inject] private CollectionWebFacade CollectionWebFacade { get; set; } = null!;
+    [Inject] private RecordWebFacade CompletedLessonWebFacade { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     
     [Parameter] public Guid Id { get; set; } = Guid.Empty;
     
-    private CompletedLessonDetailModel completedLesson { get; set; }
+    private RecordDetailModel completedLesson { get; set; }
     
 }

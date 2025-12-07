@@ -59,13 +59,13 @@
 
     <MudStack Style="margin: 70px 0" Row Spacing="5" StretchItems="StretchItems.All">
         <MudButton Color="Color.Error" StartIcon="@Icons.Material.Outlined.Cancel" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._1))" Size="Size.Large">Unknown
+                   OnClick="@(() => SelectedAnswear(EnumAnswerType._1))" Size="Size.Large">Unknown
         </MudButton>
         <MudButton Color="Color.Warning" StartIcon="@Icons.Material.Outlined.QuestionMark" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._2))" Size="Size.Large">50/50
+                   OnClick="@(() => SelectedAnswear(EnumAnswerType._2))" Size="Size.Large">50/50
         </MudButton>
         <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.Done" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumCompletedLessonAnswerType._0))" Size="Size.Large">Know
+                   OnClick="@(() => SelectedAnswear(EnumAnswerType._0))" Size="Size.Large">Know
         </MudButton>
     </MudStack>
 </div>
@@ -74,8 +74,8 @@
 
 @code {
     [Inject] private CardWebFacade CardWebFacade { get; set; } = null!;
-    [Inject] private CardCollectionWebFacade CardCollectionWebFacade { get; set; } = null!;
-    [Inject] private CompletedLessonWebFacade CompletedLessonWebFacade { get; set; } = null!;
+    [Inject] private CollectionWebFacade CollectionWebFacade { get; set; } = null!;
+    [Inject] private RecordWebFacade RecordWebFacade { get; set; } = null!;
     [Inject] public NavigationManager Navigation { get; set; } = null!;
 
     [Parameter] public Guid Id { get; set; } = Guid.Empty;
@@ -84,17 +84,17 @@
 
     private CardListModel? CurrentCard { get; set; }
 
-    private CardCollectionDetailModel? DetailCollection { get; set; }
+    private CollectionDetailModel? DetailCollection { get; set; }
 
     private int _numberOfAnswered = 0;
     
     private int _rotationAngle = 0;
 
-    private CompletedLessonDetailModel CompletedLesson { get; set; } = new();
+    private RecordDetailModel RecordDetailModel { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        DetailCollection = await CardCollectionWebFacade.GetByIdAsync(Id);
+        DetailCollection = await CollectionWebFacade.GetByIdAsync(Id);
         foreach (var item in DetailCollection.Cards)
         {
             Cards.Add(item);
@@ -104,12 +104,12 @@
         if (CurrentCard == null)
             Navigation.NavigateTo($"/PlayInfoPage/{Id}");
         
-        CompletedLesson.NumberOfCorrectAnswersByTypes.Add(0);
-        CompletedLesson.NumberOfCorrectAnswersByTypes.Add(0);
-        CompletedLesson.NumberOfCorrectAnswersByTypes.Add(0);
+        RecordDetailModel.NumberOfCorrectAnswersByTypes.Add(0);
+        RecordDetailModel.NumberOfCorrectAnswersByTypes.Add(0);
+        RecordDetailModel.NumberOfCorrectAnswersByTypes.Add(0);
     }
 
-    private async Task SelectedAnswear(EnumCompletedLessonAnswerType answerType)
+    private async Task SelectedAnswear(EnumAnswerType answerType)
     {
         _numberOfAnswered++;
         if (_numberOfAnswered >= Cards.Count)
@@ -118,7 +118,7 @@
             return;
         }
 
-        CompletedLesson.CardCollectionId = Id;
+        RecordDetailModel.CardCollectionId = Id;
         _rotationAngle = 0;
         await Task.Delay(100);
         CurrentCard = Cards[_numberOfAnswered];
