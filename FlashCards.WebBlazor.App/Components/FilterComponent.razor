@@ -1,15 +1,64 @@
-﻿@using FlashCards.WebBlazor.App.Components.Shared
+﻿@using AutoMapper
+@using FlashCards.Common.QueryObjects
+@using FlashCards.WebBlazor.App.Components.Shared
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashCards.WebBlazor.Bl.Facades
 
+@if (_filterListModels.Any() && _tagListModels.Any())
+{
+    <MudDynamicTabs Class="filtercomponent-specific-tab" @ref="@_dynamicTabs"
+                    ActivePanelIndex="@_userIndex"
+                    ActivePanelIndexChanged="FitlerIndexChanged"
+                    AddTab="@OnAddTab" CloseTab="@OnCloseTab"
+                    AddIconToolTip="Add a new filter" CloseIconToolTip="Close tab. All data will be lost"
+                    PanelClass="px-4 py-6" Elevation="0" Rounded ApplyEffectsToContainer>
+        @for (int tabIndex = 0; tabIndex < _userTabs.Count; tabIndex++)
+        {
+            var tab = _userTabs[tabIndex];
+            var currentFilter = _filterListModels.ElementAtOrDefault(tabIndex);
+
+            <MudTabPanel ID="@tab.Id" Text="@tab.Label" ShowCloseIcon="@tab.ShowCloseIcon">
+                <MudStack Row Wrap="Wrap.Wrap">
+                    @foreach (var tag in _tagListModels)
+                    {
+                        bool isTagInThisTabFilter = currentFilter != null &&
+                                                        currentFilter.Tags != null &&
+                                                        currentFilter.Tags.Any(b => b.Id == tag.Id);
+                        
+                        if (isTagInThisTabFilter)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       OnClick="@(() => OnAddTagToFilterBtnClicked(tag, false))">@tag.Name</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Outlined"
+                                       OnClick="@(() => OnAddTagToFilterBtnClicked(tag, true))">@tag.Name</MudButton>
+                        }
+                    }
+                </MudStack>
+            </MudTabPanel>
+        }
+    </MudDynamicTabs>
+}
+else if (_tagListModels.Any())
+{
+    <MudStack Style="width: 95%; margin: 10px auto;" Row StretchItems="StretchItems.Start">
+        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@OnAddTab">Filter</MudButton>
+    </MudStack>
+}
 
 <MudPaper Class="filtercomponent-specific-paper" Outlined>
     <MudStack Row>
         @if (IsCardVisualisationList)
         {
-            <MudIconButton Class="filtercomponent-specific-layoutBtn" Icon="@Icons.Material.Filled.Dashboard" OnClick="TypeOfVisualisationChanged"></MudIconButton>
+            <MudIconButton Class="filtercomponent-specific-layoutBtn" Icon="@Icons.Material.Filled.Dashboard"
+                           OnClick="TypeOfVisualisationChanged"></MudIconButton>
         }
         else
         {
-            <MudIconButton Class="filtercomponent-specific-layoutBtn" Icon="@Icons.Material.Filled.TableRows" OnClick="TypeOfVisualisationChanged"></MudIconButton>
+            <MudIconButton Class="filtercomponent-specific-layoutBtn" Icon="@Icons.Material.Filled.TableRows"
+                           OnClick="TypeOfVisualisationChanged"></MudIconButton>
         }
         <SelectorComponent TItem="SelectOption" TValue="string"
                            Items="OrderTypeValues"
@@ -36,11 +85,11 @@
             </SelectedDisplay>
 
         </SelectorComponent>
-        
-        <input class="filtercomponent-specific-searchbar" type="text" placeholder="Search..." @bind-value="SearchTerm" 
-               @bind-value:event="oninput" 
+
+        <input class="filtercomponent-specific-searchbar" type="text" placeholder="Search..." @bind-value="SearchTerm"
+               @bind-value:event="oninput"
                @bind-value:after="SearchTermChanged"/>
-        
+
         <SelectorComponent TItem="SelectOption" TValue="string"
                            Items="NumberOfCardsOnPage"
                            ValueSelector="(option) => option.ValueId"
@@ -66,20 +115,27 @@
             </SelectedDisplay>
 
         </SelectorComponent>
-        
+
         @if (IsDeleteModeActive)
         {
-            <MudIconButton Class="filtercomponent-specific-deleteBtn" Style="background-color: var(--color-error);" Icon="@Icons.Material.Filled.Delete"></MudIconButton>
-            <MudIconButton Class="filtercomponent-specific-deleteBtn" Icon="@Icons.Material.Filled.Close" OnClick="IsDeleteModeActiveChanged"></MudIconButton>
+            <MudIconButton Class="filtercomponent-specific-deleteBtn" Style="background-color: var(--color-error);"
+                           Icon="@Icons.Material.Filled.Delete" OnClick="@DeleteApprovedBtnClicked"></MudIconButton>
+            <MudIconButton Class="filtercomponent-specific-deleteBtn" Icon="@Icons.Material.Filled.Close"
+                           OnClick="IsDeleteModeActiveChanged"></MudIconButton>
         }
         else
         {
-            <MudIconButton Class="filtercomponent-specific-deleteBtn"  Icon="@Icons.Material.Filled.Delete" OnClick="IsDeleteModeActiveChanged"></MudIconButton>
+            <MudIconButton Class="filtercomponent-specific-deleteBtn" Icon="@Icons.Material.Filled.Delete"
+                           OnClick="IsDeleteModeActiveChanged"></MudIconButton>
         }
     </MudStack>
 </MudPaper>
 
 @code {
+    [Inject] private TagWebFacade TagWebFacade { get; set; } = null!;
+    [Inject] private FilterWebFacade FilterWebFacade { get; set; } = null!;
+    [Inject] private IMapper Mapper { get; set; } = null!;
+
     [Parameter] public bool IsCardVisualisationList { get; set; } = false;
     [Parameter] public EventCallback<bool> TypeOfVisualisationChangedEvent { get; set; }
 
@@ -91,9 +147,15 @@
 
     [Parameter] public string OrderType { get; set; } = "a";
     [Parameter] public EventCallback<string> OrderTypeChangedEvent { get; set; }
-    
+
     [Parameter] public EventCallback<int> NumberOfCardsPerPageChangedEvent { get; set; }
 
+    [Parameter] public EventCallback FilterChangedEvent { get; set; }
+
+    [Parameter] public EventCallback DeleteChangedEvent { get; set; } 
+    
+    private ICollection<TagListModel> _tagListModels = new List<TagListModel>();
+    private ICollection<FilterListModel> _filterListModels = new List<FilterListModel>();
 
     public class SelectOption
     {
@@ -101,11 +163,11 @@
         public string DisplayName { get; set; }
     }
 
-    private static readonly List<SelectOption> OrderTypeValues = new ()
+    private static readonly List<SelectOption> OrderTypeValues = new()
     {
-        new () { ValueId = "a", DisplayName = "A-Z" },
-        new () { ValueId = "b", DisplayName = "Z-A" },
-        new () { ValueId = "c", DisplayName = "Recently played" }
+        new() { ValueId = "a", DisplayName = "A-Z" },
+        new() { ValueId = "b", DisplayName = "Z-A" },
+        new() { ValueId = "c", DisplayName = "Recently played" }
     };
 
     private static readonly List<SelectOption> NumberOfCardsOnPage = new()
@@ -151,4 +213,142 @@
             throw new Exception();
         }
     }
+
+
+    private int _userIndex;
+    private List<TabView> _userTabs = [];
+    private MudDynamicTabs _dynamicTabs = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await LoadData();
+
+        foreach (var filterListModel in _filterListModels)
+        {
+            _userTabs.Add(new TabView { Id = filterListModel.Id, Label = filterListModel.Name });
+        }
+
+        _userIndex = _filterListModels
+            .Select((model, i) => new { Model = model, Index = i })
+            .Where(x => x.Model.IsActive == true)
+            .Select(x => x.Index)
+            .FirstOrDefault();
+    }
+
+    private async Task AddTab()
+    {
+        var filterDetailModel = new FilterDetailModel() { IsActive = true, Name = $"Filter {_userTabs.Count + 1}" };
+        var resultId = await FilterWebFacade.SaveToApiAsync(filterDetailModel);
+        filterDetailModel.Id = resultId;
+
+        _userTabs.Add(new TabView { Id = filterDetailModel.Id, Label = filterDetailModel.Name });
+
+        _userIndex = _userTabs.Count - 1;
+
+        _filterListModels.Add(Mapper.Map<FilterListModel>(filterDetailModel));
+
+        StateHasChanged();
+        await FilterChangedEvent.InvokeAsync();
+    }
+
+    private async Task OnAddTab() => await AddTab();
+
+    private async Task RemoveTab(Guid id)
+    {
+        try
+        {
+            await FilterWebFacade.DeleteAsync(id);
+        }
+        catch (FilterApiException e)
+        {
+            if (e.StatusCode != 204)
+                throw;
+        }
+
+        var filterListModel = _filterListModels.FirstOrDefault(l => l.Id == id);
+        if (filterListModel != null) _filterListModels.Remove(filterListModel);
+
+        var tabView = _userTabs.FirstOrDefault(t => t.Id == id);
+        if (tabView is not null)
+        {
+            _userTabs.Remove(tabView);
+        }
+
+        StateHasChanged();
+        await FilterChangedEvent.InvokeAsync();
+    }
+
+    private async Task OnCloseTab(MudTabPanel panel)
+    {
+        if (panel.ID is Guid id)
+        {
+            await RemoveTab(id);
+        }
+    }
+
+    public class TabView
+    {
+        public required Guid Id { get; init; }
+
+        public required string Label { get; init; }
+
+        public bool ShowCloseIcon { get; set; } = true;
+    }
+
+    public async Task OnAddTagToFilterBtnClicked(TagListModel tagListModel, bool value)
+    {
+        var tagDetailModel = await TagWebFacade.GetByIdAsync(tagListModel.Id);
+        var filterListModel = _filterListModels.ElementAt(_userIndex);
+
+        if (value)
+        {
+            if (tagDetailModel.Filters == null)
+                tagDetailModel.Filters = new List<FilterListModel>();
+            tagDetailModel.Filters.Add(filterListModel);
+        }
+        else
+        {
+            if (tagDetailModel.Filters != null)
+            {
+                if (tagDetailModel.Filters.FirstOrDefault(l => l.Id == filterListModel.Id) != null)
+                {
+                    tagDetailModel.Filters.Remove(tagDetailModel.Filters.FirstOrDefault(l => l.Id == filterListModel.Id)!);
+                }
+            }
+        }
+
+        await TagWebFacade.SaveToApiAsync(tagDetailModel);
+
+        await LoadData();
+
+        await FilterChangedEvent.InvokeAsync();
+    }
+
+    private async Task LoadData()
+    {
+        TagQueryObject tagQuery = new TagQueryObject();
+        _tagListModels = await TagWebFacade.GetAllAsync(tagQuery);
+
+        FilterQueryObject filterQuery = new FilterQueryObject();
+        _filterListModels = await FilterWebFacade.GetAllAsync(filterQuery);
+
+        StateHasChanged();
+    }
+
+    private async Task FitlerIndexChanged(int newIndex)
+    {
+        _userIndex = newIndex;
+        var filterListModel = _filterListModels.ElementAt(_userIndex);
+        await FilterWebFacade.SaveToApiAsync(Mapper.Map<FilterDetailModel>(filterListModel));
+        await LoadData();
+        await FilterChangedEvent.InvokeAsync();
+    }
+
+    private async Task DeleteApprovedBtnClicked()
+    {
+        await DeleteChangedEvent.InvokeAsync();
+    }
+
 }

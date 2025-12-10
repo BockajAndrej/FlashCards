@@ -222,6 +222,17 @@ code {
 }
 
 
+.filtercomponent-specific-tab{
+    background-color: var(--filtercomponent-background) !important;
+    border: 2px solid var(--filtercomponent-border-color) !important;
+    border-radius: 15px !important;
+    margin: 10px auto !important;
+    width: 95% !important;
+    padding: 10px !important;
+    overflow: visible;
+    color: var(--card-text-Primary);
+}
+
 .filtercomponent-specific-paper{
     background-color: var(--filtercomponent-background) !important;
     border: 2px solid var(--filtercomponent-border-color) !important;

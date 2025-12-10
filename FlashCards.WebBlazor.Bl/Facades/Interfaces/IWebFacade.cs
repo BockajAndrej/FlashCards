@@ -11,5 +11,4 @@ public interface IWebFacade<TQueryObjects, TListModel, TDetailModel>
     public Task<TDetailModel> GetByIdAsync(Guid id);
     public Task<int> GetCountAsync(TQueryObjects queryObject);
 
-    public Task<Guid> SaveToApiAsync(TDetailModel data);
 }

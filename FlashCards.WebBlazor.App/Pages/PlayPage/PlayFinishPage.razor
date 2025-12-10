@@ -20,21 +20,21 @@
         <MudPaper Style="background-color:#4e445a; border-radius: 10px;">
             <MudStack Style="margin: 5px auto" AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2">
                 <MudIcon Style="color:#ff6467" Icon="@Icons.Material.Outlined.Cancel"/>
-                <MudText Style="color:#ffa2a2" Typo="Typo.h6">1</MudText>
+                <MudText Style="color:#ffa2a2" Typo="Typo.h6">@RecordDetailModel?.NumberOfIncorrectAnswers</MudText>
                 <MudText Style="color:#ff6467" Typo="Typo.subtitle2">Unknown</MudText>
             </MudStack>
         </MudPaper>
         <MudPaper Style="background-color:#4c5e4f; border-radius: 10px;">
             <MudStack Style="margin: 5px auto" AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2">
                 <MudIcon Style="color:#fdc700" Icon="@Icons.Material.Filled.QuestionMark"/>
-                <MudText Style="color:#f0c135" Typo="Typo.h6">0</MudText>
+                <MudText Style="color:#f0c135" Typo="Typo.h6">@RecordDetailModel?.NumberOfNotSureAnswers</MudText>
                 <MudText Style="color:#fdc700" Typo="Typo.subtitle2">50/50</MudText>
             </MudStack>
         </MudPaper>
         <MudPaper Style="background-color:#1c635f; border-radius: 10px;">
             <MudStack Style="margin: 5px auto" AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2">
                 <MudIcon Style="color:#05df72" Icon="@Icons.Material.Filled.Done"/>
-                <MudText Style="color:#7bf1a8" Typo="Typo.h6">2</MudText>
+                <MudText Style="color:#7bf1a8" Typo="Typo.h6">@RecordDetailModel?.NumberOfCorrectAnswers</MudText>
                 <MudText Style="color:#05df72" Typo="Typo.subtitle2">Know</MudText>
             </MudStack>
         </MudPaper>
@@ -43,11 +43,15 @@
 
 @code {
     [Inject] private CollectionWebFacade CollectionWebFacade { get; set; } = null!;
-    [Inject] private RecordWebFacade CompletedLessonWebFacade { get; set; } = null!;
+    [Inject] private RecordWebFacade RecordWebFacade { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     
     [Parameter] public Guid Id { get; set; } = Guid.Empty;
     
-    private RecordDetailModel completedLesson { get; set; }
+    private RecordDetailModel? RecordDetailModel { get; set; }
     
+    protected override async Task OnInitializedAsync()
+    {
+        RecordDetailModel = await RecordWebFacade.GetLastAsync(Id);
+    }
 }

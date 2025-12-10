@@ -1,4 +1,6 @@
 ﻿@page "/PlayInfoPage/{Id:guid}"
+@using AutoMapper
+@using FlashCards.Common.QueryObjects
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
 
@@ -8,47 +10,41 @@
 
 <MudStack Style="margin-top: -20px; margin-right: 30px; " Row>
     <MudSpacer/>
+    @if (IsEditMode)
+    {
+        <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Save"
+                       Variant="Variant.Filled"
+                       OnClick="OnEditTextClicked"></MudIconButton>
+        <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Cancel"
+                       Variant="Variant.Filled"
+                       OnClick="() => IsEditMode = false"></MudIconButton>
+    }
+
     <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined"
                    OnClick="OnEditBtnClicked"></MudIconButton>
+    
     <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Delete"
                    Variant="Variant.Outlined" OnClick="OnDeleteBtnClicked"></MudIconButton>
 </MudStack>
 
-
-
-@if (Collection != null)
+@if (CollectionDetailModel != null)
 {
-    if (IsEditMode)
-    {
-        <div style="text-align: center; width: 60%; margin: 0 auto;">
-            <MudTextField Label="Title" T="string" Style="color: var(--color-text-main); text-align: center;"
-                          Typo="Typo.h4" Variant="Variant.Outlined" @bind-Value="@Collection.Title"></MudTextField>
-            <MudTextField Label="Description" T="string" Style="color: var(--color-text-secondary); text-align: center;"
-                          Typo="Typo.body1" Variant="Variant.Outlined"
-                          @bind-Value="@Collection.Description"></MudTextField>
-        </div>
-    }
-    else
-    {
-        <div style="text-align: center;">
-            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-main)"
-                     Typo="Typo.h4">@Collection.Title</MudText>
-            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-secondary)"
-                     Typo="Typo.body1">@Collection.Description</MudText>
-        </div>
-    }
-
-    <MudStack Style="width: 60%; margin: 10px auto;" Row AlignItems="AlignItems.Center" Justify="Justify.Center">
+    <MudStack Style="width: 60%; margin: 0 auto; text-align: center" Spacing="1">
         @if (IsEditMode)
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Edit"
-                       OnClick="OnEditTextClicked">Save changes
-            </MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Cancel"
-                       OnClick="() => IsEditMode = false">Cancel
-            </MudButton>
+            <MudTextField T="string" Style="color: var(--color-text-main);"
+                          Typo="Typo.h5" Variant="Variant.Text" @bind-Value="@CollectionDetailModel.Title"></MudTextField>
+            <MudTextField T="string" Style="color: var(--color-text-secondary);"
+                          Typo="Typo.body1" Variant="Variant.Text"
+                          @bind-Value="@CollectionDetailModel.Description"></MudTextField>
         }
-
+        else
+        {
+            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-main)"
+                     Typo="Typo.h4">@CollectionDetailModel.Title</MudText>
+            <MudText @ondblclick="OnEditTextClicked" Style="color: var(--color-text-secondary)"
+                     Typo="Typo.body1">@CollectionDetailModel.Description</MudText>
+        }
     </MudStack>
 
     <MudPaper
@@ -56,72 +52,134 @@
         <MudStack Spacing="3" Row>
             <MudIcon Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.AutoAwesomeMotion"/>
             <MudText Style="color: var(--card-text-Primary); margin-top: -2px"
-                     Typo="Typo.h6">@Collection.NumberOfCards</MudText>
+                     Typo="Typo.h6">@CollectionDetailModel.NumberOfCards</MudText>
             <MudSpacer/>
-            <MudIconButton Style="color: var(--card-text-Primary); margin-top: -12px;" OnClick="OnEditBtnClicked" Icon="@Icons.Material.Filled.Add" Variant="Variant.Text"/>
+            <MudIconButton Style="color: var(--card-text-Primary); margin-top: -12px;" OnClick="OnEditBtnClicked"
+                           Icon="@Icons.Material.Filled.Add" Variant="Variant.Text"/>
         </MudStack>
+
         <MudDivider Style="margin: 5px auto"/>
-        @if (string.IsNullOrEmpty(@Collection.Note))
+
+        <MudStack Spacing="0" Row>
+            <MudIcon Style="color: var(--card-text-Secondary); margin-top: 10px;"
+                     Icon="@Icons.Material.Filled.Label"></MudIcon>
+            @if (CollectionDetailModel?.Tags != null)
+            {
+                <MudStack Style="margin-left: 10px;" Row Spacing="3">
+
+                    @foreach (var tags in CollectionDetailModel?.Tags!)
+                    {
+                        <MudButton Style="color: var(--card-text-Primary); margin: 10px auto" Size="Size.Small"
+                                   Variant="Variant.Outlined"
+                                   EndIcon="@Icons.Material.Filled.Close" OnClick="@(() => OnRemoveTagBtnClicked(tags))">@tags.Name</MudButton>
+                    }
+                </MudStack>
+            }
+            <MudSpacer/>
+            <MudIconButton Style="color: var(--card-text-Primary);" Icon="@Icons.Material.Filled.Add"
+                           OnClick="OnOpenTagBtnClicked"></MudIconButton>
+            <MudPopover Style="padding: 10px;" Open="@OpenTagPopover" AnchorOrigin="Origin.BottomCenter"
+                        TransformOrigin="Origin.TopCenter">
+                <MudStack Spacing="2">
+                    <MudStack Row StretchItems="StretchItems.Start">
+                        <MudTextField @bind-Value="SelectedTagName"
+                                      AdornmentColor="Color.Info"
+                                      Placeholder="New Tag"
+                                      Variant="Variant.Text"/>
+                        <MudIconButton Style="color: var(--card-text-Primary);" Icon="@Icons.Material.Filled.Add"
+                                       OnClick="OnAddTagBtnClicked"></MudIconButton>
+                    </MudStack>
+                    <MudSelect T="TagListModel"
+                               Style="width: 100%;"
+                               Variant="Variant.Outlined"
+                               ValueChanged="OnTagSelectorClicked"
+                               Placeholder="Select tag"
+                               Modal="true">
+                        @foreach (var tagListModel in _accessibleTagListModels)
+                        {
+                            <MudSelectItem Value="tagListModel">@tagListModel.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
+            </MudPopover>
+        </MudStack>
+
+        @if (string.IsNullOrEmpty(CollectionDetailModel.Note))
         {
             <MudText Style="color: var(--card-text-Secondary)">Without notes</MudText>
         }
         else
         {
-            <MudText Style="color: var(--card-text-Primary)">@Collection.Note</MudText>
+            <MudText Style="color: var(--card-text-Primary)">@CollectionDetailModel.Note</MudText>
         }
     </MudPaper>
-    
+
     <div style="text-align: center; width: 60%; margin: 25px auto;">
         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Large">
-            @if (TypeOfGame == 0)
+            @if (_typeOfGame == 0)
             {
-                <MudButton Style="background-color: var(--color-action-Secondary); color: var(--card-text-Primary)">ALL</MudButton>
+                <MudButton Style="background-color: var(--color-action-Secondary); color: var(--card-text-Primary)">
+                    ALL
+                </MudButton>
             }
             else
             {
-                <MudButton OnClick="() => TypeOfGame = 0">ALL</MudButton>
+                <MudButton OnClick="() => _typeOfGame = 0">ALL</MudButton>
             }
-            @if (TypeOfGame == 1)
+            @if (_typeOfGame == 1)
             {
-                <MudButton Style="background-color: var(--color-action-Secondary); color: var(--card-text-Primary)">LIMITED</MudButton>
+                <MudButton Style="background-color: var(--color-action-Secondary); color: var(--card-text-Primary)">
+                    LIMITED
+                </MudButton>
             }
             else
             {
-                <MudButton OnClick="() => TypeOfGame = 1">LIMITED</MudButton>
+                <MudButton OnClick="() => _typeOfGame = 1">LIMITED</MudButton>
             }
         </MudButtonGroup>
     </div>
-    
-    
+
+
     <div style="text-align: center; width: 60%; height: 30%; margin: 25px auto;">
         <MudButton
             Style="width: 100%; height: 120px; color: var(--card-text-Primary); border-radius: 10px; background-color:#3b7a9e; font-size: 25px;"
-            StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large" OnClick="HandleZacatUcenieClick">Start
+            StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large" OnClick="HandleStartGameClick">Start
         </MudButton>
     </div>
 }
 
 @code {
     [Inject] private CollectionWebFacade CollectionWebFacade { get; set; } = null!;
-    [Inject] public NavigationManager Navigation { get; set; } = null!;
-    [Inject] ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private TagWebFacade TagWebFacade { get; set; } = null!;
+    [Inject] private RecordWebFacade RecordWebFacade { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private IMapper Mapper { get; set; } = null!;
 
     [Parameter] public Guid Id { get; set; }
 
-    private CollectionDetailModel? Collection { get; set; }
+    private CollectionDetailModel? CollectionDetailModel { get; set; }
+    private ICollection<TagListModel> _tagListModels = new List<TagListModel>();
+    private ICollection<TagListModel> _accessibleTagListModels = new List<TagListModel>();
+
 
     private bool IsEditMode { get; set; } = false;
 
-    private int TypeOfGame = 0;
+    private int _typeOfGame = 0;
+
+    private bool OpenTagPopover { get; set; } = false;
+    private string SelectedTagName { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
-        Collection = await CollectionWebFacade.GetByIdAsync(Id);
+        await LoadData();
+        
+        UpdateAccessibleTags();
     }
 
-    private void HandleZacatUcenieClick()
+    private async Task HandleStartGameClick()
     {
-        if (Collection?.NumberOfCards <= 0)
+        if (CollectionDetailModel?.NumberOfCards <= 0)
         {
             Snackbar.Add("Collection does not have any flash cards", Severity.Error, config =>
             {
@@ -134,6 +192,9 @@
             return;
         }
 
+        RecordDetailModel? recordDetailModel = new RecordDetailModel();
+        await RecordWebFacade.StartNewGameAsync(recordDetailModel, Id);
+
         Navigation.NavigateTo($"/PlayPage/{Id}");
     }
 
@@ -141,20 +202,112 @@
     {
         if (IsEditMode)
         {
-            if (Collection != null)
-                await CollectionWebFacade.SaveToApiAsync(Collection);
+            if (CollectionDetailModel != null)
+                await CollectionWebFacade.SaveToApiAsync(CollectionDetailModel);
         }
 
         IsEditMode = !IsEditMode;
     }
 
-    private void OnEditBtnClicked()
+    private void OnEditBtnClicked() => Navigation.NavigateTo($"/CollectionEditPage/edit/{Id}");
+
+    private async Task OnDeleteBtnClicked()
     {
-        Navigation.NavigateTo($"/CollectionEditPage/edit/{Id}");
+        try
+        {
+            await CollectionWebFacade.DeleteAsync(Id);
+        }
+        catch (CollectionApiException e)
+        {
+            if (e.StatusCode != 204)
+                throw;
+        }
+
+        Navigation.NavigateTo("/CollectionPage");
     }
 
-    private void OnDeleteBtnClicked()
+    private void OnOpenTagBtnClicked() => OpenTagPopover = !OpenTagPopover;
+
+    private async Task OnAddTagBtnClicked()
     {
+        TagDetailModel tagDetailModel = new TagDetailModel();
+
+        if (string.IsNullOrEmpty(SelectedTagName))
+            return;
+
+        tagDetailModel.Name = SelectedTagName;
+
+        var collectionListModel = Mapper.Map<CollectionListModel>(CollectionDetailModel);
+        tagDetailModel.Collections = new List<CollectionListModel>();
+        tagDetailModel.Collections.Add(collectionListModel);
+
+        var resultId = await TagWebFacade.SaveToApiAsync(tagDetailModel);
+
+        await LoadData();
+        UpdateAccessibleTags();
+
+        OpenTagPopover = false;
+        SelectedTagName = "";
+        StateHasChanged();
     }
 
+    private async Task OnRemoveTagBtnClicked(TagListModel tagListModel)
+    {
+        TagDetailModel tagDetailModel = await TagWebFacade.GetByIdAsync(tagListModel.Id);
+
+        var collectionListModel = Mapper.Map<CollectionListModel>(CollectionDetailModel);
+        
+        tagDetailModel.Collections = new List<CollectionListModel>();
+        tagDetailModel.Collections.Remove(collectionListModel);
+
+        await TagWebFacade.SaveToApiAsync(tagDetailModel);
+
+        await LoadData();
+
+        UpdateAccessibleTags();
+        
+        OpenTagPopover = false;
+        StateHasChanged();
+    }
+
+
+    private async Task OnTagSelectorClicked(TagListModel selectedTagListModel)
+    {
+        TagDetailModel tagDetailModel = await TagWebFacade.GetByIdAsync(selectedTagListModel.Id);
+
+        var collectionListModel = Mapper.Map<CollectionListModel>(CollectionDetailModel);
+
+        if (tagDetailModel.Collections == null)
+            tagDetailModel.Collections = new List<CollectionListModel>();
+
+        if (tagDetailModel.Collections.All(c => c.Id != collectionListModel.Id))
+        {
+            tagDetailModel.Collections.Add(collectionListModel);
+        }
+
+        await TagWebFacade.SaveToApiAsync(tagDetailModel);
+        
+        await LoadData();
+        UpdateAccessibleTags();
+        
+        OpenTagPopover = false;
+        StateHasChanged();
+    }
+
+    private void UpdateAccessibleTags()
+    {
+        if (CollectionDetailModel?.Tags != null)
+        {
+            _accessibleTagListModels = _tagListModels
+                .Where(tag => CollectionDetailModel.Tags.All(assignedTag => assignedTag.Id != tag.Id))
+                .ToList();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        CollectionDetailModel = await CollectionWebFacade.GetByIdAsync(Id);
+        TagQueryObject tagQuery = new TagQueryObject();
+        _tagListModels = await TagWebFacade.GetAllAsync(tagQuery);
+    }
 }

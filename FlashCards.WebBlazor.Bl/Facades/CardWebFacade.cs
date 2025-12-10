@@ -36,4 +36,9 @@ public class CardWebFacade(ICardApiClient apiClient) : IWebFacade<CardQueryObjec
         await apiClient.CardPUTAsync(data.Id, data);
         return Guid.Empty;
     }
+
+    public async Task<bool> SaveAnswer(Guid cardId, Guid collectionId, EnumAnswerType answerType)
+    {
+        return await apiClient.AnswerAsync(cardId, collectionId, answerType);
+    }
 }

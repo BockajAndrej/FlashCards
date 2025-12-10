@@ -2,73 +2,86 @@
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
 
-<MudButton Style="color: var(--card-text-Primary);" StartIcon="@Icons.Material.Filled.ArrowBack"
-           Size="Size.Large" OnClick="OnBackBtnClicked">Back
-</MudButton>
+@if (RecordDetailModel?.NumberOfAnswers != null)
+{
+    <MudButton Style="color: var(--card-text-Primary);" StartIcon="@Icons.Material.Filled.ArrowBack"
+               Size="Size.Large" OnClick="OnBackBtnClicked">Back
+    </MudButton>
 
-<div style="width: 70%; margin: -20px auto">
-    <MudStack Row>
-        <MudText Style="color: var(--card-text-Primary)">@(_numberOfAnswered+1)/@Cards.Count</MudText>
-        <MudSpacer/>
-        <MudText Style="color: var(--card-text-Primary)">@((int)(((double)(_numberOfAnswered + 1) / Cards.Count) * 100))%</MudText>
-    </MudStack>
-    <MudProgressLinear Color="Color.Info" Size="Size.Medium" Rounded="true" Value="@(_numberOfAnswered + 1)" Min="0" Max="@Cards.Count"/>
+    <div style="width: 70%; margin: -20px auto">
+        <MudStack Row>
+            <MudText Style="color: var(--card-text-Primary)">@(+1)/@CardListModels.Count</MudText>
+            <MudSpacer/>
+            <MudText
+                Style="color: var(--card-text-Primary)">@((int)(((double)(RecordDetailModel.NumberOfAnswers + 1) / CardListModels.Count) * 100))%
+            </MudText>
+        </MudStack>
+        <MudProgressLinear Color="Color.Info" Size="Size.Medium" Rounded="true"
+                           Value="@((int)RecordDetailModel.NumberOfAnswers + 1)" Min="0"
+                           Max="@CardListModels.Count"/>
 
-    <MudStack Style="margin: 10px 0" Row Spacing="4">
-        <MudSpacer/>
-        <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined"></MudIconButton>
-        <MudIconButton Style="color: var(--card-text-Primary)"  Icon="@Icons.Material.Filled.Delete"
-                       Variant="Variant.Outlined"></MudIconButton>
-    </MudStack>
+        <MudStack Style="margin: 10px 0" Row Spacing="4">
+            <MudSpacer/>
+            <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Edit"
+                           Variant="Variant.Outlined"
+                           OnClick="@(() => IsEditModeActive = !IsEditModeActive)"></MudIconButton>
+            <MudIconButton Style="color: var(--card-text-Primary)" Icon="@Icons.Material.Filled.Delete"
+                           Variant="Variant.Outlined"></MudIconButton>
+        </MudStack>
 
-    <div style="perspective: 1000px; width: 80%; height: 400px; margin: 10px auto;" 
-         @onclick="FlipCard"> 
+        <div style="perspective: 1000px; width: 80%; height: 400px; margin: 10px auto;"
+             @onclick="FlipCard">
 
-        <div class="flip-card-inner" 
-             style="@($"transform: rotateY({_rotationAngle}deg)")"> 
+            <div class="flip-card-inner"
+                 style="@($"transform: rotateY({_rotationAngle}deg)")">
 
-            @* === PREDNÁ STRANA === *@
-            <MudPaper Class="flip-card-front"
-                      Style="border-radius: 10px; background-color: var(--card-background-Primary);"
-                      Elevation="6">
+                @* === PREDNÁ STRANA === *@
+                <MudPaper Class="flip-card-front"
+                          Style="border-radius: 10px; background-color: var(--card-background-Primary);"
+                          Elevation="6">
 
-                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                    <MudText Style="color: var(--card-text-Primary)" Typo="Typo.h4">@CurrentCard?.Question</MudText>
-                </div>
-            
-            </MudPaper>
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                        <MudText Style="color: var(--card-text-Primary)"
+                                 Typo="Typo.h4">@CurrentCardListModel?.Question</MudText>
+                    </div>
 
-            @* === ZADNÁ STRANA === *@
-            <MudPaper Class="flip-card-back"
-                      Style="border-radius: 10px; background-color: var(--card-background-Secondary);"
-                      Elevation="6">
+                </MudPaper>
 
-                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                    <MudStack>
-                        <MudText Style="color: var(--card-text-Primary)" Typo="Typo.h4">@CurrentCard?.Question</MudText>
-                        <MudDivider/>
-                        <MudText Style="color: var(--card-text-Secondary)" Typo="Typo.h5">@CurrentCard?.CorrectAnswer</MudText>
-                    </MudStack>
-                </div>
+                @* === ZADNÁ STRANA === *@
+                <MudPaper Class="flip-card-back"
+                          Style="border-radius: 10px; background-color: var(--card-background-Secondary);"
+                          Elevation="6">
 
-            </MudPaper>
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                        <MudStack>
+                            <MudText Style="color: var(--card-text-Primary)"
+                                     Typo="Typo.h4">@CurrentCardListModel?.Question</MudText>
+                            <MudDivider/>
+                            <MudText Style="color: var(--card-text-Secondary)"
+                                     Typo="Typo.h5">@CurrentCardListModel?.CorrectAnswer</MudText>
+                        </MudStack>
+                    </div>
+
+                </MudPaper>
+
+            </div>
 
         </div>
 
+        <MudStack Style="margin: 70px 0" Row Spacing="5" StretchItems="StretchItems.All">
+            <MudButton Color="Color.Error" StartIcon="@Icons.Material.Outlined.Cancel" Variant="Variant.Outlined"
+                       OnClick="@(() => SelectedAnswear(EnumAnswerType._1))" Size="Size.Large">Unknown
+            </MudButton>
+            <MudButton Color="Color.Warning" StartIcon="@Icons.Material.Outlined.QuestionMark"
+                       Variant="Variant.Outlined"
+                       OnClick="@(() => SelectedAnswear(EnumAnswerType._2))" Size="Size.Large">50/50
+            </MudButton>
+            <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.Done" Variant="Variant.Outlined"
+                       OnClick="@(() => SelectedAnswear(EnumAnswerType._0))" Size="Size.Large">Know
+            </MudButton>
+        </MudStack>
     </div>
-
-    <MudStack Style="margin: 70px 0" Row Spacing="5" StretchItems="StretchItems.All">
-        <MudButton Color="Color.Error" StartIcon="@Icons.Material.Outlined.Cancel" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumAnswerType._1))" Size="Size.Large">Unknown
-        </MudButton>
-        <MudButton Color="Color.Warning" StartIcon="@Icons.Material.Outlined.QuestionMark" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumAnswerType._2))" Size="Size.Large">50/50
-        </MudButton>
-        <MudButton Color="Color.Success" StartIcon="@Icons.Material.Outlined.Done" Variant="Variant.Outlined"
-                   OnClick="@(() => SelectedAnswear(EnumAnswerType._0))" Size="Size.Large">Know
-        </MudButton>
-    </MudStack>
-</div>
+}
 
 
 
@@ -80,48 +93,71 @@
 
     [Parameter] public Guid Id { get; set; } = Guid.Empty;
 
-    private List<CardListModel> Cards { get; set; } = new();
+    private List<CardListModel> CardListModels { get; set; } = new();
 
-    private CardListModel? CurrentCard { get; set; }
+    private CardListModel? CurrentCardListModel { get; set; }
+    private CollectionDetailModel? CollectionDetailModel { get; set; }
 
-    private CollectionDetailModel? DetailCollection { get; set; }
+    private RecordDetailModel? RecordDetailModel { get; set; } = new();
 
-    private int _numberOfAnswered = 0;
-    
-    private int _rotationAngle = 0;
+    private int _rotationAngle;
+    private bool IsEditModeActive { get; set; }
 
-    private RecordDetailModel RecordDetailModel { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        DetailCollection = await CollectionWebFacade.GetByIdAsync(Id);
-        foreach (var item in DetailCollection.Cards)
+        CollectionDetailModel = await CollectionWebFacade.GetByIdAsync(Id);
+        if (CollectionDetailModel.Cards != null)
         {
-            Cards.Add(item);
+            foreach (var item in CollectionDetailModel.Cards)
+            {
+                CardListModels.Add(item);
+            }
         }
 
-        CurrentCard = Cards[_numberOfAnswered];
-        if (CurrentCard == null)
+        if (RecordDetailModel?.NumberOfAnswers == null)
+            RecordDetailModel!.NumberOfAnswers = 0;
+
+        CurrentCardListModel = CardListModels[(int)RecordDetailModel.NumberOfAnswers];
+
+        if (CurrentCardListModel == null)
             Navigation.NavigateTo($"/PlayInfoPage/{Id}");
-        
-        RecordDetailModel.NumberOfCorrectAnswersByTypes.Add(0);
-        RecordDetailModel.NumberOfCorrectAnswersByTypes.Add(0);
-        RecordDetailModel.NumberOfCorrectAnswersByTypes.Add(0);
+
+        RecordDetailModel = await RecordWebFacade.GetActiveAsync(CollectionDetailModel.Id);
+        if (RecordDetailModel == null)
+        {
+            RecordDetailModel recordDetailModel = new RecordDetailModel();
+            RecordDetailModel = await RecordWebFacade.StartNewGameAsync(recordDetailModel, Id);
+        }
     }
 
     private async Task SelectedAnswear(EnumAnswerType answerType)
     {
-        _numberOfAnswered++;
-        if (_numberOfAnswered >= Cards.Count)
-        {
-            Navigation.NavigateTo($"/PlayFinishPage/{Id}");
-            return;
-        }
+        await CardWebFacade.SaveAnswer(CurrentCardListModel!.Id, CollectionDetailModel!.Id, answerType);
 
-        RecordDetailModel.CardCollectionId = Id;
-        _rotationAngle = 0;
-        await Task.Delay(100);
-        CurrentCard = Cards[_numberOfAnswered];
+        if (RecordDetailModel != null)
+        {
+            RecordDetailModel = await RecordWebFacade.GetByIdAsync(RecordDetailModel.Id);
+
+
+            if (RecordDetailModel.NumberOfAnswers >= CardListModels.Count)
+            {
+                if (RecordDetailModel != null)
+                {
+                    RecordDetailModel.IsCompleted = true;
+                    await RecordWebFacade.FinishGameAsync(RecordDetailModel, Id);
+                }
+
+                Navigation.NavigateTo($"/PlayFinishPage/{Id}");
+                return;
+            }
+
+            CurrentCardListModel =
+                RecordDetailModel.NumberOfAnswers == null ? CardListModels[0] : CardListModels[(int)RecordDetailModel.NumberOfAnswers];
+
+            _rotationAngle = 0;
+            await Task.Delay(100);
+        }
     }
 
     private void FlipCard()
@@ -133,4 +169,5 @@
     {
         Navigation.NavigateTo($"/PlayInfoPage/{Id}");
     }
+
 }

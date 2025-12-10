@@ -13,9 +13,19 @@ public class RecordWebFacade(IRecordApiClient apiClient) : IWebFacade<RecordQuer
 
 	public async Task<ICollection<RecordListModel>> GetAllAsync(RecordQueryObject queryObject)
 	{
-		return await apiClient.RecordAllAsync(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
+		return await apiClient.RecordAllAsync(queryObject.IsCompletedFilter, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
 	}
 
+	public async Task<RecordDetailModel?> GetLastAsync(Guid collectionId)
+	{
+		return await apiClient.LastAsync(collectionId);
+	}
+	
+	public async Task<RecordDetailModel?> GetActiveAsync(Guid collectionId)
+	{
+		return await apiClient.ActiveAsync(collectionId);
+	}
+	
 	public async Task<RecordDetailModel> GetByIdAsync(Guid id)
 	{
 		return await apiClient.RecordGETAsync(id);
@@ -23,17 +33,27 @@ public class RecordWebFacade(IRecordApiClient apiClient) : IWebFacade<RecordQuer
 
 	public async Task<int> GetCountAsync(RecordQueryObject queryObject)
 	{
-		return await apiClient.Count4Async(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
+		return await apiClient.Count5Async(queryObject.IsCompletedFilter, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
 	}
 
-	public async Task<Guid> SaveToApiAsync(RecordDetailModel data)
+	public async Task<RecordDetailModel> StartNewGameAsync(RecordDetailModel? data, Guid collectionId)
+	{
+		return await apiClient.StartNewGameAsync(collectionId, data);
+	}
+
+	public async Task<RecordDetailModel> FinishGameAsync(RecordDetailModel? data, Guid collectionId)
+	{
+		return await apiClient.FinishGameAsync(collectionId,  data);
+	}
+
+	public async Task<RecordDetailModel?> SaveToApiAsync(RecordDetailModel? data, Guid collectionId)
 	{
 		if (data.Id == Guid.Empty)
 		{
-			var result = await apiClient.RecordPOSTAsync(data);
-			return result.Id;
+			var result = await apiClient.StartNewGameAsync(collectionId, data);
+			return result;
 		}
 		await apiClient.RecordPUTAsync(data.Id, data);
-		return Guid.Empty;
+		return null;
 	}
 }

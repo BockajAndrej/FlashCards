@@ -6,9 +6,14 @@
 
 @inject NavigationManager Navigation;
 
-<FilterComponent IsCardVisualisationList="@IsCardVisualisation" TypeOfVisualisationChangedEvent="@HandleVisualisation"
-                 IsDeleteModeActiveChangedEvent="HandleDeleteMode" SearchTermChangedEvent="HandleCollectionSearch"
-                 OrderTypeChangedEvent="HandleCollectionOrder" NumberOfCardsPerPageChangedEvent="HandleCollectionNumberOfCardsPerPage"/>
+<FilterComponent IsCardVisualisationList="@IsCardVisualisation"
+                 TypeOfVisualisationChangedEvent="@HandleVisualisation"
+                 IsDeleteModeActiveChangedEvent="HandleDeleteMode"
+                 SearchTermChangedEvent="HandleCollectionSearch"
+                 OrderTypeChangedEvent="HandleCollectionOrder"
+                 NumberOfCardsPerPageChangedEvent="HandleCollectionNumberOfCardsPerPage"
+                 FilterChangedEvent="LoadCardCollection"
+                 DeleteChangedEvent="HandleDeleteApproved"/>
 
 @if (CardCollectionsExt != null)
 {
@@ -51,7 +56,7 @@ else
 
     private class CardCollectionExt : CollectionListModel
     {
-        public bool IsSelectedForDelete { get; set; } = false;
+        public bool IsSelectedForDelete { get; set; }
     }
 
     private List<CardCollectionExt>? CardCollectionsExt { get; set; }
@@ -61,15 +66,21 @@ else
     protected override async Task OnInitializedAsync()
     {
         await LoadCardCollection();
-        if (CardCollectionsExt != null) 
+        if (CardCollectionsExt != null)
             _numberOfPages = (CardCollectionsExt.Count / _pageSize) + 1;
     }
 
-    private bool IsCardVisualisation { get; set; } = false;
-    private bool IsDeleteModeActive { get; set; } = false;
+    private bool IsCardVisualisation { get; set; }
+    private bool IsDeleteModeActive { get; set; }
 
-    private string OrderType { get; set; } = "Title";
-    private bool SortDesc { get; set; } = true;
+    private OrderTypeEnum OrderType { get; set; } = OrderTypeEnum.Az;
+
+    private enum OrderTypeEnum
+    {
+        Az,
+        Za,
+        Recent
+    }
 
     private void HandleVisualisation(bool value)
     {
@@ -122,34 +133,52 @@ else
     private async Task HandleCollectionOrder(string orderType)
     {
         if (orderType == "a")
-        {
-            OrderType = "Title";
-            SortDesc = true;
-        }
+            OrderType = OrderTypeEnum.Az;
         else if (orderType == "b")
-        {
-            OrderType = "Title";
-            SortDesc = false;
-        }
+            OrderType = OrderTypeEnum.Za;
         else if (orderType == "c")
-        {
-            OrderType = "Title";
-            SortDesc = true;
-        }
+            OrderType = OrderTypeEnum.Recent;
+
         await LoadCardCollection();
         StateHasChanged();
     }
-    
+
     private async Task HandleCollectionNumberOfCardsPerPage(int number)
     {
         bool isLower = _pageSize > number;
         _pageSize = number;
-        
-        if(isLower)
-            if (CardCollectionsExt != null) _numberOfPages = (CardCollectionsExt.Count / _pageSize) + 1;
+
+        if (isLower)
+            if (CardCollectionsExt != null)
+                _numberOfPages = (CardCollectionsExt.Count / _pageSize) + 1;
         await LoadCardCollection();
-        if(!isLower)
-            if (CardCollectionsExt != null) _numberOfPages = (CardCollectionsExt.Count / _pageSize) + 1;
+        if (!isLower)
+            if (CardCollectionsExt != null)
+                _numberOfPages = (CardCollectionsExt.Count / _pageSize) + 1;
+
+        StateHasChanged();
+    }
+
+    private async Task HandleDeleteApproved()
+    {
+        if (CardCollectionsExt != null)
+        {
+            foreach (var collection in CardCollectionsExt.Where(l => l.IsSelectedForDelete == true))
+            {
+                try
+                {
+                    await CollectionWebFacade.DeleteAsync(collection.Id);
+
+                }
+                catch (CollectionApiException e)
+                {
+                    if (e.StatusCode != 204)
+                        throw;
+                }
+            }
+        }
+
+        await LoadCardCollection();
         StateHasChanged();
     }
 
@@ -157,11 +186,27 @@ else
     {
         CollectionQueryObject collectionQuery = new CollectionQueryObject();
         collectionQuery.IsDescending = true;
-        collectionQuery.PageNumber =  _selectedPage;
+        collectionQuery.PageNumber = _selectedPage;
         collectionQuery.PageSize = _pageSize;
-        collectionQuery.Name = CollectionFilterSearchTerm;
-        collectionQuery.TagIds = new List<Guid>();
-        
+        collectionQuery.NameFilter = CollectionFilterSearchTerm;
+        collectionQuery.TagIdsFilter = new List<Guid>();
+
+        switch (OrderType)
+        {
+            case OrderTypeEnum.Az:
+                collectionQuery.NameOrder = true;
+                collectionQuery.IsDescending = true;
+                break;
+            case OrderTypeEnum.Za:
+                collectionQuery.NameOrder = true;
+                collectionQuery.IsDescending = false;
+                break;
+            case OrderTypeEnum.Recent:
+                collectionQuery.RecentOrder = true;
+                collectionQuery.IsDescending = true;
+                break;
+        }
+
         var collection = await CollectionWebFacade.GetAllAsync(collectionQuery);
         CardCollectionsExt = GetExtendedCardCollection(collection);
     }
