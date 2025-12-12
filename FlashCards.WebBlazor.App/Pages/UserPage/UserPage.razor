@@ -1,0 +1,213 @@
+﻿@page "/UserPage"
+
+@using AutoMapper
+@using FlashCards.Common.QueryObjects
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashCards.WebBlazor.Bl.Facades
+@using FlashUsers.WebBlazor.Bl.Facades
+
+@inject IJSRuntime JSRuntime
+
+<MudTable Style="color: white" @ref="UserTable" T="UserListModelExt" Items="@UserListModelsExt" Hover="true"
+          Loading="@IsLoading" CanCancelEdit="true" Dense="true"
+          SelectedItemChanged="OnSelectedItemChanged"
+          CommitEditTooltip="Save"
+          RowEditCancel="@(async void (e) => await ResetItemToOriginalValues(e))"
+          RowEditCommit="@(async void (e) => await ItemHasBeenCommitted(e))"
+          ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
+    <ColGroup>
+        <col/>
+        <col/>
+        <col/>
+    </ColGroup>
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Role</MudTh>
+        <MudTh>Action</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Role">@context.NameOfRole</MudTd>
+        <MudTd DataLabel="Action">
+            <MudIconButton Style="color: white" Icon="@Icons.Material.Filled.Delete"
+                           OnClick="@(() => OnDeleteUserBtnClicked(context))"/>
+        </MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Name">
+            <MudTextField @bind-Value="context.Name" Variant="Variant.Outlined"/>
+        </MudTd>
+        <MudTd DataLabel="Role">
+            <MudSelect @bind-Value="@context.NameOfRole" Variant="Variant.Outlined" FitContent="true">
+                <MudSelectItem Value="Admin">Admin</MudSelectItem>
+                <MudSelectItem Value="User">User</MudSelectItem>
+            </MudSelect>
+        </MudTd>
+        <MudTd DataLabel="Action"></MudTd>
+    </RowEditingTemplate>
+    <PagerContent>
+        <MudTablePager/>
+    </PagerContent>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0"
+                       OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled"/>
+    </EditButtonContent>
+</MudTable>
+
+<MudButton Style="color: white; width: 100%; margin: 5px auto;" StartIcon="@Icons.Material.Filled.Add"
+           OnClick="AddNewUserBtnClick">New User
+</MudButton>
+
+@code {
+    [Inject] private UserWebFacade UserWebFacade { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private IMapper Mapper { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+
+    private MudTable<UserListModelExt> UserTable;
+
+    private string Admin = "Admin";
+    private string User = "User";
+
+    private bool IsLoading { get; set; } = true;
+
+    private ICollection<UserListModelExt> UserListModelsExt { get; set; } = new List<UserListModelExt>();
+
+    private class UserListModelExt : UserListModel
+    {
+        public bool IsEditModeActive { get; set; }
+        public bool CanBeDeleted { get; set; }
+        public string? NameOfRole { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await LoadData();
+    }
+
+    private async Task OnDeleteUserBtnClicked(UserListModelExt UserListModelExt)
+    {
+        try
+        {
+            await UserWebFacade.DeleteAsync(UserListModelExt.Id);
+        }
+        catch (UserApiException e)
+        {
+            if (e.StatusCode != 204)
+                throw;
+            Snackbar.Add($"User '{UserListModelExt.Name}' deleted", Severity.Warning);
+        }
+
+        await LoadData();
+    }
+
+    private async Task AddNewUserBtnClick()
+    {
+        await LoadData();
+
+        var newGourListModelExt = new UserListModelExt()
+        {
+            Id = Guid.Empty,
+            Name = "",
+            IsEditModeActive = true,
+            CanBeDeleted = false
+        };
+
+        UserListModelsExt.Add(newGourListModelExt);
+
+        StateHasChanged();
+
+        UserTable.SetEditingItem(newGourListModelExt);
+    }
+
+    private async Task LoadData()
+    {
+        IsLoading = true;
+        UserQueryObject UserQuery = new UserQueryObject();
+        var userListModels = await UserWebFacade.GetAllAsync(UserQuery);
+
+        UserListModelsExt.Clear();
+        foreach (var UserListModel in userListModels)
+        {
+            var userListModelExt = new UserListModelExt()
+            {
+                Id = UserListModel.Id,
+                Name = UserListModel.Name,
+                IsEditModeActive = false,
+                CanBeDeleted = true,
+            };
+            if (UserListModel.Role.HasValue)
+            {
+                switch (UserListModel.Role.Value)
+                {
+                    case EnumUserRole._0:
+                        userListModelExt.NameOfRole = "Admin";
+                        break;
+                    case EnumUserRole._1:
+                        userListModelExt.NameOfRole = "Member";
+                        break;
+                    default:
+                        userListModelExt.NameOfRole = "-";
+                        break;
+                }
+            }
+            else
+                userListModelExt.NameOfRole = "-";
+
+            UserListModelsExt.Add(userListModelExt);
+        }
+
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+
+    private async Task ResetItemToOriginalValues(object? element)
+    {
+        await LoadData();
+    }
+
+    private async Task ItemHasBeenCommitted(object? obj)
+    {
+        if (obj == null)
+            return;
+
+        UserListModelExt userListModelExt = (UserListModelExt)obj;
+
+        if (string.IsNullOrEmpty(userListModelExt.Name))
+            return;
+        UserDetailModel userDetailModel;
+        if (userListModelExt.Id != Guid.Empty)
+            userDetailModel = await UserWebFacade.GetByIdAsync(userListModelExt.Id);
+        else
+            userDetailModel = new UserDetailModel();
+
+        if (userListModelExt.NameOfRole == Admin)
+            userDetailModel.Role = EnumUserRole._0;
+        else
+            userDetailModel.Role = EnumUserRole._1;
+
+        userDetailModel.Name = userListModelExt.Name;
+
+        await UserWebFacade.SaveToApiAsync(userDetailModel);
+
+        Snackbar.Add($"User '{userDetailModel.Name}' saved", Severity.Success);
+
+        var actualUser = await UserWebFacade.GetActualUserAsync();
+
+        if (userDetailModel.Role != EnumUserRole._0 && actualUser.Id == userDetailModel.Id)
+        {
+            Navigation.NavigateTo("/");
+            await JSRuntime.InvokeVoidAsync("location.reload", true);
+        }
+        else
+            await LoadData();
+    }
+
+    private void OnSelectedItemChanged(UserListModelExt UserListModelExt)
+    {
+    }
+
+}

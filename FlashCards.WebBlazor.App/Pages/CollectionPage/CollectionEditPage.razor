@@ -3,11 +3,11 @@
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
 
-<MudStack Style="margin: 5px auto;" Row StretchItems="StretchItems.Middle">
-    <MudButton Style="color: var(--card-text-Primary);" StartIcon="@Icons.Material.Filled.ArrowBack"
-               Size="Size.Large" OnClick="@GoBackBtn">Back
-    </MudButton>
-    
+<MudButton Style="color: var(--card-text-Primary);" StartIcon="@Icons.Material.Filled.ArrowBack"
+           Size="Size.Large" OnClick="@GoBackBtn">Back
+</MudButton>
+
+<MudStack Style="margin: -30px auto;" Row StretchItems="StretchItems.Middle">
     <MudSpacer/>
 
     <MudButton
@@ -28,29 +28,30 @@
             </MudText>
         }
     </MudButton>
-    
+
     <MudSpacer/>
-    
-    <MudIconButton Size="Size.Medium" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@OnDeleteCollectionBtnClicked"/>
+    <MudIconButton Style="margin: 5px auto;" Size="Size.Medium" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@OnDeleteCollectionBtnClicked"/>
 </MudStack>
 
+
+
 <MudForm Model="@Model" @ref="form" ValidationDelay="0">
-    <MudPaper Style="margin: 10px auto; padding: 15px; width: 70%; border-radius: 10px;">
+    <MudStack Style="margin: 50px auto; width: 90%;" Spacing="4">
         <MudTextField @bind-Value="Model.Title"
                       AdornmentColor="Color.Info"
-                      Label="Collection name"
+                      Placeholder="Collection Name"
                       Required="true"
-                      RequiredError="Collection name is mandatory."
                       Clearable="true"
+                      Typo="Typo.h4"
                       Variant="Variant.Text"/>
 
         <MudTextField @bind-Value="Model.Description"
                       AdornmentColor="Color.Info"
-                      Label="Description"
+                      Placeholder="Description"
                       Clearable="true"
                       Variant="Variant.Text"/>
 
-    </MudPaper>
+    </MudStack>
 
     <MudText Style="margin-left: 3%; margin-top: 20px;" Typo="Typo.h5">Cards</MudText>
     <MudDivider Style="margin: 5px auto; width: 95%;"/>
@@ -111,16 +112,10 @@
             </MudPaper>
         }
     </MudStack>
-
-    <MudIconButton OnClick="@(() =>
-                            {
-                                AddNewCard();
-                                IsFilterVisible = true;
-                            })"
-                   Icon="@Icons.Material.Filled.Add"
-                   Variant="Variant.Text"
-                   Style="color: var(--form-text-Primary); background-color: var(--card-background-Primary); margin: 20px auto; width: 95%; border-radius: 10px;">
-    </MudIconButton>
+    
+    <MudStack Style="width: 95%; margin: 10px auto;" Row StretchItems="StretchItems.Start">
+        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@AddNewCard" Size="Size.Large">Add card</MudButton>
+    </MudStack>
 
 </MudForm>
 
@@ -264,6 +259,7 @@
                 Description = "",
             }
         );
+        IsFilterVisible = true;
         await Task.Yield();
         await JsRuntime.InvokeVoidAsync("scrollToBottom");
     }

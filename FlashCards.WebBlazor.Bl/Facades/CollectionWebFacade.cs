@@ -13,7 +13,7 @@ public class CollectionWebFacade(ICollectionApiClient apiClient) : IWebFacade<Co
 
 	public async Task<ICollection<CollectionListModel>> GetAllAsync(CollectionQueryObject queryObject)
 	{
-		return await apiClient.CollectionAllAsync(queryObject.CreatedByIdFilter, queryObject.NameFilter, queryObject.TagIdsFilter , queryObject.RecentOrder, queryObject.NameOrder, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
+		return await apiClient.CollectionAllAsync(queryObject.CreatedByIdFilter, queryObject.NameFilter, queryObject.VisibilityFilter, queryObject.TagIdsFilter , queryObject.RecentOrder, queryObject.NameOrder, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
 	}
 
 	public async Task<CollectionDetailModel> GetByIdAsync(Guid id)
@@ -23,7 +23,7 @@ public class CollectionWebFacade(ICollectionApiClient apiClient) : IWebFacade<Co
 
 	public async Task<int> GetCountAsync(CollectionQueryObject queryObject)
 	{
-		return await apiClient.Count3Async(queryObject.CreatedByIdFilter, queryObject.NameFilter, queryObject.TagIdsFilter , queryObject.RecentOrder, queryObject.NameOrder, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
+		return await apiClient.Count3Async(queryObject.CreatedByIdFilter, queryObject.NameFilter, queryObject.VisibilityFilter, queryObject.TagIdsFilter , queryObject.RecentOrder, queryObject.NameOrder, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
 	}
 
 	public async Task<Guid> SaveToApiAsync(CollectionDetailModel data)

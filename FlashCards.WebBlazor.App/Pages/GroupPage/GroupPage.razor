@@ -1,0 +1,231 @@
+﻿@page "/GroupPage"
+
+@using AutoMapper
+@using FlashCards.Common.QueryObjects
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashCards.WebBlazor.Bl.Facades
+
+<MudTable Style="color: white" @ref="GroupTable" T="GroupListModelExt" Items="@GroupListModelsExt" Hover="true" Loading="@IsLoading" CanCancelEdit="true" Dense="true"
+          SelectedItemChanged="OnSelectedItemChanged"
+          CommitEditTooltip="Commit Edit"
+          OnCommitEditClick="@(() => Snackbar.Add("Group Updated"))"
+          RowEditCancel="@(async void (e) => await ResetItemToOriginalValues(e))"
+          RowEditCommit="@(async void (e) => await ItemHasBeenCommitted(e))"
+          ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.EditButton">
+    <ColGroup>
+        <col/> <col/> <col/> <col/> <col/>
+    </ColGroup>
+    <HeaderContent>
+        <MudTh>Options</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Role</MudTh>
+        <MudTh>Number of members</MudTh>
+        <MudTh>Action</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Options">
+            @if (context.OwnRole == null)
+            {
+                <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.GroupAdd"
+                               OnClick="@(() => OnJoinBtnClicked(context))"/>
+            }
+            else
+            {
+                <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.GroupRemove"
+                               OnClick="@(() => OnLeaveBtnClicked(context))"/>
+            }
+        </MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Role">@context.NameOfRole</MudTd>
+        <MudTd DataLabel="Number of members">@context.NumberOfMembers</MudTd>
+        <MudTd DataLabel="Action">
+            <MudIconButton Style="color: white" Icon="@Icons.Material.Filled.Delete" OnClick="@(() => OnDeleteGroupBtnClicked(context))"/>
+        </MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Options">
+            @if (context.NameOfRole == null)
+            {
+                <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.GroupAdd"
+                               OnClick="@(() => OnJoinBtnClicked(context))"/>
+            }
+            else
+            {
+                <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.GroupRemove"
+                               OnClick="@(() => OnLeaveBtnClicked(context))"/>
+            }
+        </MudTd>
+        <MudTd DataLabel="Name">
+            <MudTextField @bind-Value="context.Name" Required/>
+        </MudTd>
+        <MudTd DataLabel="Role">@context.NameOfRole</MudTd>
+        <MudTd DataLabel="Number of members">-</MudTd>
+        <MudTd DataLabel="Action"></MudTd>
+    </RowEditingTemplate>
+    <PagerContent>
+        <MudTablePager/>
+    </PagerContent>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0"
+                       OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled"/>
+    </EditButtonContent>
+</MudTable>
+
+<MudButton Style="color: white; width: 100%; margin: 5px auto;" StartIcon="@Icons.Material.Filled.Add"
+           OnClick="AddNewGroupBtnClick">New Group
+</MudButton>
+
+@code {
+    [Inject] private GroupWebFacade GroupWebFacade { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private IMapper Mapper { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    
+    private MudTable<GroupListModelExt> GroupTable;
+    
+    private bool IsLoading { get; set; } = true;
+
+    private ICollection<GroupListModelExt> GroupListModelsExt { get; set; } = new List<GroupListModelExt>();
+
+    private class GroupListModelExt : GroupListModel
+    {
+        public bool IsEditModeActive { get; set; }
+        public bool CanBeDeleted { get; set; }
+        public string? NameOfRole { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await LoadData();
+    }
+
+    private async Task OnDeleteGroupBtnClicked(GroupListModelExt groupListModelExt)
+    {
+        try
+        {
+            await GroupWebFacade.DeleteAsync(groupListModelExt.Id);
+        }
+        catch (GroupApiException e)
+        {
+            if (e.StatusCode != 204)
+                throw;
+        }
+
+        await LoadData();
+    }
+
+    private async Task AddNewGroupBtnClick()
+    {
+        await LoadData();
+
+        var newGourListModelExt = new GroupListModelExt()
+        {
+            Id = Guid.Empty,
+            Name = "",
+            IsEditModeActive = true,
+            CanBeDeleted = false
+        };
+        
+        GroupListModelsExt.Add(newGourListModelExt);
+        
+        StateHasChanged();
+
+        GroupTable.SetEditingItem(newGourListModelExt);
+    }
+
+    private async Task OnJoinBtnClicked(GroupListModelExt groupListModelExt)
+    {
+        var groupDetailModel = await GroupWebFacade.GetByIdAsync(groupListModelExt.Id);
+        await GroupWebFacade.JoinGroup(groupDetailModel);
+        await LoadData();
+    }
+
+    private async Task OnLeaveBtnClicked(GroupListModelExt groupListModelExt)
+    {
+        var groupDetailModel = await GroupWebFacade.GetByIdAsync(groupListModelExt.Id);
+        await GroupWebFacade.LeaveGroup(groupDetailModel);
+        groupListModelExt.IsEditModeActive = !groupListModelExt.IsEditModeActive;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        IsLoading = true;
+        GroupQueryObject groupQuery = new GroupQueryObject();
+        var groupListModels = await GroupWebFacade.GetAllAsync(groupQuery);
+
+        GroupListModelsExt.Clear();
+        foreach (var groupListModel in groupListModels)
+        {
+            var groupListModelExt = new GroupListModelExt()
+            {
+                Id = groupListModel.Id,
+                Name = groupListModel.Name,
+                IsEditModeActive = false,
+                CanBeDeleted = true,
+                OwnRole = groupListModel.OwnRole,
+                NumberOfMembers = groupListModel.NumberOfMembers
+            };
+            if (groupListModelExt.OwnRole.HasValue)
+            {
+                switch (groupListModelExt.OwnRole.Value)
+                {
+                    case EnumUserRole._0:
+                        groupListModelExt.NameOfRole = "Admin";
+                        break;
+                    case EnumUserRole._1:
+                        groupListModelExt.NameOfRole = "Member";
+                        break;
+                    default:
+                        groupListModelExt.NameOfRole = "-";
+                        break;
+                }
+            }
+            else
+                groupListModelExt.NameOfRole = "-";
+
+            GroupListModelsExt.Add(groupListModelExt);
+        }
+
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+
+    private async Task ResetItemToOriginalValues(object? element)
+    {
+        await LoadData();
+    }
+
+    private async Task ItemHasBeenCommitted(object? obj)
+    {
+        if (obj == null)
+            return;
+
+        GroupListModelExt groupListModelExt = (GroupListModelExt)obj;
+
+        if (string.IsNullOrEmpty(groupListModelExt.Name))
+            return;
+        GroupDetailModel groupDetailModel;
+        if (groupListModelExt.Id != Guid.Empty)
+            groupDetailModel = await GroupWebFacade.GetByIdAsync(groupListModelExt.Id);
+        else
+            groupDetailModel = new GroupDetailModel();
+
+        groupDetailModel.Name = groupListModelExt.Name;
+
+        if (groupDetailModel.Id != Guid.Empty)
+            await GroupWebFacade.SaveToApiAsync(groupDetailModel);
+        else
+            await GroupWebFacade.CreateGroup(groupDetailModel);
+
+        await LoadData();
+    }
+
+    private void OnSelectedItemChanged(GroupListModelExt groupListModelExt)
+    {
+    }
+
+}

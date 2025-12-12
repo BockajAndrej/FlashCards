@@ -1,53 +1,64 @@
-﻿@using IdentityModel
+﻿@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashUsers.WebBlazor.Bl.Facades
+@using IdentityModel
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
-@inject NavigationManager Navigation;
-
 <MudAppBar Class="appbar-specific" Dense Elevation="0">
-    
-    
+
+
     <NavLink href="/">
         <MudAvatar Class="appbar-specific-mudavatar" Square>
             <MudImage Src="Images/flash-card.png"></MudImage>
         </MudAvatar>
     </NavLink>
-    
+
     <MudDivider Style="margin: 0 15px; height: 60%;" Vertical="true"/>
-    
+
     <AuthorizeView>
         <Authorized>
-            <MudStack Row StretchItems="StretchItems.All" Style="margin: 0 auto; align-items: center;"> 
-                <MudNavLink 
-                    Class="appbar-specific-buttons" 
-                    Match="NavLinkMatch.Prefix" 
+            <MudStack Row StretchItems="StretchItems.All" Style="margin: 0 auto; align-items: center;">
+                <MudNavLink
+                    Class="appbar-specific-buttons"
+                    Match="NavLinkMatch.Prefix"
                     Href="/CollectionPage"
                     Icon="@Icons.Material.Filled.MenuBook"
                     IconColor="Color.Inherit"
                     ActiveClass="appbar-specific-buttons-matchingPrefix">Collections
                 </MudNavLink>
-                <MudNavLink 
-                    Class="appbar-specific-buttons" 
-                    Match="NavLinkMatch.Prefix" 
+                <MudNavLink
+                    Class="appbar-specific-buttons"
+                    Match="NavLinkMatch.Prefix"
                     Href="/CollectionEditPage/create"
-                    Icon="@Icons.Material.Filled.Add" 
+                    Icon="@Icons.Material.Filled.Add"
                     IconColor="Color.Inherit"
                     ActiveClass="appbar-specific-buttons-matchingPrefix">Create Collection
                 </MudNavLink>
-                <MudNavLink 
-                    Class="appbar-specific-buttons nav-link-appbar" 
-                    Match="NavLinkMatch.Prefix" 
+                <MudNavLink
+                    Class="appbar-specific-buttons nav-link-appbar"
+                    Match="NavLinkMatch.Prefix"
                     Href="/StatisticPage"
-                    Icon="@Icons.Material.Filled.BarChart" 
+                    Icon="@Icons.Material.Filled.BarChart"
                     IconColor="Color.Inherit"
                     ActiveClass="appbar-specific-buttons-matchingPrefix">Statistics
                 </MudNavLink>
+                @if (UserRole == "Admin")
+                {
+                    <MudNavLink
+                        Class="appbar-specific-buttons nav-link-appbar"
+                        Match="NavLinkMatch.Prefix"
+                        Href="/UserPage"
+                        Icon="@Icons.Material.Filled.Group"
+                        IconColor="Color.Inherit"
+                        ActiveClass="appbar-specific-buttons-matchingPrefix">Users
+                    </MudNavLink>
+                }
             </MudStack>
         </Authorized>
     </AuthorizeView>
-    
 
 
     <MudSpacer/>
+
     <AuthorizeView>
         <Authorizing>
             <MudIconButton Class="appbar-specific-text" Icon="@Icons.Material.Filled.Login"
@@ -57,32 +68,54 @@
             <MudMenu Style="border-radius: 15px;" OpenChanged="@ToggleProfile" RelativeWidth="DropdownWidth.Adaptive"
                      AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
                 <ActivatorContent>
+                    <MudIconButton Style="color:#ffffff;" Icon="@Icons.Material.Filled.Settings"/>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem Style="color:#ffffff;"
+                                 Href="/TagPage"
+                                 Icon="@Icons.Material.Filled.Label"
+                                 IconColor="Color.Tertiary">
+                        Labels
+                    </MudMenuItem>
+                    <MudMenuItem Style="color:#ffffff;"
+                                 Href="/GroupPage"
+                                 Icon="@Icons.Material.Filled.Group"
+                                 IconColor="Color.Tertiary">
+                        Groups
+                    </MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+
+            <MudMenu Style="border-radius: 15px;" OpenChanged="@ToggleProfile" RelativeWidth="DropdownWidth.Adaptive"
+                     AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <ActivatorContent>
                     <MudAvatar Class="appbar-specific-mudavatar">
                         <MudImage Src="@ProfileImage" Alt="Profile"/>
                     </MudAvatar>
                 </ActivatorContent>
                 <ChildContent>
-                    <MudStack Style="margin-left: 10px; margin-right: 50px; margin-top: 5px; margin-bottom: 5px;" Spacing="1">
-                        <MudText Typo="Typo.h6" Style="color:#ffffff;"> @UserName</MudText> 
+                    <MudStack Style="margin-left: 10px; margin-right: 50px; margin-top: 5px; margin-bottom: 5px;"
+                              Spacing="1">
+                        <MudText Typo="Typo.h6" Style="color:#ffffff;"> @UserName</MudText>
                     </MudStack>
                     <MudDivider Style="width: 90%; margin: 5px auto;"/>
-        
-                    <MudMenuItem Style="color:#ffffff;" 
-                                 Href="/ProfilePage" 
-                                 Icon="@Icons.Material.Filled.Person" 
+
+                    <MudMenuItem Style="color:#ffffff;"
+                                 Href="/ProfilePage"
+                                 Icon="@Icons.Material.Filled.Person"
                                  IconColor="Color.Tertiary">
                         Profile
                     </MudMenuItem>
-        
+
                     <MudDivider Style="width: 90%; margin: 5px auto;"/>
-        
-                    <MudMenuItem Style="color:#ffffff;" 
-                                 OnClick="@BeginLogOut" 
-                                 Icon="@Icons.Material.Filled.Logout" 
+
+                    <MudMenuItem Style="color:#ffffff;"
+                                 OnClick="@BeginLogOut"
+                                 Icon="@Icons.Material.Filled.Logout"
                                  IconColor="Color.Tertiary">
                         Log out
                     </MudMenuItem>
-        
+
                 </ChildContent>
             </MudMenu>
         </Authorized>
@@ -94,13 +127,15 @@
 </MudAppBar>
 
 @code{
-    [Inject] public AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
-    [Inject] ISnackbar Snackbar { get; set; } = null!;
-    
+    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private UserWebFacade UserWebFacade { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+
     [Parameter] public string UserName { get; set; } = "Default User";
     [Parameter] public string UserRole { get; set; } = "Default Role";
     [Parameter] public string ProfileImage { get; set; } = DefaultProfileImage;
-    
+
     const string DefaultProfileImage = "Images/randomBoyIcon.png";
 
     private bool _openProfile = true;
@@ -124,26 +159,49 @@
 
     private async Task GetUserInfo()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity != null && user.Identity.IsAuthenticated)
+        try
         {
-            if (user.Identity.Name != null)
-                UserName = user.Identity.Name;
-            else
-                UserName = "Anonymous";
-            var userRole = user.FindFirst(JwtClaimTypes.Role);
-            if (userRole != null)
-                UserRole = userRole.Value;
-            else
-                UserRole = "None";
-            var pictureClaim = user.FindFirst(JwtClaimTypes.Picture);
-            if (pictureClaim != null)
-                ProfileImage = pictureClaim.Value;
-            else
-                ProfileImage = DefaultProfileImage;
-            SuccessfullyLoginSnackbar();
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var identityUser = authState.User;
+
+            if (identityUser.Identity != null && identityUser.Identity.IsAuthenticated)
+            {
+                var user = await UserWebFacade.GetActualUserAsync();
+
+                if (user.Name != null)
+                    UserName = user.Name;
+                else
+                    UserName = "Anonymous";
+                if (user.Role != null)
+                {
+                    switch (user.Role)
+                    {
+                        case EnumUserRole._0:
+                            UserRole = "Admin";
+                            break;
+                        case EnumUserRole._1:
+                            UserRole = "User";
+                            break;
+                        default:
+                            UserRole = "UnKnow";
+                            break;
+                    }
+                }
+                else
+                    UserRole = "None";
+
+                var pictureClaim = identityUser.FindFirst(JwtClaimTypes.Picture);
+                if (pictureClaim != null)
+                    ProfileImage = pictureClaim.Value;
+                else
+                    ProfileImage = DefaultProfileImage;
+                SuccessfullyLoginSnackbar();
+            }
+        }
+        catch (UserApiException e)
+        {
+            if (e.StatusCode != 204)
+                throw;
         }
     }
 

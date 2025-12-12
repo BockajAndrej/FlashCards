@@ -33,24 +33,24 @@ public class RecordWebFacade(IRecordApiClient apiClient) : IWebFacade<RecordQuer
 
 	public async Task<int> GetCountAsync(RecordQueryObject queryObject)
 	{
-		return await apiClient.Count5Async(queryObject.IsCompletedFilter, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
+		return await apiClient.Count6Async(queryObject.IsCompletedFilter, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
 	}
 
-	public async Task<RecordDetailModel> StartNewGameAsync(RecordDetailModel? data, Guid collectionId)
+	public async Task<RecordDetailModel> StartNewGameAsync(RecordDetailModel? data)
 	{
-		return await apiClient.StartNewGameAsync(collectionId, data);
+		return await apiClient.StartNewGameAsync(data);
 	}
 
-	public async Task<RecordDetailModel> FinishGameAsync(RecordDetailModel? data, Guid collectionId)
+	public async Task<RecordDetailModel> FinishGameAsync(RecordDetailModel? data)
 	{
-		return await apiClient.FinishGameAsync(collectionId,  data);
+		return await apiClient.FinishGameAsync(data);
 	}
 
-	public async Task<RecordDetailModel?> SaveToApiAsync(RecordDetailModel? data, Guid collectionId)
+	public async Task<RecordDetailModel?> SaveToApiAsync(RecordDetailModel? data)
 	{
 		if (data.Id == Guid.Empty)
 		{
-			var result = await apiClient.StartNewGameAsync(collectionId, data);
+			var result = await apiClient.StartNewGameAsync(data);
 			return result;
 		}
 		await apiClient.RecordPUTAsync(data.Id, data);

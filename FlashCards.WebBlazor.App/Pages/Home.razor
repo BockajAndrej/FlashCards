@@ -1,4 +1,7 @@
 ﻿@page "/"
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashUsers.WebBlazor.Bl.Facades
+@using IdentityModel
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-16">
     <MudGrid Justify="Justify.Center">
@@ -20,11 +23,22 @@
                                    Href="authentication/login"></MudIconButton>
                 </Authorizing>
                 <Authorized>
-                    <MudButton Style="width: 100%;" Href="/CollectionPage" Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Size="Size.Large" Class="mt-4 mr-3">
-                        Start learning
-                    </MudButton>
+                    @if (UserDetailModel != null)
+                    {
+                        <MudButton Style="width: 100%;" Href="/CollectionPage" Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Large" Class="mt-4 mr-3">
+                            Start learning
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Style="width: 100%;" Href="/UserPageCreate" Variant="Variant.Filled"
+                                   Color="Color.Success"
+                                   Size="Size.Large" Class="mt-4 mr-3">
+                            Create user profile
+                        </MudButton>
+                    }
                 </Authorized>
                 <NotAuthorized>
                     <MudButton Style="width: 100%;" Href="/authentication/login" Variant="Variant.Filled"
@@ -146,9 +160,56 @@
             </MudGrid>
         </Authorized>
     </AuthorizeView>
-    
+
 </MudContainer>
 
 @code {
+
+    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private UserWebFacade UserWebFacade { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+
+    [Parameter] public string UserName { get; set; } = "Default User";
+    [Parameter] public string UserRole { get; set; } = "Default Role";
+    [Parameter] public string ProfileImage { get; set; } = DefaultProfileImage;
+
+    const string DefaultProfileImage = "Images/user.png";
+
+    private bool _openProfile = true;
+
+    private UserDetailModel? UserDetailModel { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        await GetUserInfo();
+    }
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        await GetUserInfo();
+        StateHasChanged();
+    }
+
+    private async Task GetUserInfo()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var identityUser = authState.User;
+
+            if (identityUser.Identity != null && identityUser.Identity.IsAuthenticated)
+            {
+                UserDetailModel = await UserWebFacade.GetActualUserAsync();
+            }
+        }
+        catch (UserApiException e)
+        {
+            if (e.StatusCode != 204)
+                throw;
+            UserDetailModel = null;
+        }
+    }
 
 }

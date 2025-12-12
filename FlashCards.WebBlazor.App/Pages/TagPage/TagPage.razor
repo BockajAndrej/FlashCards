@@ -1,0 +1,153 @@
+﻿@page "/TagPage"
+@using System.Diagnostics
+@using AutoMapper
+@using FlashCards.Common.QueryObjects
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashCards.WebBlazor.Bl.Facades
+
+<MudSimpleTable Style="overflow-x: auto;" >
+    <thead>
+    <tr>
+        @foreach (var h in headings)
+        {
+            <th>@h</th>
+        }
+    </tr>
+    </thead>
+    <MudStack Spacing="1">
+        @foreach (var tagListModelExt in TagListModelsExt)
+        {
+            <MudStack Style=" margin: auto 20px; padding: 6px;" Row AlignItems="AlignItems.Center">
+                @if (tagListModelExt.IsEditModeActive)
+                {
+                    <MudTextField T="string" Style="color: var(--color-text-main);"
+                                  Typo="Typo.body1" Variant="Variant.Outlined"
+                                  @bind-Value="@tagListModelExt.Name"></MudTextField>
+                    <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.Cancel"
+                                   OnClick="@(() => OnCloseEditBtnClicked(tagListModelExt))"></MudIconButton>
+                    <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.Save"
+                                   OnClick="@(() => OnEditTagBtnClicked(tagListModelExt))"></MudIconButton>
+                }
+                else
+                {
+                    <MudText Style="text-align: center"
+                             @ondblclick="@(() => OnEditTagBtnClicked(tagListModelExt))">@tagListModelExt.Name</MudText>
+                }
+                <MudSpacer/>
+                @if (tagListModelExt.CanBeDeleted)
+                {
+                    <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.Edit"
+                                   OnClick="@(() => OnEditTagBtnClicked(tagListModelExt))"></MudIconButton>
+                    <MudIconButton Style="color: white;" Icon="@Icons.Material.Filled.Delete"
+                                   OnClick="@(() => OnDeleteTagBtnClicked(tagListModelExt))"/>
+                }
+                
+            </MudStack>
+        }
+        <MudButton Style="color: white; width: 100%; margin: 5px auto;" StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="AddNewTagBtnClick">New tag
+        </MudButton>
+    </MudStack>
+</MudSimpleTable>
+
+@code {
+    [Inject] private TagWebFacade TagWebFacade { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private IMapper Mapper { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+
+    string[] headings = { "Name" };
+
+    private ICollection<TagListModelExt> TagListModelsExt { get; set; } = new List<TagListModelExt>();
+
+    private class TagListModelExt : TagListModel
+    {
+        public bool IsEditModeActive { get; set; }
+        public bool CanBeDeleted { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await LoadData();
+    }
+
+    private async Task OnDeleteTagBtnClicked(TagListModelExt tagListModelExt)
+    {
+        try
+        {
+            await TagWebFacade.DeleteAsync(tagListModelExt.Id);
+        }
+        catch (TagApiException e)
+        {
+            if (e.StatusCode != 204)
+                throw;
+        }
+
+        await LoadData();
+    }
+
+    private async Task OnEditTagBtnClicked(TagListModelExt tagListModelExt)
+    {
+        if (tagListModelExt.IsEditModeActive)
+        {
+            if(string.IsNullOrEmpty(tagListModelExt.Name))
+                return;
+            TagDetailModel tagDetailModel;
+            if (tagListModelExt.Id != Guid.Empty)
+                tagDetailModel = await TagWebFacade.GetByIdAsync(tagListModelExt.Id);
+            else
+                tagDetailModel = new TagDetailModel();
+
+            tagDetailModel.Name = tagListModelExt.Name;
+            await TagWebFacade.SaveToApiAsync(tagDetailModel);
+        }
+
+        await LoadData();
+
+        var newTagListModel = TagListModelsExt.FirstOrDefault(l => l.Id == tagListModelExt.Id);
+        if (newTagListModel != null)
+            newTagListModel.IsEditModeActive = !tagListModelExt.IsEditModeActive;
+    }
+    
+    private async Task AddNewTagBtnClick()
+    {
+        await LoadData();
+        TagListModelsExt.Add(new TagListModelExt()
+        {
+            Id = Guid.Empty,
+            Name = "",
+            IsEditModeActive = true,
+            CanBeDeleted = false
+        });
+    }
+
+    private async Task OnCloseEditBtnClicked(TagListModelExt tagListModelExt)
+    {
+        tagListModelExt.IsEditModeActive = !tagListModelExt.IsEditModeActive;
+        await LoadData();
+    }
+
+
+    private async Task LoadData()
+    {
+        TagQueryObject tagQuery = new TagQueryObject();
+        var tagListModels = await TagWebFacade.GetAllAsync(tagQuery);
+
+        TagListModelsExt.Clear();
+        foreach (var tagListModel in tagListModels)
+        {
+            TagListModelsExt.Add(new TagListModelExt()
+            {
+                Id = tagListModel.Id,
+                Name = tagListModel.Name,
+                IsEditModeActive = false,
+                CanBeDeleted = true
+            });
+        }
+
+        StateHasChanged();
+    }
+
+}

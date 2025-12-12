@@ -23,7 +23,7 @@ public class TagWebFacade(ITagApiClient apiClient) : IWebFacade<TagQueryObject, 
 
     public async Task<int> GetCountAsync(TagQueryObject queryObject)
     {
-        return await apiClient.Count6Async(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
+        return await apiClient.Count7Async(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
     }
 
     public async Task<Guid> SaveToApiAsync(TagDetailModel data)

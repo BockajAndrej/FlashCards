@@ -127,7 +127,8 @@
         if (RecordDetailModel == null)
         {
             RecordDetailModel recordDetailModel = new RecordDetailModel();
-            RecordDetailModel = await RecordWebFacade.StartNewGameAsync(recordDetailModel, Id);
+            recordDetailModel.CardCollectionId = Id;
+            RecordDetailModel = await RecordWebFacade.StartNewGameAsync(recordDetailModel);
         }
     }
 
@@ -145,7 +146,8 @@
                 if (RecordDetailModel != null)
                 {
                     RecordDetailModel.IsCompleted = true;
-                    await RecordWebFacade.FinishGameAsync(RecordDetailModel, Id);
+                    RecordDetailModel.CardCollectionId = Id;
+                    await RecordWebFacade.FinishGameAsync(RecordDetailModel);
                 }
 
                 Navigation.NavigateTo($"/PlayFinishPage/{Id}");

@@ -1,0 +1,37 @@
+﻿@page "/UserPageCreate"
+@using FlashCards.WebBlazor.Bl.ApiClient
+@using FlashUsers.WebBlazor.Bl.Facades
+
+@inject IJSRuntime JSRuntime
+
+<MudPaper Style="margin: 20px; padding: 15px;">
+    <MudStack Style="margin: 50px auto; width: 90%;" Spacing="6">
+        <MudTextField @bind-Value="userDetailModel.Name"
+                      AdornmentColor="Color.Info"
+                      Placeholder="Collection Name"
+                      Required="true"
+                      Clearable="true"
+                      Typo="Typo.h4"
+                      Variant="Variant.Text"/>
+        
+        <MudButton Style="color:white; width: 80%; margin: 10px auto;" StartIcon="@Icons.Material.Filled.Create" Variant="Variant.Filled" Color="Color.Primary" OnClick="OnCreateBtnClicked">Create user</MudButton>
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Inject] private UserWebFacade UserWebFacade { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+
+    private UserDetailModel userDetailModel = new();
+
+    private async Task OnCreateBtnClicked()
+    {
+        var user = await UserWebFacade.CreateUser(userDetailModel);
+        
+        Snackbar.Add($"User '{user.Name}' saved", Severity.Success);
+        
+        Navigation.NavigateTo("/");
+        await JSRuntime.InvokeVoidAsync("location.reload", true);
+    }
+}

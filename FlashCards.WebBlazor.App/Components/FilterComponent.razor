@@ -348,6 +348,7 @@ else if (_tagListModels.Any())
 
     private async Task DeleteApprovedBtnClicked()
     {
+        IsDeleteModeActive = !IsDeleteModeActive;
         await DeleteChangedEvent.InvokeAsync();
     }
 

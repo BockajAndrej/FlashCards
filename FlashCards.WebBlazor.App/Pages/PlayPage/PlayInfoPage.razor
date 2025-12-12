@@ -193,7 +193,8 @@
         }
 
         RecordDetailModel? recordDetailModel = new RecordDetailModel();
-        await RecordWebFacade.StartNewGameAsync(recordDetailModel, Id);
+        recordDetailModel.CardCollectionId = Id;
+        await RecordWebFacade.StartNewGameAsync(recordDetailModel);
 
         Navigation.NavigateTo($"/PlayPage/{Id}");
     }

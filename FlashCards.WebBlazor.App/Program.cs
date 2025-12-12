@@ -42,7 +42,16 @@ builder.Services.AddHttpClient<ICollectionApiClient, CollectionApiClient>(client
         authorizedUrls: new[] { apiBaseUrl },
         scopes: new[] {  builder.Configuration["IdentityServer:Scope"] ?? throw new InvalidOperationException()});
 });
-
+builder.Services.AddHttpClient<IGroupApiClient, GroupApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler(serviceProvider =>
+{
+    var authHandler = serviceProvider.GetRequiredService<AuthorizationMessageHandler>();
+    return authHandler.ConfigureHandler(
+        authorizedUrls: new[] { apiBaseUrl },
+        scopes: new[] {  builder.Configuration["IdentityServer:Scope"] ?? throw new InvalidOperationException()});
+});
 
 builder.Services.AddHttpClient<IAttemptApiClient, AttemptApiClient>(client =>
 {
@@ -78,6 +87,17 @@ builder.Services.AddHttpClient<IFilterApiClient, FilterApiClient>(client =>
 });
 
 builder.Services.AddHttpClient<ITagApiClient, TagApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+}).AddHttpMessageHandler(serviceProvider =>
+{
+    var authHandler = serviceProvider.GetRequiredService<AuthorizationMessageHandler>();
+    return authHandler.ConfigureHandler(
+        authorizedUrls: new[] { apiBaseUrl },
+        scopes: new[] { "FlashCardsApiScope" });
+});
+
+builder.Services.AddHttpClient<IUserApiClient, UserApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 }).AddHttpMessageHandler(serviceProvider =>
