@@ -5,7 +5,8 @@
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
 
-<MudTable Style="color: white" @ref="GroupTable" T="GroupListModelExt" Items="@GroupListModelsExt" Hover="true" Loading="@IsLoading" CanCancelEdit="true" Dense="true"
+<MudTable Style="color: white" @ref="GroupTable" T="GroupListModelExt" Items="@GroupListModelsExt" Hover="true"
+          Loading="@IsLoading" CanCancelEdit="true" Dense="true"
           SelectedItemChanged="OnSelectedItemChanged"
           CommitEditTooltip="Commit Edit"
           OnCommitEditClick="@(() => Snackbar.Add("Group Updated"))"
@@ -13,7 +14,11 @@
           RowEditCommit="@(async void (e) => await ItemHasBeenCommitted(e))"
           ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.EditButton">
     <ColGroup>
-        <col/> <col/> <col/> <col/> <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
     </ColGroup>
     <HeaderContent>
         <MudTh>Options</MudTh>
@@ -39,24 +44,17 @@
         <MudTd DataLabel="Role">@context.NameOfRole</MudTd>
         <MudTd DataLabel="Number of members">@context.NumberOfMembers</MudTd>
         <MudTd DataLabel="Action">
-            <MudIconButton Style="color: white" Icon="@Icons.Material.Filled.Delete" OnClick="@(() => OnDeleteGroupBtnClicked(context))"/>
+            @if (context.OwnRole == EnumUserRole._0)
+            {
+                <MudIconButton Style="color: white" Icon="@Icons.Material.Filled.Delete"
+                               OnClick="@(() => OnDeleteGroupBtnClicked(context))"/>
+            }
         </MudTd>
     </RowTemplate>
     <RowEditingTemplate>
-        <MudTd DataLabel="Options">
-            @if (context.NameOfRole == null)
-            {
-                <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.GroupAdd"
-                               OnClick="@(() => OnJoinBtnClicked(context))"/>
-            }
-            else
-            {
-                <MudIconButton Style="color: var(--color-text-main);" Icon="@Icons.Material.Filled.GroupRemove"
-                               OnClick="@(() => OnLeaveBtnClicked(context))"/>
-            }
-        </MudTd>
+        <MudTd DataLabel="Options">-</MudTd>
         <MudTd DataLabel="Name">
-            <MudTextField @bind-Value="context.Name" Required/>
+            <MudTextField @bind-Value="context.Name"/>
         </MudTd>
         <MudTd DataLabel="Role">@context.NameOfRole</MudTd>
         <MudTd DataLabel="Number of members">-</MudTd>
@@ -80,9 +78,9 @@
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IMapper Mapper { get; set; } = null!;
     [Inject] private ISnackbar Snackbar { get; set; } = null!;
-    
+
     private MudTable<GroupListModelExt> GroupTable;
-    
+
     private bool IsLoading { get; set; } = true;
 
     private ICollection<GroupListModelExt> GroupListModelsExt { get; set; } = new List<GroupListModelExt>();
@@ -127,9 +125,9 @@
             IsEditModeActive = true,
             CanBeDeleted = false
         };
-        
+
         GroupListModelsExt.Add(newGourListModelExt);
-        
+
         StateHasChanged();
 
         GroupTable.SetEditingItem(newGourListModelExt);

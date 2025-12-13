@@ -13,7 +13,7 @@ public class TagWebFacade(ITagApiClient apiClient) : IWebFacade<TagQueryObject, 
 
     public async Task<ICollection<TagListModel>> GetAllAsync(TagQueryObject queryObject)
     {
-        return await apiClient.TagAllAsync(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
+        return await apiClient.TagAllAsync(queryObject.CreatedByIdFilter, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
     }
 
     public async Task<TagDetailModel> GetByIdAsync(Guid id)
@@ -23,7 +23,7 @@ public class TagWebFacade(ITagApiClient apiClient) : IWebFacade<TagQueryObject, 
 
     public async Task<int> GetCountAsync(TagQueryObject queryObject)
     {
-        return await apiClient.Count7Async(queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
+        return await apiClient.Count7Async(queryObject.CreatedByIdFilter, queryObject.IsDescending, queryObject.PageNumber, queryObject.PageSize);
     }
 
     public async Task<Guid> SaveToApiAsync(TagDetailModel data)

@@ -31,7 +31,8 @@
                 OnCardRun="HandleCardRun"
                 OnCardEdit="HandleCardEdit"
                 IsExpand="IsCardVisualisation"
-                IsSelected="@item.IsSelectedForDelete"/>
+                IsSelected="@item.IsSelectedForDelete"
+                TagListModels="@item.Tags"/>
         }
     </MudStack>
 
@@ -228,7 +229,8 @@ else
                 EndTimeForAcceptedAnswers = item.EndTimeForAcceptedAnswers,
                 LastModifiedDateTime = item.LastModifiedDateTime,
                 LastPlayedDateTime = item.LastPlayedDateTime,
-                StartTimeForAcceptedAnswers = item.StartTimeForAcceptedAnswers
+                StartTimeForAcceptedAnswers = item.StartTimeForAcceptedAnswers,
+                Tags = item.Tags
             });
         }
 

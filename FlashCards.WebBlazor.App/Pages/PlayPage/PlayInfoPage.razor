@@ -255,11 +255,9 @@
     private async Task OnRemoveTagBtnClicked(TagListModel tagListModel)
     {
         TagDetailModel tagDetailModel = await TagWebFacade.GetByIdAsync(tagListModel.Id);
-
-        var collectionListModel = Mapper.Map<CollectionListModel>(CollectionDetailModel);
         
-        tagDetailModel.Collections = new List<CollectionListModel>();
-        tagDetailModel.Collections.Remove(collectionListModel);
+        var removeCollection = tagDetailModel.Collections?.FirstOrDefault(l => l.Id == CollectionDetailModel?.Id);
+        if (removeCollection != null) tagDetailModel.Collections?.Remove(removeCollection);
 
         await TagWebFacade.SaveToApiAsync(tagDetailModel);
 

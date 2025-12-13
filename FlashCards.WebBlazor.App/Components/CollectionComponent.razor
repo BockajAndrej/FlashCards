@@ -1,4 +1,5 @@
 ﻿@* Všetky udalosti vracajú ID karty *@
+@using FlashCards.WebBlazor.Bl.ApiClient
 @typeparam TValue
 
 @if (IsExpand)
@@ -7,10 +8,20 @@
               Style="@(IsSelected ? "border: 1px solid var(--color-error); background-color: rgba(255, 0, 0, 0.05)" : "background-color: var(--card-background-Primary)")"
               @onclick="@HandleCardRun">
         <MudPaper Style="border-radius: 0; width: 5px; background-color: red; margin-left: -15px;"></MudPaper>
-        <MudStack Row>
+        <MudStack Row Spacing="5">
             <MudText Style="color: var(--card-text-Primary);margin: auto 0;" Typo="Typo.h6">@Title</MudText>
-            <MudSpacer/>
             <MudText Style="color: var(--card-text-Secondary);margin: auto 0;" Typo="Typo.body1">@Description</MudText>
+            <MudSpacer/>
+            <MudStack Style="margin: 5px auto;" Row Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Spacing="1">
+                @if(TagListModels != null)
+                {
+                    @foreach (var tag in TagListModels)
+                    {
+                        <MudButton Style="color: var(--card-text-Primary); border-radius: 7px; padding: 0 5px;" Color="Color.Primary" Size="Size.Small"
+                                   Variant="Variant.Filled">@tag.Name</MudButton>
+                    }
+                }
+            </MudStack>
             <MudSpacer/>
             <MudText Class="collectionpagecomponent-specific-card-count-badge"
                      Style="margin: auto 0;">@CardCount @(CardCount == 1 ? "card" : "cards")</MudText>
@@ -34,7 +45,18 @@ else
             <MudText
                 Class="collectionpagecomponent-specific-card-count-badge">@CardCount @(CardCount == 1 ? "karta" : "kariet")</MudText>
         </MudStack>
-        <MudText Style="color: var(--card-text-Secondary); max-width: 200px;" Typo="Typo.body2">@(string.IsNullOrEmpty(Description) ? "Description" : Description)</MudText>
+        <MudText Style="color: var(--card-text-Secondary); max-width: 200px;"
+                 Typo="Typo.body2">@(string.IsNullOrEmpty(Description) ? "Description" : Description)</MudText>
+        <MudStack Style="margin: 5px auto;" Row Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Spacing="1">
+            @if(TagListModels != null)
+            {
+                @foreach (var tag in TagListModels)
+                {
+                    <MudButton Style="color: var(--card-text-Primary); border-radius: 7px; padding: 0 5px;" Color="Color.Primary" Size="Size.Small"
+                               Variant="Variant.Filled">@tag.Name</MudButton>
+                }
+            }
+        </MudStack>
     </MudPaper>
 }
 
@@ -44,7 +66,8 @@ else
     [Parameter] public string Title { get; set; } = "Názov kurzu";
     [Parameter] public string Description { get; set; } = "Podrobný popis pre začiatočníkov.";
     [Parameter] public int CardCount { get; set; } = 5;
-    [Parameter] public string HeaderColor { get; set; } = "#ff0000"; // Dynamická farba čiary
+    [Parameter] public string HeaderColor { get; set; } = "#ff0000";
+    [Parameter] public ICollection<TagListModel>? TagListModels { get; set; } = new List<TagListModel>();
 
     [Parameter] public bool IsExpand { get; set; } = false;
 

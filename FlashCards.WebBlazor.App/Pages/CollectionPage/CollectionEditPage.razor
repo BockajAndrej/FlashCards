@@ -1,5 +1,8 @@
 ﻿@page "/CollectionEditPage/edit/{Id:guid}"
 @page "/CollectionEditPage/create"
+
+@using AutoMapper
+@using FlashCards.Common.QueryObjects
 @using FlashCards.WebBlazor.Bl.ApiClient
 @using FlashCards.WebBlazor.Bl.Facades
 
@@ -30,14 +33,13 @@
     </MudButton>
 
     <MudSpacer/>
-    <MudIconButton Style="margin: 5px auto;" Size="Size.Medium" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@OnDeleteCollectionBtnClicked"/>
+    <MudIconButton Style="margin: 5px auto;" Size="Size.Medium" Variant="Variant.Outlined"
+                   Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@OnDeleteCollectionBtnClicked"/>
 </MudStack>
 
-
-
-<MudForm Model="@Model" @ref="form" ValidationDelay="0">
+<MudForm Model="@CollectionDetailModel" @ref="form" ValidationDelay="0">
     <MudStack Style="margin: 50px auto; width: 90%;" Spacing="4">
-        <MudTextField @bind-Value="Model.Title"
+        <MudTextField @bind-Value="CollectionDetailModel.Title"
                       AdornmentColor="Color.Info"
                       Placeholder="Collection Name"
                       Required="true"
@@ -45,54 +47,74 @@
                       Typo="Typo.h4"
                       Variant="Variant.Text"/>
 
-        <MudTextField @bind-Value="Model.Description"
+        <MudTextField @bind-Value="CollectionDetailModel.Description"
                       AdornmentColor="Color.Info"
                       Placeholder="Description"
                       Clearable="true"
                       Variant="Variant.Text"/>
+    </MudStack>
 
+    <MudStack Style="margin: auto 20px;" Row >
+        <MudIcon Style="color: var(--card-text-Secondary); margin-top: 10px;"
+                     Icon="@Icons.Material.Filled.Label"></MudIcon>
+            @if (CollectionDetailModel.Tags != null)
+            {
+                <MudStack Style="margin-left: 10px;" Row Spacing="3">
+
+                    @foreach (var tags in CollectionDetailModel?.Tags!)
+                    {
+                        <MudButton Style="color: var(--card-text-Primary); margin: 10px auto" Size="Size.Small"
+                                   Variant="Variant.Outlined"
+                                   EndIcon="@Icons.Material.Filled.Close" OnClick="@(() => OnRemoveTagBtnClicked(tags))">@tags.Name</MudButton>
+                    }
+                </MudStack>
+            }
+            <MudSpacer/>
+            <MudIconButton Style="color: var(--card-text-Primary);" Icon="@Icons.Material.Filled.Add"
+                           OnClick="OnOpenTagBtnClicked"></MudIconButton>
+            <MudPopover Style="padding: 10px;" Open="@OpenTagPopover" AnchorOrigin="Origin.BottomCenter"
+                        TransformOrigin="Origin.TopCenter">
+                <MudStack Spacing="2">
+                    <MudStack Row StretchItems="StretchItems.Start">
+                        <MudTextField @bind-Value="SelectedTagName"
+                                      AdornmentColor="Color.Info"
+                                      Placeholder="New Tag"
+                                      Variant="Variant.Text"/>
+                        <MudIconButton Style="color: var(--card-text-Primary);" Icon="@Icons.Material.Filled.Add"
+                                       OnClick="OnAddTagBtnClicked"></MudIconButton>
+                    </MudStack>
+                    <MudSelect T="TagListModel"
+                               Style="width: 100%;"
+                               Variant="Variant.Outlined"
+                               ValueChanged="OnTagSelectorClicked"
+                               Placeholder="Select tag">
+                        @foreach (var tagListModel in _accessibleTagListModels)
+                        {
+                            <MudSelectItem Value="tagListModel">@tagListModel.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
+            </MudPopover>
     </MudStack>
 
     <MudText Style="margin-left: 3%; margin-top: 20px;" Typo="Typo.h5">Cards</MudText>
     <MudDivider Style="margin: 5px auto; width: 95%;"/>
 
-    @if (IsFilterVisible)
-    {
-        <div style="width: 90%; margin: 15px auto;">
-            <input class="filtercomponent-specific-searchbar" type="text" placeholder="Search..."
-                   @bind-value="SearchTerm"
-                   @bind-value:event="oninput"
-                   @bind-value:after="SearchTermChanged"/>
-        </div>
-    }
-
-
-    <MudStack Row Style="margin: 0 auto; width: 95%" Justify="Justify.SpaceAround" Wrap="Wrap.Wrap">
+    <MudStack Row Style="margin: 0 auto; width: 45%" Justify="Justify.SpaceAround" Wrap="Wrap.Wrap">
         @{ int i = 0; }
         @foreach (var item in CardModels)
         {
-            <MudPaper Style="padding: 15px; width: 48%; border-radius: 10px;">
-
-                <MudStack Row StretchItems="StretchItems.Start">
-                    <MudStack>
-                        <MudStack Row StretchItems="StretchItems.All">
-                            <MudTextField T="string" Label="Question" Variant="Variant.Text" Required="true"
+            <MudPaper Style="padding: 20px; width: 100%; border-radius: 10px;">
+                <MudStack Row StretchItems="StretchItems.Start" Spacing="10">
+                    <MudStack Spacing="1">
+                        <MudStack Row StretchItems="StretchItems.Start" Spacing="5">
+                            <MudTextField Style="width: 100%;" T="string" Placeholder="Question"
+                                          Variant="Variant.Text"
+                                          Required="true"
                                           @bind-Value="@item.Question"/>
 
-                            <MudSelect T="EnumCardType" @bind-Value="@item.QuestionTypeEnum" Label="Type"
-                                       Variant="Variant.Text">
-                                @foreach (var subItem in _cardOptions)
-                                {
-                                    <MudSelectItem Value="@subItem.Key">
-                                        <MudIcon Icon="@subItem.Value"/>
-                                    </MudSelectItem>
-                                }
-                            </MudSelect>
-
-                            <MudTextField T="string" Label="Answer" Variant="Variant.Text" Required="true"
-                                          @bind-Value="@item.CorrectAnswer"/>
-
-                            <MudSelect T="EnumCardType" @bind-Value="@item.AnswerTypeEnum" Label="Type"
+                            <MudSelect T="EnumCardType" @bind-Value="@item.QuestionTypeEnum"
+                                       FitContent="true"
                                        Variant="Variant.Text">
                                 @foreach (var subItem in _cardOptions)
                                 {
@@ -103,7 +125,22 @@
                             </MudSelect>
                         </MudStack>
 
-                        <MudTextField T="string" Label="Description" Variant="Variant.Text"
+                        <MudStack Row StretchItems="StretchItems.Start" Spacing="5">
+                            <MudTextField T="string" Placeholder="Answer" Variant="Variant.Text" Required="true"
+                                          @bind-Value="@item.CorrectAnswer"/>
+
+                            <MudSelect T="EnumCardType" @bind-Value="@item.AnswerTypeEnum" FitContent="true"
+                                       Variant="Variant.Text">
+                                @foreach (var subItem in _cardOptions)
+                                {
+                                    <MudSelectItem Value="@subItem.Key">
+                                        <MudIcon Icon="@subItem.Value"/>
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudStack>
+
+                        <MudTextField T="string" Label="Notes" Variant="Variant.Text"
                                       @bind-Value="@item.Description"/>
                     </MudStack>
                     <MudIconButton Variant="Variant.Filled" Size="Size.Small" Icon="@Icons.Material.Filled.Delete"
@@ -112,7 +149,7 @@
             </MudPaper>
         }
     </MudStack>
-    
+
     <MudStack Style="width: 95%; margin: 10px auto;" Row StretchItems="StretchItems.Start">
         <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="@AddNewCard" Size="Size.Large">Add card</MudButton>
     </MudStack>
@@ -122,9 +159,11 @@
 @code {
     [Inject] private CollectionWebFacade CollectionWebFacade { get; set; } = null!;
     [Inject] private CardWebFacade CardWebFacade { get; set; } = null!;
+    [Inject] private TagWebFacade TagWebFacade { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
     [Inject] ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private IMapper Mapper { get; set; } = null!;
 
     [Parameter] public Guid Id { get; set; } = Guid.Empty;
 
@@ -137,67 +176,24 @@
         { EnumCardType._1, Icons.Material.Filled.Image }
     };
 
-    private CollectionDetailModel Model { get; set; } = new();
+    private CollectionDetailModel CollectionDetailModel { get; set; } = new();
     private MudForm form = new();
-
-    private DateTime? StartTimeDate { get; set; }
-    private TimeSpan? StartTimeTime { get; set; }
-    private DateTime? EndTimeDate { get; set; }
-    private TimeSpan? EndTimeTime { get; set; }
-
-    private TimeSpan DefaultOffset { get; set; } = TimeZoneInfo.Local.GetUtcOffset(DateTimeOffset.Now);
 
     private bool IsSavingProcess { get; set; } = false;
     private bool IsFilterVisible { get; set; } = false;
 
     private string SearchTerm { get; set; } = string.Empty;
-
+    
+    private ICollection<TagListModel> _tagListModels = new List<TagListModel>();
+    private ICollection<TagListModel> _accessibleTagListModels = new List<TagListModel>();
+    
+    private bool OpenTagPopover { get; set; } = false;
+    private string SelectedTagName { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id != Guid.Empty)
-        {
-            Model = await CollectionWebFacade.GetByIdAsync(Id);
-            CardModels.Clear();
-
-            foreach (var card in Model.Cards)
-            {
-                CardModels.Add(new CardDetailModel()
-                {
-                    Id = card.Id,
-                    Question = card.Question,
-                    QuestionTypeEnum = card.QuestionTypeEnum,
-                    CorrectAnswer = card.CorrectAnswer,
-                    AnswerTypeEnum = card.AnswerTypeEnum,
-                    Description = card.Description,
-                });
-            }
-        }
-        else
-        {
-            Model = new CollectionDetailModel
-            {
-                Title = "",
-                Description = "",
-                StartTimeForAcceptedAnswers = DateTimeOffset.Now,
-                EndTimeForAcceptedAnswers = DateTimeOffset.Now,
-                LastModifiedDateTime = DateTimeOffset.Now
-            };
-        }
-
-        if (Model.StartTimeForAcceptedAnswers.HasValue)
-        {
-            StartTimeDate = Model.StartTimeForAcceptedAnswers.Value.DateTime;
-            StartTimeTime = Model.StartTimeForAcceptedAnswers.Value.TimeOfDay;
-            DefaultOffset = Model.StartTimeForAcceptedAnswers.Value.Offset;
-        }
-
-        if (Model.EndTimeForAcceptedAnswers.HasValue)
-        {
-            EndTimeDate = Model.EndTimeForAcceptedAnswers.Value.DateTime;
-            EndTimeTime = Model.EndTimeForAcceptedAnswers.Value.TimeOfDay;
-        }
-
+        await LoadData();
+        
         if (CardModels.Any())
             IsFilterVisible = true;
     }
@@ -209,14 +205,15 @@
 
         if (form.IsValid)
         {
-            var collectionId = await CollectionWebFacade.SaveToApiAsync(Model);
-
-            if (collectionId == Guid.Empty)
-                collectionId = Id;
+            var collectionId = await CollectionWebFacade.SaveToApiAsync(CollectionDetailModel);
+            CollectionDetailModel.Id = collectionId;
+            
+            if (CollectionDetailModel.Id == Guid.Empty)
+                CollectionDetailModel.Id = Id;
 
             foreach (var cardDetailModel in CardModels)
             {
-                cardDetailModel.CardCollectionId = collectionId;
+                cardDetailModel.CardCollectionId = CollectionDetailModel.Id;
                 await CardWebFacade.SaveToApiAsync(cardDetailModel);
             }
 
@@ -233,8 +230,31 @@
                 }
             }
 
-            Snackbar.Add($"Successfully saved '{Model.Title}' collection", Severity.Success);
-            Id = collectionId;
+            if (CollectionDetailModel.Tags != null)
+                foreach (var tagListModel in CollectionDetailModel.Tags)
+                {
+                    TagDetailModel tagDetailModel;
+                    try
+                    {
+                        tagDetailModel = await TagWebFacade.GetByIdAsync(tagListModel.Id);
+                        tagDetailModel.Collections?.Add(Mapper.Map<CollectionListModel>(CollectionDetailModel));
+                    }
+                    catch (TagApiException e)
+                    {
+                        if (e.StatusCode != 204)
+                            throw;
+
+                        tagDetailModel = new TagDetailModel()
+                        {
+                            Name = tagListModel.Name,
+                            Collections = new List<CollectionListModel>() { Mapper.Map<CollectionListModel>(CollectionDetailModel) },
+                        };
+                    }
+                    var newtag = await TagWebFacade.SaveToApiAsync(tagDetailModel);
+                }
+
+            Snackbar.Add($"Successfully saved '{CollectionDetailModel.Title}' collection", Severity.Success);
+            Id = CollectionDetailModel.Id;
         }
 
         IsSavingProcess = false;
@@ -246,6 +266,8 @@
         form.ResetValidation();
         await OnInitializedAsync();
     }
+    
+    private void OnOpenTagBtnClicked() => OpenTagPopover = !OpenTagPopover;
 
     private async Task AddNewCard()
     {
@@ -276,10 +298,6 @@
             IsFilterVisible = false;
     }
 
-    private void SearchTermChanged()
-    {
-    }
-
     private async Task OnDeleteCollectionBtnClicked()
     {
         if (Id == Guid.Empty)
@@ -302,6 +320,99 @@
     private void GoBackBtn()
     {
         Navigation.NavigateTo("javascript:history.go(-1)");
+    }
+    
+    private async Task OnRemoveTagBtnClicked(TagListModel tagListModel)
+    {
+        CollectionDetailModel.Tags?.Remove(tagListModel);
+
+        UpdateAccessibleTags();
+        
+        OpenTagPopover = false;
+        StateHasChanged();
+    }
+
+
+    private void OnTagSelectorClicked(TagListModel selectedTagListModel)
+    {
+        CollectionDetailModel.Tags?.Add(selectedTagListModel);
+
+        UpdateAccessibleTags();
+        
+        OpenTagPopover = false;
+        StateHasChanged();
+    }
+    
+    private void OnAddTagBtnClicked()
+    {
+        TagListModel tagListModel = new ();
+
+        if (string.IsNullOrEmpty(SelectedTagName))
+            return;
+
+        tagListModel.Name = SelectedTagName;
+
+        CollectionDetailModel.Tags?.Add(tagListModel);
+        
+        OpenTagPopover = false;
+        SelectedTagName = "";
+        StateHasChanged();
+    }
+
+    private void UpdateAccessibleTags()
+    {
+        if (CollectionDetailModel?.Tags != null)
+        {
+            _accessibleTagListModels = _tagListModels
+                .Where(tag => CollectionDetailModel.Tags.All(assignedTag => assignedTag.Id != tag.Id))
+                .ToList();
+        }
+        else
+        {
+            _accessibleTagListModels = _tagListModels;
+        }
+    }
+    
+    private async Task LoadData()
+    {
+        if (Id != Guid.Empty)
+        {
+            CollectionDetailModel = await CollectionWebFacade.GetByIdAsync(Id);
+
+            if (CollectionDetailModel.Tags == null)
+                CollectionDetailModel.Tags = new List<TagListModel>();
+            
+            CardModels.Clear();
+            if (CollectionDetailModel.Cards != null)
+                foreach (var card in CollectionDetailModel.Cards)
+                {
+                    CardModels.Add(new CardDetailModel()
+                    {
+                        Id = card.Id,
+                        Question = card.Question,
+                        QuestionTypeEnum = card.QuestionTypeEnum,
+                        CorrectAnswer = card.CorrectAnswer,
+                        AnswerTypeEnum = card.AnswerTypeEnum,
+                        Description = card.Description,
+                    });
+                }
+        }
+        else
+        {
+            CollectionDetailModel = new CollectionDetailModel
+            {
+                Title = "",
+                Description = "",
+                StartTimeForAcceptedAnswers = DateTimeOffset.Now,
+                EndTimeForAcceptedAnswers = DateTimeOffset.Now,
+                LastModifiedDateTime = DateTimeOffset.Now,
+                Tags = new List<TagListModel>()
+            };
+        }
+        TagQueryObject tagQuery = new TagQueryObject();
+        _tagListModels = await TagWebFacade.GetAllAsync(tagQuery);
+        
+        UpdateAccessibleTags();
     }
 
 }

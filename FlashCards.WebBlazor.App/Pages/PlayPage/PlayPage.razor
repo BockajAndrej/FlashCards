@@ -40,10 +40,20 @@
                           Style="border-radius: 10px; background-color: var(--card-background-Primary);"
                           Elevation="6">
 
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                        <MudText Style="color: var(--card-text-Primary)"
-                                 Typo="Typo.h4">@CurrentCardListModel?.Question</MudText>
-                    </div>
+                    @if (CurrentCardListModel?.QuestionTypeEnum == EnumCardType._0)
+                    {
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <MudText Style="color: var(--card-text-Primary)"
+                                     Typo="Typo.h4">@CurrentCardListModel?.Question</MudText>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <MudImage Style="width: 50%; height: 80%;" Src="@CurrentCardListModel?.Question"
+                                      Class="rounded-lg ma-4"/>
+                        </div>
+                    }
 
                 </MudPaper>
 
@@ -54,11 +64,31 @@
 
                     <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
                         <MudStack>
-                            <MudText Style="color: var(--card-text-Primary)"
-                                     Typo="Typo.h4">@CurrentCardListModel?.Question</MudText>
+                            @if (CurrentCardListModel?.QuestionTypeEnum == EnumCardType._0)
+                            {
+                                <MudText Style="color: var(--card-text-Secondary)"
+                                         Typo="Typo.h5">@CurrentCardListModel?.Question</MudText>
+                            }
+                            else
+                            {
+                                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                    <MudImage Style="width: 15%; height: 30%;" Src="@CurrentCardListModel?.Question"
+                                              Class="rounded-lg ma-4"/>
+                                </div>
+                            }
                             <MudDivider/>
-                            <MudText Style="color: var(--card-text-Secondary)"
-                                     Typo="Typo.h5">@CurrentCardListModel?.CorrectAnswer</MudText>
+                            @if (CurrentCardListModel?.AnswerTypeEnum == EnumCardType._0)
+                            {
+                                <MudText Style="color: var(--card-text-Primary)"
+                                         Typo="Typo.h4">@CurrentCardListModel?.CorrectAnswer</MudText>
+                            }
+                            else
+                            {
+                                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                    <MudImage Style="width: 30%; height: 60%;" Src="@CurrentCardListModel?.CorrectAnswer"
+                                              Class="rounded-lg ma-4"/>
+                                </div>
+                            }
                         </MudStack>
                     </div>
 
